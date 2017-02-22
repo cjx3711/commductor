@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Commductor</string>
+    <string name="start_server">Start</string>
+    <string name="welcome">Welcome to commductor! We hope you enjoy your stay comarade.</string>
+
+    <string name="title_activity_conductor">ConductorActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+</resources>

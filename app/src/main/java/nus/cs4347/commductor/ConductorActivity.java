@@ -1,10 +1,12 @@
 package nus.cs4347.commductor;
 
 import android.annotation.SuppressLint;
+import android.media.MediaPlayer;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -13,6 +15,7 @@ import android.view.View;
  * status bar and navigation/system bar) with user interaction.
  */
 public class ConductorActivity extends AppCompatActivity {
+    private final String TAG = "ConductorActivity";
     /**
      * Whether or not the system UI should be auto-hidden after
      * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
@@ -82,6 +85,8 @@ public class ConductorActivity extends AppCompatActivity {
             return false;
         }
     };
+
+    MediaPlayer kickMP;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -159,5 +164,20 @@ public class ConductorActivity extends AppCompatActivity {
     private void delayedHide(int delayMillis) {
         mHideHandler.removeCallbacks(mHideRunnable);
         mHideHandler.postDelayed(mHideRunnable, delayMillis);
+    }
+
+    public void playSound(View view) {
+        kickMP = MediaPlayer.create(getApplicationContext(), R.raw.kick);
+
+        if(kickMP != null) {
+//            kickMP.stop();
+//            kickMP.release();
+            Log.d(TAG, "Playing sound");
+
+            kickMP.start();
+        } else {
+            Log.d(TAG, "Still NULL");
+        }
+
     }
 }

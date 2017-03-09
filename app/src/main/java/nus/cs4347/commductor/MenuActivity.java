@@ -17,6 +17,7 @@ import android.widget.TextView;
 public class MenuActivity extends AppCompatActivity implements SensorEventListener {
 
     Button startServer;
+    Button startClient;
     TextView message;
     AppCompatActivity activity;
     private SensorManager mSensorManager;
@@ -47,20 +48,23 @@ public class MenuActivity extends AppCompatActivity implements SensorEventListen
         }
 
         startServer = (Button)findViewById(R.id.button_start_server);
+        startClient = (Button)findViewById(R.id.button_start_client);
         message = (TextView)findViewById(R.id.message);
         mp = MediaPlayer.create(activity.getApplicationContext(), R.raw.kick_mp3);
 
         startServer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try {
+                Intent intent = new Intent(getApplicationContext(), ServerLobbyActivity.class);
+                startActivity(intent);
+            }
+        });
 
-                    mp.start();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                //        Intent intent = new Intent(this, ConductorActivity.class);
-//        startActivity(intent);
+        startClient.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), ClientLobbyActivity.class);
+                startActivity(intent);
             }
         });
     }

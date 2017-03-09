@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.logging.LogRecord;
 
 import nus.cs4347.commductor.bluetooth.BTServerConnector;
+import nus.cs4347.commductor.bluetooth.BTServerManager;
+import nus.cs4347.commductor.bluetooth.BluetoothService;
 
 
 public class ServerLobbyActivity extends AppCompatActivity {
@@ -33,7 +35,7 @@ public class ServerLobbyActivity extends AppCompatActivity {
     ListView connectedListview;
     ArrayAdapter<String> connectedAdapter;
 
-    final ArrayList<BluetoothSocket> connectedSockets  = new ArrayList<>();
+    final BTServerManager btServerManager = BTServerManager.getInstance();
 
     PlayerConnectCallback playerConnectCallback;
 
@@ -73,7 +75,7 @@ public class ServerLobbyActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        connectedSockets.add(s);
+                        btServerManager.addSocket(s);
                         refreshListView();
                     }
                 });
@@ -83,7 +85,7 @@ public class ServerLobbyActivity extends AppCompatActivity {
         if ( scanMode == BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE ) {
             Log.d(TAG, "Bluetooth Already Discoverable");
 
-            btServerConnector = new BTServerConnector(connectedSockets, playerConnectCallback);
+            btServerConnector = new BTServerConnector(playerConnectCallback);
             btServerConnector.start();
         } else {
             Intent discoverableIntent =
@@ -94,6 +96,7 @@ public class ServerLobbyActivity extends AppCompatActivity {
     }
 
     protected void refreshListView() {
+        ArrayList<BluetoothSocket> connectedSockets = btServerManager.getBluetoothSockets();
         Log.d(TAG, "Refreshing list view with " + connectedSockets.size() + " players");
         String [] connected = new String[connectedSockets.size()];
         for ( int i = 0 ; i < connectedSockets.size(); i++ ) {
@@ -112,15 +115,7 @@ public class ServerLobbyActivity extends AppCompatActivity {
             btServerConnector.stopListening();
             btServerConnector.cancel();
             btServerConnector = null;
-
-            for ( BluetoothSocket socket : connectedSockets ) {
-                try {
-                    socket.close();
-                } catch (Exception e ) {
-                    
-                }
-
-            }
+            btServerManager.reset();
         }
     }
 

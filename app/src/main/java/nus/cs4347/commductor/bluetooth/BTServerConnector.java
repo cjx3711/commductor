@@ -20,13 +20,11 @@ public class BTServerConnector extends Thread {
     private static final String TAG = "BTServerConnector";
 
     private final BluetoothServerSocket serverSocket;
-    private ArrayList<BluetoothSocket> connectedSockets;
     private ServerLobbyActivity.PlayerConnectCallback playerConnectCallback;
     private boolean toStop = false;
-    public BTServerConnector (ArrayList<BluetoothSocket> connectedSockets, ServerLobbyActivity.PlayerConnectCallback playerConnectCallback) {
+    public BTServerConnector (ServerLobbyActivity.PlayerConnectCallback playerConnectCallback) {
         Log.d(TAG, "Starting server connector");
         this.playerConnectCallback = playerConnectCallback;
-        this.connectedSockets = connectedSockets;
 
         // Use a temp socket because socket is final
         BluetoothServerSocket tempSocket = null;

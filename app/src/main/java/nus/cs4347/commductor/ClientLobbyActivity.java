@@ -76,7 +76,7 @@ public class ClientLobbyActivity extends AppCompatActivity {
 
     protected void connectTo(BluetoothDevice bluetoothDevice) {
         BTClientConnector btClientConnector = new BTClientConnector(bluetoothDevice);
-        btClientConnector.run();
+        btClientConnector.start();
     }
 
 

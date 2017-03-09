@@ -1,5 +1,6 @@
 package nus.cs4347.commductor;
 
+import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -37,9 +38,37 @@ public class ServerLobbyActivity extends AppCompatActivity {
 
         String bluetoothDeviceInfo = AppData.getInstance().getBluetoothAdapter().getName() + " - " + AppData.getInstance().getBluetoothAdapter().getAddress();
         deviceInfoTextview.setText(bluetoothDeviceInfo);
-        Log.d(TAG, "Scan Mode: " + AppData.getInstance().getBluetoothAdapter().getScanMode());
 
-        btServerConnector = new BTServerConnector();
-        btServerConnector.run();
+        int scanMode = AppData.getInstance().getBluetoothAdapter().getScanMode();
+        Log.d(TAG, "Scan Mode: " + scanMode);
+
+        if ( scanMode == BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE ) {
+            Log.d(TAG, "Bluetooth Already Discoverable");
+
+            btServerConnector = new BTServerConnector();
+            btServerConnector.start();
+        } else {
+            Intent discoverableIntent =
+                    new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+            discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
+            startActivity(discoverableIntent);
+        }
+
+
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if ( resultCode == 300 ) {
+            Log.d(TAG, "Bluetooth Discoverable");
+            btServerConnector = new BTServerConnector();
+            btServerConnector.start();
+        } else {
+            Log.d(TAG, "Fail");
+
+        }
     }
 }

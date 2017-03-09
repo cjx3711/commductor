@@ -1,5 +1,6 @@
 package nus.cs4347.commductor.bluetooth;
 
+import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.util.Log;
@@ -18,10 +19,13 @@ public class BTServerConnector extends Thread {
     private final BluetoothServerSocket serverSocket;
 
     public BTServerConnector () {
+        Log.d(TAG, "Starting server connector");
         // Use a temp socket because socket is final
         BluetoothServerSocket tempSocket = null;
+//        AppData.getInstance().getBluetoothAdapter().getAddress()
+//        BluetoothDevice.
         try {
-            tempSocket = AppData.getInstance().getBluetoothAdapter().listenUsingRfcommWithServiceRecord("Commductor", AppData.getInstance().getUuid());
+            tempSocket = AppData.getInstance().getBluetoothAdapter().listenUsingInsecureRfcommWithServiceRecord("Commductor", AppData.getInstance().getUuid());
 
         } catch ( IOException e ) {
             e.printStackTrace();
@@ -37,10 +41,9 @@ public class BTServerConnector extends Thread {
         while (true) {
             Log.d(TAG, "Listening...");
             try {
-                socket = serverSocket.accept(1000);
+                socket = serverSocket.accept(100000);
             } catch (IOException e) {
                 Log.e(TAG, "Socket's accept() method failed", e);
-                break;
             }
 
             try {
@@ -48,8 +51,11 @@ public class BTServerConnector extends Thread {
                     // A connection was accepted. Perform work associated with
                     // the connection in a separate thread.
                     Log.d(TAG, "Socket accepted");
-                    serverSocket.close(); // No more acceptance
-                    break;
+                    if ( socket == null ) {
+                        serverSocket.close(); // No more acceptance
+                        break;
+                    }
+
                 }
             } catch (IOException e) {
                 Log.e(TAG, "Could not close the connect socket", e);

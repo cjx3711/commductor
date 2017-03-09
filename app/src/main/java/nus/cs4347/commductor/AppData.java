@@ -24,6 +24,7 @@ public class AppData {
     private String uuidString;
     private UUID uuid;
 
+
     public void init(Context appContext) {
         this.appContext = appContext;
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();

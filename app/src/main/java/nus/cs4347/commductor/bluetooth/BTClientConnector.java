@@ -6,6 +6,7 @@ import android.os.ParcelUuid;
 import android.util.Log;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 
 import nus.cs4347.commductor.AppData;
 
@@ -26,9 +27,13 @@ public class BTClientConnector extends Thread {
 
         try {
             tempSocket = device.createRfcommSocketToServiceRecord(AppData.getInstance().getUuid());
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             e.printStackTrace();
             Log.e(TAG, "Socket's create() method failed", e);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
         }
 
         socket = tempSocket;

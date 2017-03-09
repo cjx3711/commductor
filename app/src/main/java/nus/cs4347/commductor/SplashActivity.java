@@ -35,14 +35,14 @@ public class SplashActivity extends AppCompatActivity {
                 proceed();
             } else if (resultCode == RESULT_CANCELED) {
                 new AlertDialog.Builder(new ContextThemeWrapper(this, R.style.AlertDialogTheme))
-                        .setTitle("Bluetooth Required")
-                        .setMessage("Bluetooth could not be enabled. It is required for this application to run.")
-                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                finish();
-                            }
-                        })
-                        .show();
+                    .setTitle("Bluetooth Required")
+                    .setMessage("Bluetooth could not be enabled. It is required for this application to run.")
+                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            finish();
+                        }
+                    })
+                    .show();
             }
         }
 

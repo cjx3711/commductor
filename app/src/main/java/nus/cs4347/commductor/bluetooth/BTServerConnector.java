@@ -3,11 +3,14 @@ package nus.cs4347.commductor.bluetooth;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
+import android.util.ArrayMap;
 import android.util.Log;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import nus.cs4347.commductor.AppData;
+import nus.cs4347.commductor.ServerLobbyActivity;
 
 /**
  * Bluetooth Server that listens for incoming connections
@@ -17,13 +20,17 @@ public class BTServerConnector extends Thread {
     private static final String TAG = "BTServerConnector";
 
     private final BluetoothServerSocket serverSocket;
+    private ArrayList<BluetoothSocket> connectedSockets;
+    private ServerLobbyActivity.PlayerConnectCallback playerConnectCallback;
 
-    public BTServerConnector () {
+    public BTServerConnector (ArrayList<BluetoothSocket> connectedSockets, ServerLobbyActivity.PlayerConnectCallback playerConnectCallback) {
         Log.d(TAG, "Starting server connector");
+        this.playerConnectCallback = playerConnectCallback;
+        this.connectedSockets = connectedSockets;
+
         // Use a temp socket because socket is final
         BluetoothServerSocket tempSocket = null;
-//        AppData.getInstance().getBluetoothAdapter().getAddress()
-//        BluetoothDevice.
+
         try {
             tempSocket = AppData.getInstance().getBluetoothAdapter().listenUsingInsecureRfcommWithServiceRecord("Commductor", AppData.getInstance().getUuid());
 
@@ -51,6 +58,8 @@ public class BTServerConnector extends Thread {
                     // A connection was accepted. Perform work associated with
                     // the connection in a separate thread.
                     Log.d(TAG, "Socket accepted");
+                    connectedSockets.add(socket);
+
                     if ( socket == null ) {
                         serverSocket.close(); // No more acceptance
                         break;

@@ -12,6 +12,17 @@
         android:layout_height="wrap_content"
         android:text="Waiting for players..." />
 
+    <ListView
+        android:id="@+id/listview_connected"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <Button
+        android:id="@+id/button_refresh"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="refresh" />
     <Button
         android:id="@+id/button_start_game"
         android:layout_width="match_parent"

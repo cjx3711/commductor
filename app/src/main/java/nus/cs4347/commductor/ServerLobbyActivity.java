@@ -33,11 +33,9 @@ public class ServerLobbyActivity extends AppCompatActivity {
     ListView connectedListview;
     ArrayAdapter<String> connectedAdapter;
 
-    ArrayList<BluetoothSocket> connectedSockets;
-
+    final ArrayList<BluetoothSocket> connectedSockets  = new ArrayList<>();
 
     PlayerConnectCallback playerConnectCallback;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,17 +63,20 @@ public class ServerLobbyActivity extends AppCompatActivity {
         String bluetoothDeviceInfo = AppData.getInstance().getBluetoothAdapter().getName() + " - " + AppData.getInstance().getBluetoothAdapter().getAddress();
         deviceInfoTextview.setText(bluetoothDeviceInfo);
 
-        connectedSockets = new ArrayList<>();
-
         int scanMode = AppData.getInstance().getBluetoothAdapter().getScanMode();
         Log.d(TAG, "Scan Mode: " + scanMode);
 
 
         playerConnectCallback = new PlayerConnectCallback() {
             @Override
-            public void playerConnected(BluetoothSocket s) {
-                connectedSockets.add(s);
-                refreshListView();
+            public void playerConnected(final BluetoothSocket s) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        connectedSockets.add(s);
+                        refreshListView();
+                    }
+                });
             }
         };
 
@@ -104,9 +105,29 @@ public class ServerLobbyActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "Destroy");
+        if ( btServerConnector != null ) {
+            btServerConnector.stopListening();
+            btServerConnector.cancel();
+            btServerConnector = null;
+
+            for ( BluetoothSocket socket : connectedSockets ) {
+                try {
+                    socket.close();
+                } catch (Exception e ) {
+                    
+                }
+
+            }
+        }
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
+        Log.d(TAG, "Result " + requestCode + " " + resultCode);
         if ( resultCode == 300 ) {
             Log.d(TAG, "Bluetooth Discoverable");
 //            btServerConnector = new BTServerConnector();

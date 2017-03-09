@@ -167,7 +167,7 @@ public class ConductorActivity extends AppCompatActivity {
     }
 
     public void playSound(View view) {
-        kickMP = MediaPlayer.create(getApplicationContext(), R.raw.kick);
+        kickMP = MediaPlayer.create(getApplicationContext(), R.raw.kick_mp3);
 
         if(kickMP != null) {
 //            kickMP.stop();

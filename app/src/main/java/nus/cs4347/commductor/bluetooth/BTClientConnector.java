@@ -38,6 +38,8 @@ public class BTClientConnector extends Thread {
         // Cancel discovery because it otherwise slows down the connection.
         AppData.getInstance().getBluetoothAdapter().cancelDiscovery();
 
+        Log.d(TAG, "Connecting to bluetooth device: " + device.getName());
+
         try {
             // Connect to the remote device through the socket. This call blocks
             // until it succeeds or throws an exception.
@@ -49,6 +51,7 @@ public class BTClientConnector extends Thread {
             } catch (IOException closeException) {
                 Log.e(TAG, "Could not close the client socket", closeException);
             }
+            Log.d(TAG, "Could not connect to bluetooth");
             return;
         }
 

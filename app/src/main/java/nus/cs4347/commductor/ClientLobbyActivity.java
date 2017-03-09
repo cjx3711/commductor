@@ -37,14 +37,20 @@ public class ClientLobbyActivity extends AppCompatActivity {
 
         // Get paired devices
         String[] pairedStrings;
-        final BluetoothDevice [] pairedDevices = (BluetoothDevice[])AppData.getInstance().getBluetoothAdapter().getBondedDevices().toArray();
+        BluetoothDevice [] pairedDevicesSomething = new BluetoothDevice[0];
+        pairedDevicesSomething = AppData.getInstance().getBluetoothAdapter().getBondedDevices().toArray(pairedDevicesSomething);
+
+        final BluetoothDevice [] pairedDevices = pairedDevicesSomething;
+
+        int index = 0;
+
         Log.d(TAG, "There are " + pairedDevices.length + " devices paired");
 
         pairedStrings = new String[pairedDevices.length];
         if (pairedDevices.length > 0) {
 
             // There are paired devices. Get the name and address of each paired device.
-            int index = 0;
+            index = 0;
             for (BluetoothDevice device : pairedDevices) {
                 String deviceName = device.getName();
                 String deviceHardwareAddress = device.getAddress(); // MAC address

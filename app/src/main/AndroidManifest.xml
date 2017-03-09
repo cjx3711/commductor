@@ -32,6 +32,7 @@
             android:theme="@style/FullscreenTheme"></activity>
     </application>
 
-    gradle/wrapper/gradle-wrapper.properties
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
 
 </manifest>

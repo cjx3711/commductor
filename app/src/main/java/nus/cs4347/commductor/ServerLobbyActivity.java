@@ -12,12 +12,17 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import nus.cs4347.commductor.bluetooth.BTDataPacket;
+import nus.cs4347.commductor.bluetooth.BTPacketCallback;
+import nus.cs4347.commductor.bluetooth.BTPacketHeader;
 import nus.cs4347.commductor.bluetooth.BTServerConnector;
 import nus.cs4347.commductor.bluetooth.BTServerManager;
 import nus.cs4347.commductor.bluetooth.PlayerConnectCallback;
+import nus.cs4347.commductor.enums.InstrumentType;
 
 
 public class ServerLobbyActivity extends AppCompatActivity {
@@ -32,6 +37,7 @@ public class ServerLobbyActivity extends AppCompatActivity {
     final BTServerManager btServerManager = BTServerManager.getInstance();
 
     PlayerConnectCallback playerConnectCallback;
+    BTPacketCallback instrumentChooseCallback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +57,8 @@ public class ServerLobbyActivity extends AppCompatActivity {
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                BTServerManager.getInstance().initBluetoothServices();
+                BTDataPacket packet = new BTDataPacket(BTPacketHeader.SERVER_START_GAME);
+                BTServerManager.getInstance().sendPacket(packet);
                 Intent intent = new Intent(getApplicationContext(), ConductorActivity.class);
                 startActivity(intent);
             }
@@ -77,6 +84,31 @@ public class ServerLobbyActivity extends AppCompatActivity {
             }
         };
 
+        instrumentChooseCallback = new BTPacketCallback() {
+            @Override
+            public void packetReceived(BluetoothSocket socket, BTDataPacket packet) {
+                String deviceName = socket.getRemoteDevice().getName();
+                if ( packet.getHeader() == BTPacketHeader.CLIENT_INSTRUMENT_TYPE ) {
+                    InstrumentType type = InstrumentType.valueOf(packet.intData);
+                    switch (type) {
+                        case TRIANGLE:
+                            Toast.makeText(AppData.getInstance().getApplicationContext(),
+                                    deviceName + " chose Triangle", Toast.LENGTH_SHORT).show();
+                            break;
+                        case COCONUT:
+                            Toast.makeText(AppData.getInstance().getApplicationContext(),
+                                    deviceName + " chose Coconut", Toast.LENGTH_SHORT).show();
+                            break;
+                        case PIANO:
+                            Toast.makeText(AppData.getInstance().getApplicationContext(),
+                                    deviceName + " chose Piano", Toast.LENGTH_SHORT).show();
+                            break;
+                    }
+                }
+            }
+        };
+
+        BTServerManager.getInstance().setCallback(instrumentChooseCallback);
         if ( scanMode == BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE ) {
             Log.d(TAG, "Bluetooth Already Discoverable");
 

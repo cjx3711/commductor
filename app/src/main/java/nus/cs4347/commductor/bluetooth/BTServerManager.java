@@ -1,11 +1,9 @@
 package nus.cs4347.commductor.bluetooth;
 
 import android.bluetooth.BluetoothSocket;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 
-import nus.cs4347.commductor.AppData;
 
 /**
  * Singleton that manages all the clients connected to the phone.
@@ -21,12 +19,20 @@ public class BTServerManager {
     private ArrayList<BluetoothSocket> bluetoothSockets;
     private ArrayList<BluetoothService> bluetoothServices;
 
+    private BTPacketCallback callback;
+
     private BTServerManager() {
         bluetoothSockets = new ArrayList<>();
+        bluetoothServices = new ArrayList<>();
     }
 
     public void addSocket(BluetoothSocket socket) {
         bluetoothSockets.add(socket);
+        BluetoothService newService = new BluetoothService(socket);
+        bluetoothServices.add(newService);
+        if ( callback != null ) {
+            newService.setCallback(callback);
+        }
     }
 
     /**
@@ -35,14 +41,13 @@ public class BTServerManager {
      * @param callback Callback to set
      */
     public void setCallback(BTPacketCallback callback) {
+        this.callback = callback;
         for (BluetoothService service : bluetoothServices) {
             service.setCallback(callback);
         }
     }
 
     public void reset() {
-
-
         bluetoothSockets.clear();
         if ( bluetoothServices != null ) {
             for (BluetoothService service : bluetoothServices) {
@@ -79,12 +84,12 @@ public class BTServerManager {
      * Creates a bluetooth service for every
      * connected socket to send and receive data
      */
-    public void initBluetoothServices() {
-        bluetoothServices = new ArrayList<>(bluetoothSockets.size());
-        for ( BluetoothSocket socket : bluetoothSockets ) {
-            bluetoothServices.add(new BluetoothService(socket));
-        }
-    }
+//    public void initBluetoothServices() {
+//
+//        for ( BluetoothSocket socket : bluetoothSockets ) {
+//            bluetoothServices.add(new BluetoothService(socket));
+//        }
+//    }
 
     public ArrayList<BluetoothSocket> getBluetoothSockets() {
         return bluetoothSockets;

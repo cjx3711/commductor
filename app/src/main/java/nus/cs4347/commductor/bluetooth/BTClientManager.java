@@ -16,14 +16,18 @@ public class BTClientManager {
     private BluetoothService bluetoothService;
 
     public void setSocket(BluetoothSocket socket) {
+        if ( bluetoothSocket != null ) {
+            reset();
+        }
         bluetoothSocket = socket;
+        bluetoothService = new BluetoothService(bluetoothSocket);
     }
 
-    public void initBluetoothService() {
-        if ( bluetoothSocket != null ) {
-            bluetoothService = new BluetoothService(bluetoothSocket);
-        }
-    }
+//    public void initBluetoothService() {
+//        if ( bluetoothSocket != null ) {
+//            bluetoothService = new BluetoothService(bluetoothSocket);
+//        }
+//    }
 
     /**
      * Set the callback for when a packet arrives.

@@ -14,25 +14,42 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.Set;
 
 import nus.cs4347.commductor.bluetooth.BTClientConnector;
 import nus.cs4347.commductor.bluetooth.BTClientManager;
+import nus.cs4347.commductor.bluetooth.BTDataPacket;
+import nus.cs4347.commductor.bluetooth.BTPacketCallback;
+import nus.cs4347.commductor.bluetooth.BTPacketHeader;
 import nus.cs4347.commductor.bluetooth.PlayerConnectCallback;
+import nus.cs4347.commductor.enums.InstrumentType;
 
 public class ClientLobbyActivity extends AppCompatActivity {
 
     private static final String TAG = "ClientLobbyActivity";
-    Button triangleButton;
 
     private PlayerConnectCallback playerConnectCallback;
 
     // Containers
     LinearLayout connectedInfoLayout;
-    TextView connectedTextView;
     ListView pairedListview;
+
+    // Buttons
     Button disconnectButton;
+    Button triangleButton;
+    Button coconutButton;
+    Button pianoButton;
+    Button devStartButton;
+
+    // Feedback text views
+    TextView connectedTextView;
+    TextView selectedTextView;
+
+    InstrumentType selectedInstrument = null;
+
+    BTPacketCallback startActivityCallback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,10 +57,16 @@ public class ClientLobbyActivity extends AppCompatActivity {
         setContentView(R.layout.activity_client_lobby);
 
         triangleButton = (Button) findViewById(R.id.button_triangle);
+        coconutButton = (Button) findViewById(R.id.button_coconut);
+        pianoButton = (Button) findViewById(R.id.button_piano);
+        devStartButton = (Button) findViewById(R.id.button_dev_start);
+
         pairedListview = (ListView)findViewById(R.id.listview_paired);
         connectedInfoLayout = (LinearLayout)findViewById(R.id.layout_connected_info);
         connectedTextView = (TextView)findViewById(R.id.textview_connected_device);
         disconnectButton = (Button)findViewById(R.id.button_disconnect);
+
+        selectedTextView = (TextView)findViewById(R.id.textview_selected_instrument);
 
         // Get paired devices
         String[] pairedStrings;
@@ -88,15 +111,45 @@ public class ClientLobbyActivity extends AppCompatActivity {
             }
         });
 
-
-        triangleButton.setOnClickListener(new View.OnClickListener() {
+        View.OnClickListener instrumentSelect = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                BTClientManager.getInstance().initBluetoothService();
-                Intent intent = new Intent(getApplicationContext(), InstrumentTriangleActivity.class);
-                startActivity(intent);
+                if ( v == triangleButton ) {
+                    selectedInstrument = InstrumentType.TRIANGLE;
+                    selectedTextView.setText("Selected: Triangle");
+                }
+                if ( v == coconutButton ) {
+                    selectedInstrument = InstrumentType.COCONUT;
+                    selectedTextView.setText("Selected: Coconut");
+                }
+                if ( v == pianoButton ) {
+                    selectedInstrument = InstrumentType.PIANO;
+                    selectedTextView.setText("Selected: Piamo");
+                }
+                BTDataPacket packet = new BTDataPacket(BTPacketHeader.CLIENT_INSTRUMENT_TYPE);
+                packet.intData = selectedInstrument.getInt();
+                BTClientManager.getInstance().sendPacket(packet);
+
+            }
+        };
+        triangleButton.setOnClickListener(instrumentSelect);
+        coconutButton.setOnClickListener(instrumentSelect);
+        pianoButton.setOnClickListener(instrumentSelect);
+
+        devStartButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startInstrumentActivity();
             }
         });
+        startActivityCallback = new BTPacketCallback() {
+            @Override
+            public void packetReceived(BluetoothSocket socket, BTDataPacket packet) {
+                if ( packet.getHeader() == BTPacketHeader.SERVER_START_GAME ) {
+                    startInstrumentActivity();
+                }
+            }
+        };
         playerConnectCallback = new PlayerConnectCallback() {
             @Override
             public void playerConnected(final BluetoothSocket s) {
@@ -105,10 +158,20 @@ public class ClientLobbyActivity extends AppCompatActivity {
                     public void run() {
                         BTClientManager.getInstance().setSocket(s);
                         showConnected(s);
+                        BTClientManager.getInstance().setCallback(startActivityCallback);
                     }
                 });
             }
         };
+    }
+
+    protected void startInstrumentActivity() {
+        if ( selectedInstrument != null ) {
+            Intent intent = new Intent(getApplicationContext(), InstrumentTriangleActivity.class);
+            startActivity(intent);
+        } else {
+            Toast.makeText(AppData.getInstance().getApplicationContext(), "Can't start without selecting an instrument", Toast.LENGTH_SHORT).show();
+        }
     }
 
     protected void showConnected(BluetoothSocket socket) {

@@ -20,15 +20,15 @@ public class BTDataPacket implements Serializable {
     public int intData;
     public float floatData;
 
-    public BTDataPacket(int type) {
-        this.header = type;
+    public BTDataPacket(BTPacketHeader type) {
+        this.header = type.getInt();
         stringData = "";
         intData = 0;
         floatData = 0;
     }
 
-    public int getHeader() {
-        return header;
+    public BTPacketHeader getHeader() {
+        return BTPacketHeader.valueOf(header);
     }
 
 

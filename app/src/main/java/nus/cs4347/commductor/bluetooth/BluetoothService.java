@@ -27,7 +27,7 @@ public class BluetoothService {
     private interface MessageConstants {
         public static final int MESSAGE_READ = 0;
         public static final int MESSAGE_WRITE = 1;
-        public static final int MESSAGE_TOAST = 2;
+        public static final int MESSAGE_FAIL = 2;
     }
 
     public BluetoothService(final BluetoothSocket bluetoothSocket) {
@@ -129,8 +129,10 @@ public class BluetoothService {
 
                 // Share the sent message with the UI activity.
                 if ( mHandler != null ) {
+                    BTDataPacket successPacket = new BTDataPacket(BTPacketHeader.SEND_SUCCESS);
+                    successPacket.intData = bytes.length;
                     Message writtenMsg = mHandler.obtainMessage(
-                            MessageConstants.MESSAGE_WRITE, -1, -1, mmBuffer);
+                            MessageConstants.MESSAGE_WRITE, successPacket);
                     writtenMsg.sendToTarget();
                 }
             } catch (IOException e) {
@@ -138,13 +140,10 @@ public class BluetoothService {
 
                 // Send a failure message back to the activity.
                 if ( mHandler != null ) {
-                    Message writeErrorMsg =
-                            mHandler.obtainMessage(MessageConstants.MESSAGE_TOAST);
-                    Bundle bundle = new Bundle();
-                    bundle.putString("toast",
-                            "Couldn't send data to the other device");
-                    writeErrorMsg.setData(bundle);
-                    mHandler.sendMessage(writeErrorMsg);
+                    BTDataPacket failurePacket = new BTDataPacket(BTPacketHeader.SEND_FAILURE);
+                    Message writeErrorMsg = mHandler.obtainMessage(
+                            MessageConstants.MESSAGE_FAIL, failurePacket);
+                    writeErrorMsg.sendToTarget();
                 }
             }
         }

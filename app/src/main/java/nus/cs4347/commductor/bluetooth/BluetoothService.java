@@ -88,6 +88,7 @@ public class BluetoothService {
                         Message readMsg = mHandler.obtainMessage(
                                 MessageConstants.MESSAGE_READ, numBytes, -1,
                                 mmBuffer);
+
                         readMsg.sendToTarget();
                     }
                     Log.d(TAG, new String(mmBuffer));

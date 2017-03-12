@@ -8,7 +8,8 @@ import java.util.ArrayList;
 import nus.cs4347.commductor.AppData;
 
 /**
- * Singleton that manages all the clients connected to the phone
+ * Singleton that manages all the clients connected to the phone.
+ *
  */
 
 public class BTServerManager {
@@ -28,6 +29,11 @@ public class BTServerManager {
         bluetoothSockets.add(socket);
     }
 
+    /**
+     * Set the callback for when a packet arrives.
+     * Setting it will replace the existing one.
+     * @param callback Callback to set
+     */
     public void setCallback(BTPacketCallback callback) {
         for (BluetoothService service : bluetoothServices) {
             service.setCallback(callback);
@@ -58,6 +64,12 @@ public class BTServerManager {
     public void sendMessage(String message) {
         BTDataPacket packet = new BTDataPacket(BTPacketHeader.STRING_DATA);
         packet.stringData = message;
+        for ( BluetoothService service : bluetoothServices ) {
+            service.write(packet);
+        }
+    }
+
+    public void sendPacket(BTDataPacket packet) {
         for ( BluetoothService service : bluetoothServices ) {
             service.write(packet);
         }

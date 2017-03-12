@@ -1,15 +1,9 @@
 package nus.cs4347.commductor.bluetooth;
 
 import android.bluetooth.BluetoothSocket;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
-import android.widget.Toast;
-
-import nus.cs4347.commductor.AppData;
 
 /**
- * Singleton that manages the single connection for the client
+ * Singleton that manages the single connection for the client.
  */
 
 public class BTClientManager {
@@ -31,8 +25,21 @@ public class BTClientManager {
         }
     }
 
+    /**
+     * Set the callback for when a packet arrives.
+     * Setting it will replace the existing one.
+     * @param callback Callback to set
+     */
     public void setCallback(BTPacketCallback callback) {
-        bluetoothService.setCallback(callback);
+        if ( bluetoothService != null ) {
+            bluetoothService.setCallback(callback);
+        }
+    }
+
+    public void sendPacket(BTDataPacket packet) {
+        if ( bluetoothService != null ) {
+            bluetoothService.write(packet);
+        }
     }
 
     public void reset() {

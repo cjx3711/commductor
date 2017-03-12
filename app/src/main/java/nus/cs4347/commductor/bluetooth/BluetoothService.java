@@ -6,16 +6,17 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import nus.cs4347.commductor.AppData;
 
 /**
- * Basic wrapper for a thread. Sends and receives bytes.
+ * The meat of the Bluetooth networking service.
+ * This class is a wrapper for a thread that sends and receives bytes
+ * to and from a given BluetoothSocket.
+ * It wraps all bytes into BTDataPacket objects for convenience.
  */
 
 public class BluetoothService {

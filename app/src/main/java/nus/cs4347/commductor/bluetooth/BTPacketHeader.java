@@ -1,7 +1,7 @@
 package nus.cs4347.commductor.bluetooth;
 
 /**
- * Created by chaij on 10/03/2017.
+ * The headers for the bluetooth packets
  */
 
 public interface BTPacketHeader {

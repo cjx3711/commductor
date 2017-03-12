@@ -12,7 +12,8 @@ import nus.cs4347.commductor.AppData;
 
 
 /**
- * The class to connect to the bluetooth server
+ * The class to do the initial connection to the bluetooth server.
+ * This is no longer required once the BluetoothSocket is created.
  */
 
 public class BTClientConnector extends Thread {

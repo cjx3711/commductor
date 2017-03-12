@@ -1,19 +1,15 @@
 package nus.cs4347.commductor.bluetooth;
 
-import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
-import android.util.ArrayMap;
 import android.util.Log;
-
 import java.io.IOException;
-import java.util.ArrayList;
-
 import nus.cs4347.commductor.AppData;
-import nus.cs4347.commductor.ServerLobbyActivity;
 
 /**
- * Bluetooth Server that listens for incoming connections
+ * Bluetooth Server that listens for incoming connections.
+ * This is only used at the start to get the BluetoothSockets
+ * for the client devices. It is not required for the actual networking.
  */
 
 public class BTServerConnector extends Thread {

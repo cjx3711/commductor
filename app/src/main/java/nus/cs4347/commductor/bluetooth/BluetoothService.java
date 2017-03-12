@@ -3,12 +3,16 @@ package nus.cs4347.commductor.bluetooth;
 import android.bluetooth.BluetoothSocket;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+
+import nus.cs4347.commductor.AppData;
 
 /**
  * Basic wrapper for a thread. Sends and receives bytes.
@@ -17,6 +21,7 @@ import java.io.OutputStream;
 public class BluetoothService {
     private final static String TAG = "BluetoothService";
     private Handler mHandler; // handler that gets info from Bluetooth service
+    private final BluetoothSocket bluetoothSocket;
     private ConnectedThread thread;
     private interface MessageConstants {
         public static final int MESSAGE_READ = 0;
@@ -24,12 +29,24 @@ public class BluetoothService {
         public static final int MESSAGE_TOAST = 2;
     }
 
-    public BluetoothService( BluetoothSocket bluetoothSocket, Handler handler ) {
+    public BluetoothService(final BluetoothSocket bluetoothSocket) {
+        this.bluetoothSocket = bluetoothSocket;
         thread = new ConnectedThread(bluetoothSocket);
-        mHandler = handler;
         thread.start();
     }
 
+    public void setCallback(final BTPacketCallback callback) {
+        mHandler = new Handler(Looper.getMainLooper()) {
+            @Override
+            public void handleMessage(Message inputMessage) {
+                // Gets the packet
+                BTDataPacket packet = (BTDataPacket)inputMessage.obj;
+                if ( callback != null ) {
+                    callback.packetReceived(bluetoothSocket, packet);
+                }
+            }
+        };
+    }
     public void write(BTDataPacket packet ) {
         if ( thread != null ) {
             thread.write(packet);

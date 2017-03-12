@@ -1,8 +1,11 @@
 package nus.cs4347.commductor.bluetooth;
 
 import android.bluetooth.BluetoothSocket;
+import android.widget.Toast;
 
 import java.util.ArrayList;
+
+import nus.cs4347.commductor.AppData;
 
 /**
  * Singleton that manages all the clients connected to the phone
@@ -25,6 +28,11 @@ public class BTServerManager {
         bluetoothSockets.add(socket);
     }
 
+    public void setCallback(BTPacketCallback callback) {
+        for (BluetoothService service : bluetoothServices) {
+            service.setCallback(callback);
+        }
+    }
 
     public void reset() {
 
@@ -62,7 +70,7 @@ public class BTServerManager {
     public void initBluetoothServices() {
         bluetoothServices = new ArrayList<>(bluetoothSockets.size());
         for ( BluetoothSocket socket : bluetoothSockets ) {
-            bluetoothServices.add(new BluetoothService(socket, null));
+            bluetoothServices.add(new BluetoothService(socket));
         }
     }
 

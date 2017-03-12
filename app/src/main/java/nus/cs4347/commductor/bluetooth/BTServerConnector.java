@@ -20,9 +20,9 @@ public class BTServerConnector extends Thread {
     private static final String TAG = "BTServerConnector";
 
     private final BluetoothServerSocket serverSocket;
-    private ServerLobbyActivity.PlayerConnectCallback playerConnectCallback;
+    private PlayerConnectCallback playerConnectCallback;
     private boolean toStop = false;
-    public BTServerConnector (ServerLobbyActivity.PlayerConnectCallback playerConnectCallback) {
+    public BTServerConnector (PlayerConnectCallback playerConnectCallback) {
         Log.d(TAG, "Starting server connector");
         this.playerConnectCallback = playerConnectCallback;
 

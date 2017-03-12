@@ -1,6 +1,7 @@
 package nus.cs4347.commductor;
 
 import android.annotation.SuppressLint;
+import android.bluetooth.BluetoothManager;
 import android.media.MediaPlayer;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -9,6 +10,9 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
+
+import nus.cs4347.commductor.bluetooth.BTServerManager;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -79,14 +83,17 @@ public class ConductorActivity extends AppCompatActivity {
     private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
         @Override
         public boolean onTouch(View view, MotionEvent motionEvent) {
-            if (AUTO_HIDE) {
-                delayedHide(AUTO_HIDE_DELAY_MILLIS);
-            }
+//            if (AUTO_HIDE) {
+//                delayedHide(AUTO_HIDE_DELAY_MILLIS);
+//            }
+            BTServerManager.getInstance().sendMessage("Test message");
             return false;
         }
     };
 
     MediaPlayer kickMP;
+
+    Button dummyButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,6 +104,7 @@ public class ConductorActivity extends AppCompatActivity {
         mVisible = true;
         mControlsView = findViewById(R.id.fullscreen_content_controls);
         mContentView = findViewById(R.id.fullscreen_content);
+        dummyButton = (Button)findViewById(R.id.dummy_button);
 
 
         // Set up the user interaction to manually show or hide the system UI.
@@ -110,7 +118,7 @@ public class ConductorActivity extends AppCompatActivity {
         // Upon interacting with UI controls, delay any scheduled hide()
         // operations to prevent the jarring behavior of controls going away
         // while interacting with the UI.
-        findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
+        dummyButton.setOnTouchListener(mDelayHideTouchListener);
     }
 
     @Override

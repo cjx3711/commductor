@@ -49,6 +49,7 @@ public class BluetoothService {
         private final OutputStream mmOutStream;
         private boolean running = true;
         private byte[] mmBuffer; // mmBuffer store for the stream
+        private final String TAG = "ConnectedThread";
 
         public ConnectedThread(BluetoothSocket socket) {
             mmSocket = socket;
@@ -81,11 +82,15 @@ public class BluetoothService {
                 try {
                     // Read from the InputStream.
                     numBytes = mmInStream.read(mmBuffer);
+
                     // Send the obtained bytes to the UI activity.
-                    Message readMsg = mHandler.obtainMessage(
-                            MessageConstants.MESSAGE_READ, numBytes, -1,
-                            mmBuffer);
-                    readMsg.sendToTarget();
+                    if ( mHandler != null ) {
+                        Message readMsg = mHandler.obtainMessage(
+                                MessageConstants.MESSAGE_READ, numBytes, -1,
+                                mmBuffer);
+                        readMsg.sendToTarget();
+                    }
+                    Log.d(TAG, new String(mmBuffer));
                 } catch (IOException e) {
                     Log.d(TAG, "Input stream was disconnected", e);
                     break;
@@ -103,20 +108,24 @@ public class BluetoothService {
                 mmOutStream.write(bytes);
 
                 // Share the sent message with the UI activity.
-                Message writtenMsg = mHandler.obtainMessage(
-                        MessageConstants.MESSAGE_WRITE, -1, -1, mmBuffer);
-                writtenMsg.sendToTarget();
+                if ( mHandler != null ) {
+                    Message writtenMsg = mHandler.obtainMessage(
+                            MessageConstants.MESSAGE_WRITE, -1, -1, mmBuffer);
+                    writtenMsg.sendToTarget();
+                }
             } catch (IOException e) {
                 Log.e(TAG, "Error occurred when sending data", e);
 
                 // Send a failure message back to the activity.
-                Message writeErrorMsg =
-                        mHandler.obtainMessage(MessageConstants.MESSAGE_TOAST);
-                Bundle bundle = new Bundle();
-                bundle.putString("toast",
-                        "Couldn't send data to the other device");
-                writeErrorMsg.setData(bundle);
-                mHandler.sendMessage(writeErrorMsg);
+                if ( mHandler != null ) {
+                    Message writeErrorMsg =
+                            mHandler.obtainMessage(MessageConstants.MESSAGE_TOAST);
+                    Bundle bundle = new Bundle();
+                    bundle.putString("toast",
+                            "Couldn't send data to the other device");
+                    writeErrorMsg.setData(bundle);
+                    mHandler.sendMessage(writeErrorMsg);
+                }
             }
         }
 

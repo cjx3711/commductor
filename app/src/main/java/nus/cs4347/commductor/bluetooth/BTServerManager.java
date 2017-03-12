@@ -1,6 +1,5 @@
 package nus.cs4347.commductor.bluetooth;
 
-import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 
 import java.util.ArrayList;
@@ -16,6 +15,7 @@ public class BTServerManager {
     }
 
     private ArrayList<BluetoothSocket> bluetoothSockets;
+    private ArrayList<BluetoothService> bluetoothServices;
 
     private BTServerManager() {
         bluetoothSockets = new ArrayList<>();
@@ -27,16 +27,42 @@ public class BTServerManager {
 
 
     public void reset() {
-        for ( BluetoothSocket socket : bluetoothSockets ) {
-            try {
-                socket.close();
-            } catch ( Exception e ) {
 
+
+        bluetoothSockets.clear();
+        if ( bluetoothServices != null ) {
+            for (BluetoothService service : bluetoothServices) {
+                service.destroy();
+            }
+            bluetoothServices.clear();
+            bluetoothServices = null;
+        } else {
+            for ( BluetoothSocket socket : bluetoothSockets ) {
+                try {
+                    socket.close();
+                } catch ( Exception e ) {
+
+                }
             }
         }
-        bluetoothSockets.clear();
     }
 
+    public void sendMessage(String message) {
+        for ( BluetoothService service : bluetoothServices ) {
+            service.write(message.getBytes());
+        }
+    }
+
+    /**
+     * Creates a bluetooth service for every
+     * connected socket to send and receive data
+     */
+    public void initBluetoothServices() {
+        bluetoothServices = new ArrayList<>(bluetoothSockets.size());
+        for ( BluetoothSocket socket : bluetoothSockets ) {
+            bluetoothServices.add(new BluetoothService(socket, null));
+        }
+    }
 
     public ArrayList<BluetoothSocket> getBluetoothSockets() {
         return bluetoothSockets;

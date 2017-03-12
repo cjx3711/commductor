@@ -5,9 +5,6 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -16,14 +13,11 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
-import java.util.logging.LogRecord;
 
 import nus.cs4347.commductor.bluetooth.BTServerConnector;
 import nus.cs4347.commductor.bluetooth.BTServerManager;
-import nus.cs4347.commductor.bluetooth.BluetoothService;
+import nus.cs4347.commductor.bluetooth.PlayerConnectCallback;
 
 
 public class ServerLobbyActivity extends AppCompatActivity {
@@ -57,6 +51,7 @@ public class ServerLobbyActivity extends AppCompatActivity {
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                BTServerManager.getInstance().initBluetoothServices();
                 Intent intent = new Intent(getApplicationContext(), ConductorActivity.class);
                 startActivity(intent);
             }
@@ -133,7 +128,5 @@ public class ServerLobbyActivity extends AppCompatActivity {
         }
     }
 
-    public interface PlayerConnectCallback {
-        void playerConnected(BluetoothSocket s);
-    }
+
 }

@@ -33,9 +33,10 @@ public class BTClientManager {
             public void handleMessage(Message inputMessage) {
                 // Gets the image task from the incoming Message object.
                 int numBytes = inputMessage.arg1;
-                byte [] rawData = (byte[])inputMessage.obj;
-                byte [] stringData = Arrays.copyOfRange(rawData, 0, numBytes);
-                Toast.makeText(AppData.getInstance().getApplicationContext(), new String(stringData), Toast.LENGTH_SHORT).show();
+//                byte [] rawData = (byte[])inputMessage.obj;
+//                byte [] stringData = Arrays.copyOfRange(rawData, 0, numBytes);
+                BTDataPacket packet = (BTDataPacket)inputMessage.obj;
+                Toast.makeText(AppData.getInstance().getApplicationContext(), packet.stringData, Toast.LENGTH_SHORT).show();
             }
         };
         if ( bluetoothSocket != null ) {

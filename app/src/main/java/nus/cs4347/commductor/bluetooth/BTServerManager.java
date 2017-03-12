@@ -48,8 +48,10 @@ public class BTServerManager {
     }
 
     public void sendMessage(String message) {
+        BTDataPacket packet = new BTDataPacket(BTPacketHeader.STRING_DATA);
+        packet.stringData = message;
         for ( BluetoothService service : bluetoothServices ) {
-            service.write(message.getBytes());
+            service.write(packet);
         }
     }
 

@@ -86,7 +86,7 @@ public class ConductorActivity extends AppCompatActivity {
 //            if (AUTO_HIDE) {
 //                delayedHide(AUTO_HIDE_DELAY_MILLIS);
 //            }
-            BTServerManager.getInstance().sendMessage("Test message");
+            BTServerManager.getInstance().sendMessage("Test packet message");
             return false;
         }
     };

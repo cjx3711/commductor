@@ -30,9 +30,9 @@ public class BluetoothService {
         thread.start();
     }
 
-    public void write(byte [] bytes ) {
+    public void write(BTDataPacket packet ) {
         if ( thread != null ) {
-            thread.write(bytes);
+            thread.write(packet);
         }
     }
 
@@ -82,16 +82,16 @@ public class BluetoothService {
                 try {
                     // Read from the InputStream.
                     numBytes = mmInStream.read(mmBuffer);
+                    BTDataPacket packet = BTDataPacket.convertFromBytes(mmBuffer);
 
                     // Send the obtained bytes to the UI activity.
                     if ( mHandler != null ) {
                         Message readMsg = mHandler.obtainMessage(
-                                MessageConstants.MESSAGE_READ, numBytes, -1,
-                                mmBuffer);
+                                MessageConstants.MESSAGE_READ, packet);
 
                         readMsg.sendToTarget();
                     }
-                    Log.d(TAG, new String(mmBuffer));
+                    Log.d(TAG, numBytes + " bytes received");
                 } catch (IOException e) {
                     Log.d(TAG, "Input stream was disconnected", e);
                     break;
@@ -104,7 +104,8 @@ public class BluetoothService {
         }
 
         // Call this from the main activity to send data to the remote device.
-        public void write(byte[] bytes) {
+        public void write(BTDataPacket packet) {
+            byte [] bytes = packet.convertToBytes();
             try {
                 mmOutStream.write(bytes);
 

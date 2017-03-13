@@ -21,7 +21,7 @@ import nus.cs4347.commductor.bluetooth.BTPacketCallback;
 import nus.cs4347.commductor.bluetooth.BTPacketHeader;
 import nus.cs4347.commductor.bluetooth.BTServerConnector;
 import nus.cs4347.commductor.bluetooth.BTServerManager;
-import nus.cs4347.commductor.bluetooth.PlayerConnectCallback;
+import nus.cs4347.commductor.bluetooth.BTConnectCallback;
 import nus.cs4347.commductor.enums.InstrumentType;
 
 
@@ -36,7 +36,7 @@ public class ServerLobbyActivity extends AppCompatActivity {
 
     final BTServerManager btServerManager = BTServerManager.getInstance();
 
-    PlayerConnectCallback playerConnectCallback;
+    BTConnectCallback BTConnectCallback;
     BTPacketCallback instrumentChooseCallback;
 
     @Override
@@ -71,7 +71,7 @@ public class ServerLobbyActivity extends AppCompatActivity {
         Log.d(TAG, "Scan Mode: " + scanMode);
 
 
-        playerConnectCallback = new PlayerConnectCallback() {
+        BTConnectCallback = new BTConnectCallback() {
             @Override
             public void playerConnected(final BluetoothSocket s) {
                 runOnUiThread(new Runnable() {
@@ -112,7 +112,7 @@ public class ServerLobbyActivity extends AppCompatActivity {
         if ( scanMode == BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE ) {
             Log.d(TAG, "Bluetooth Already Discoverable");
 
-            btServerConnector = new BTServerConnector(playerConnectCallback);
+            btServerConnector = new BTServerConnector(BTConnectCallback);
             btServerConnector.start();
         } else {
             Intent discoverableIntent =

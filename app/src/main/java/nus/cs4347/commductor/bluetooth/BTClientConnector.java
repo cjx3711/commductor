@@ -2,11 +2,9 @@ package nus.cs4347.commductor.bluetooth;
 
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.os.ParcelUuid;
 import android.util.Log;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
 
 import nus.cs4347.commductor.AppData;
 
@@ -20,11 +18,11 @@ public class BTClientConnector extends Thread {
     private static final String TAG = "BTClientConnector";
     private BluetoothDevice device;
     private final BluetoothSocket socket;
-    private PlayerConnectCallback playerConnectCallback;
+    private BTConnectCallback BTConnectCallback;
 
-    public BTClientConnector(BluetoothDevice device, PlayerConnectCallback playerConnectCallback) {
+    public BTClientConnector(BluetoothDevice device, BTConnectCallback BTConnectCallback) {
         this.device = device;
-        this.playerConnectCallback = playerConnectCallback;
+        this.BTConnectCallback = BTConnectCallback;
 
         // Use a temp socket because socket is final
         BluetoothSocket tempSocket = null;
@@ -67,7 +65,7 @@ public class BTClientConnector extends Thread {
         // The connection attempt succeeded. Perform work associated with
         // the connection in a separate thread.
         Log.d(TAG, "Connection attempt succeeded");
-        playerConnectCallback.playerConnected(socket);
+        BTConnectCallback.playerConnected(socket);
 
     }
 

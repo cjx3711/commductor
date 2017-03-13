@@ -5,6 +5,6 @@ import android.bluetooth.BluetoothSocket;
 /**
  * The function that gets called when a client is connected to the server
  */
-public interface PlayerConnectCallback {
+public interface BTConnectCallback {
     void playerConnected(BluetoothSocket s);
 }

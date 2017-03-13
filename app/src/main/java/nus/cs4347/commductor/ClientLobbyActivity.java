@@ -12,25 +12,22 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.util.Set;
 
 import nus.cs4347.commductor.bluetooth.BTClientConnector;
 import nus.cs4347.commductor.bluetooth.BTClientManager;
 import nus.cs4347.commductor.bluetooth.BTDataPacket;
 import nus.cs4347.commductor.bluetooth.BTPacketCallback;
 import nus.cs4347.commductor.bluetooth.BTPacketHeader;
-import nus.cs4347.commductor.bluetooth.PlayerConnectCallback;
+import nus.cs4347.commductor.bluetooth.BTConnectCallback;
 import nus.cs4347.commductor.enums.InstrumentType;
 
 public class ClientLobbyActivity extends AppCompatActivity {
 
     private static final String TAG = "ClientLobbyActivity";
 
-    private PlayerConnectCallback playerConnectCallback;
+    private BTConnectCallback BTConnectCallback;
 
     // Containers
     LinearLayout connectedInfoLayout;
@@ -150,7 +147,7 @@ public class ClientLobbyActivity extends AppCompatActivity {
                 }
             }
         };
-        playerConnectCallback = new PlayerConnectCallback() {
+        BTConnectCallback = new BTConnectCallback() {
             @Override
             public void playerConnected(final BluetoothSocket s) {
                 runOnUiThread(new Runnable() {
@@ -185,7 +182,7 @@ public class ClientLobbyActivity extends AppCompatActivity {
     }
 
     protected void connectTo(BluetoothDevice bluetoothDevice) {
-        BTClientConnector btClientConnector = new BTClientConnector(bluetoothDevice, playerConnectCallback);
+        BTClientConnector btClientConnector = new BTClientConnector(bluetoothDevice, BTConnectCallback);
         btClientConnector.start();
     }
 

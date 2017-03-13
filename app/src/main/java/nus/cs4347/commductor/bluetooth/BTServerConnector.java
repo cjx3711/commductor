@@ -16,11 +16,11 @@ public class BTServerConnector extends Thread {
     private static final String TAG = "BTServerConnector";
 
     private final BluetoothServerSocket serverSocket;
-    private PlayerConnectCallback playerConnectCallback;
+    private BTConnectCallback BTConnectCallback;
     private boolean toStop = false;
-    public BTServerConnector (PlayerConnectCallback playerConnectCallback) {
+    public BTServerConnector (BTConnectCallback BTConnectCallback) {
         Log.d(TAG, "Starting server connector");
-        this.playerConnectCallback = playerConnectCallback;
+        this.BTConnectCallback = BTConnectCallback;
 
         // Use a temp socket because socket is final
         BluetoothServerSocket tempSocket = null;
@@ -53,7 +53,7 @@ public class BTServerConnector extends Thread {
                     // the connection in a separate thread.
                     Log.d(TAG, "Socket accepted");
 //                    connectedSockets.add(socket);
-                    playerConnectCallback.playerConnected(socket);
+                    BTConnectCallback.playerConnected(socket);
                 }
                 if ( toStop ) {
                     serverSocket.close(); // No more acceptance

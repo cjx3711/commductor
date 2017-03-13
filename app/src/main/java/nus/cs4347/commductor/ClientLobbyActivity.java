@@ -123,9 +123,7 @@ public class ClientLobbyActivity extends AppCompatActivity {
                     selectedInstrument = InstrumentType.PIANO;
                     selectedTextView.setText("Selected: Piamo");
                 }
-                BTDataPacket packet = new BTDataPacket(BTPacketHeader.CLIENT_INSTRUMENT_TYPE);
-                packet.intData = selectedInstrument.getInt();
-                BTClientManager.getInstance().sendPacket(packet);
+                sendInstrumentPacket();
 
             }
         };
@@ -156,10 +154,19 @@ public class ClientLobbyActivity extends AppCompatActivity {
                         BTClientManager.getInstance().setSocket(s);
                         showConnected(s);
                         BTClientManager.getInstance().setCallback(startActivityCallback);
+                        sendInstrumentPacket();
                     }
                 });
             }
         };
+    }
+
+    protected void sendInstrumentPacket() {
+        if ( selectedInstrument != null ) {
+            BTDataPacket packet = new BTDataPacket(BTPacketHeader.CLIENT_INSTRUMENT_TYPE);
+            packet.intData = selectedInstrument.getInt();
+            BTClientManager.getInstance().sendPacket(packet);
+        }
     }
 
     protected void startInstrumentActivity() {

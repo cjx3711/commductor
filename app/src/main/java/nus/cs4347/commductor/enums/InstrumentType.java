@@ -8,6 +8,8 @@ public enum InstrumentType {
     COCONUT(1),
     PIANO(2);
 
+    private final String [] nameMap = { "Triangle", "Coconut", "Piano" };
+
     private int mValue;
 
     private static Map<Integer, InstrumentType> map = new HashMap<>();
@@ -29,5 +31,9 @@ public enum InstrumentType {
     public int getInt()
     {
         return mValue;
+    }
+
+    public String toString() {
+        return nameMap[getInt()];
     }
 }

@@ -3,6 +3,10 @@ package nus.cs4347.commductor.bluetooth;
 import android.bluetooth.BluetoothSocket;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+
+import nus.cs4347.commductor.enums.InstrumentType;
+import nus.cs4347.commductor.server.ServerInstrumentalist;
 
 
 /**
@@ -18,18 +22,25 @@ public class BTServerManager {
 
     private ArrayList<BluetoothSocket> bluetoothSockets;
     private ArrayList<BluetoothService> bluetoothServices;
+    private HashMap<BluetoothSocket, ServerInstrumentalist> instrumentalistMap;
+    private ArrayList<ServerInstrumentalist> instrumentalistList;
 
     private BTPacketCallback callback;
 
     private BTServerManager() {
         bluetoothSockets = new ArrayList<>();
         bluetoothServices = new ArrayList<>();
+        instrumentalistMap = new HashMap<>();
+        instrumentalistList = new ArrayList<>();
     }
 
     public void addSocket(BluetoothSocket socket) {
         bluetoothSockets.add(socket);
         BluetoothService newService = new BluetoothService(socket);
         bluetoothServices.add(newService);
+        ServerInstrumentalist instrument = new ServerInstrumentalist(socket, newService);
+        instrumentalistList.add(instrument);
+        instrumentalistMap.put(socket, instrument);
         if ( callback != null ) {
             newService.setCallback(callback);
         }
@@ -45,6 +56,16 @@ public class BTServerManager {
         for (BluetoothService service : bluetoothServices) {
             service.setCallback(callback);
         }
+    }
+
+    public void setInstrument(BluetoothSocket socket, InstrumentType type){
+        if ( instrumentalistMap.containsKey(socket) ) {
+            instrumentalistMap.get(socket).setType(type);
+        }
+    }
+
+    public ArrayList<ServerInstrumentalist> getInstrumentalistList() {
+        return instrumentalistList;
     }
 
     public void reset() {

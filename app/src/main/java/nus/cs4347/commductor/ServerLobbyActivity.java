@@ -23,6 +23,7 @@ import nus.cs4347.commductor.bluetooth.BTServerConnector;
 import nus.cs4347.commductor.bluetooth.BTServerManager;
 import nus.cs4347.commductor.bluetooth.BTConnectCallback;
 import nus.cs4347.commductor.enums.InstrumentType;
+import nus.cs4347.commductor.server.ServerInstrumentalist;
 
 
 public class ServerLobbyActivity extends AppCompatActivity {
@@ -87,23 +88,10 @@ public class ServerLobbyActivity extends AppCompatActivity {
         instrumentChooseCallback = new BTPacketCallback() {
             @Override
             public void packetReceived(BluetoothSocket socket, BTDataPacket packet) {
-                String deviceName = socket.getRemoteDevice().getName();
                 if ( packet.getHeader() == BTPacketHeader.CLIENT_INSTRUMENT_TYPE ) {
                     InstrumentType type = InstrumentType.valueOf(packet.intData);
-                    switch (type) {
-                        case TRIANGLE:
-                            Toast.makeText(AppData.getInstance().getApplicationContext(),
-                                    deviceName + " chose Triangle", Toast.LENGTH_SHORT).show();
-                            break;
-                        case COCONUT:
-                            Toast.makeText(AppData.getInstance().getApplicationContext(),
-                                    deviceName + " chose Coconut", Toast.LENGTH_SHORT).show();
-                            break;
-                        case PIANO:
-                            Toast.makeText(AppData.getInstance().getApplicationContext(),
-                                    deviceName + " chose Piano", Toast.LENGTH_SHORT).show();
-                            break;
-                    }
+                    BTServerManager.getInstance().setInstrument(socket, type);
+                    refreshListView();
                 }
             }
         };
@@ -123,11 +111,16 @@ public class ServerLobbyActivity extends AppCompatActivity {
     }
 
     protected void refreshListView() {
-        ArrayList<BluetoothSocket> connectedSockets = btServerManager.getBluetoothSockets();
-        Log.d(TAG, "Refreshing list view with " + connectedSockets.size() + " players");
-        String [] connected = new String[connectedSockets.size()];
-        for ( int i = 0 ; i < connectedSockets.size(); i++ ) {
-            connected[i] = connectedSockets.get(i).getRemoteDevice().getName();
+        ArrayList<ServerInstrumentalist> connectedInstrumentalists = btServerManager.getInstrumentalistList();
+        Log.d(TAG, "Refreshing list view with " + connectedInstrumentalists.size() + " players");
+        String [] connected = new String[connectedInstrumentalists.size()];
+        for ( int i = 0 ; i < connectedInstrumentalists.size(); i++ ) {
+            InstrumentType type = connectedInstrumentalists.get(i).getType();
+            String instrumentTypeString = "None";
+            if ( type != null ) {
+                instrumentTypeString = type.toString();
+            }
+            connected[i] = connectedInstrumentalists.get(i).getSocket().getRemoteDevice().getName() + " - " + instrumentTypeString;
         }
         connectedAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, android.R.id.text1, connected);
 

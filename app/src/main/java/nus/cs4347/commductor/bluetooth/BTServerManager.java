@@ -75,7 +75,6 @@ public class BTServerManager {
                 service.destroy();
             }
             bluetoothServices.clear();
-            bluetoothServices = null;
         } else {
             for ( BluetoothSocket socket : bluetoothSockets ) {
                 try {

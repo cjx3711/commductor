@@ -12,7 +12,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -97,17 +96,15 @@ public class ServerLobbyActivity extends AppCompatActivity {
         };
 
         BTServerManager.getInstance().setCallback(instrumentChooseCallback);
-        if ( scanMode == BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE ) {
-            Log.d(TAG, "Bluetooth Already Discoverable");
-
-            btServerConnector = new BTServerConnector(BTConnectCallback);
-            btServerConnector.start();
-        } else {
+        if ( scanMode == BluetoothAdapter.SCAN_MODE_CONNECTABLE ) {
             Intent discoverableIntent =
                     new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
             discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
             startActivity(discoverableIntent);
         }
+
+        btServerConnector = new BTServerConnector(BTConnectCallback);
+        btServerConnector.start();
     }
 
     protected void refreshListView() {
@@ -143,10 +140,9 @@ public class ServerLobbyActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         Log.d(TAG, "Result " + requestCode + " " + resultCode);
+        //TODO: Somehow not calling
         if ( resultCode == 300 ) {
             Log.d(TAG, "Bluetooth Discoverable");
-//            btServerConnector = new BTServerConnector();
-//            btServerConnector.start();
         } else {
             Log.d(TAG, "Fail");
 

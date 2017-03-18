@@ -77,6 +77,11 @@ public class ServerLobbyActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        Log.d(TAG, "Socket connected");
+                        Log.d(TAG, s.getRemoteDevice().getName());
+                        Log.d(TAG, s.getRemoteDevice().getAddress());
+                        Log.d(TAG, s.getRemoteDevice().getBondState() + "");
+
                         btServerManager.addSocket(s);
                         refreshListView();
                     }
@@ -96,12 +101,13 @@ public class ServerLobbyActivity extends AppCompatActivity {
         };
 
         BTServerManager.getInstance().setCallback(instrumentChooseCallback);
-        if ( scanMode == BluetoothAdapter.SCAN_MODE_CONNECTABLE ) {
-            Intent discoverableIntent =
-                    new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-            discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
-            startActivity(discoverableIntent);
-        }
+
+//        if ( scanMode == BluetoothAdapter.SCAN_MODE_CONNECTABLE ) {
+//            Intent discoverableIntent =
+//                    new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+//            discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
+//            startActivity(discoverableIntent);
+//        }
 
         btServerConnector = new BTServerConnector(BTConnectCallback);
         btServerConnector.start();
@@ -136,18 +142,18 @@ public class ServerLobbyActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        Log.d(TAG, "Result " + requestCode + " " + resultCode);
-        //TODO: Somehow not calling
-        if ( resultCode == 300 ) {
-            Log.d(TAG, "Bluetooth Discoverable");
-        } else {
-            Log.d(TAG, "Fail");
-
-        }
-    }
+//    @Override
+//    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//        Log.d(TAG, "Result " + requestCode + " " + resultCode);
+//        //TODO: Somehow not calling
+//        if ( resultCode == 300 ) {
+//            Log.d(TAG, "Bluetooth Discoverable");
+//        } else {
+//            Log.d(TAG, "Fail");
+//
+//        }
+//    }
 
 
 }

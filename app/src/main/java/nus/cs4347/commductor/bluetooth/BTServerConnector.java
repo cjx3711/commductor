@@ -54,6 +54,7 @@ public class BTServerConnector extends Thread {
                     Log.d(TAG, "Socket accepted");
 //                    connectedSockets.add(socket);
                     BTConnectCallback.playerConnected(socket);
+                    socket = null;
                 }
                 if ( toStop ) {
                     serverSocket.close(); // No more acceptance

@@ -12,6 +12,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -57,10 +58,15 @@ public class ServerLobbyActivity extends AppCompatActivity {
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                BTDataPacket packet = new BTDataPacket(BTPacketHeader.SERVER_START_GAME);
-                BTServerManager.getInstance().sendPacket(packet);
-                Intent intent = new Intent(getApplicationContext(), ConductorActivity.class);
-                startActivity(intent);
+                if ( allSelectedInstrument() ) {
+                    BTDataPacket packet = new BTDataPacket(BTPacketHeader.SERVER_START_GAME);
+                    BTServerManager.getInstance().sendPacket(packet);
+                    Intent intent = new Intent(getApplicationContext(), ConductorActivity.class);
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(AppData.getInstance().getApplicationContext(), "Can't start till everyone selects an instrument.", Toast.LENGTH_SHORT).show();
+
+                }
             }
         });
 
@@ -111,6 +117,13 @@ public class ServerLobbyActivity extends AppCompatActivity {
 
         btServerConnector = new BTServerConnector(BTConnectCallback);
         btServerConnector.start();
+    }
+
+    private boolean allSelectedInstrument() {
+        for( ServerInstrumentalist si : btServerManager.getInstrumentalistList()) {
+            if ( si.getType() == null ) return false;
+        }
+        return true;
     }
 
     protected void refreshListView() {

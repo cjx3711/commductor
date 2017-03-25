@@ -17,6 +17,7 @@ public class ServerInstrumentalist {
     public ServerInstrumentalist(BluetoothSocket socket, BluetoothService service) {
         this.socket = socket;
         this.service = service;
+        type = null;
     }
 
     public BluetoothSocket getSocket() {

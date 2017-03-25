@@ -3,15 +3,22 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#0099cc"
+    android:orientation="vertical"
     tools:context="nus.cs4347.commductor.ConductorActivity">
 
 
     <android.support.v4.view.ViewPager
         android:id="@+id/myviewpager"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:layout_gravity="center"
+        android:layout_height="300dp"
+        android:layout_gravity="top"
         android:background="#FFFFFF"
         android:overScrollMode="never" />
+
+    <Button
+        android:id="@+id/button_send_message"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:text="Send message"/>
 
 </LinearLayout>

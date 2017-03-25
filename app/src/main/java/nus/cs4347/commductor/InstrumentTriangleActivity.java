@@ -9,6 +9,7 @@ import android.widget.Toast;
 import nus.cs4347.commductor.bluetooth.BTClientManager;
 import nus.cs4347.commductor.bluetooth.BTDataPacket;
 import nus.cs4347.commductor.bluetooth.BTPacketCallback;
+import nus.cs4347.commductor.bluetooth.BTPacketHeader;
 
 import android.content.Context;
 import android.hardware.Sensor;
@@ -88,6 +89,16 @@ public class InstrumentTriangleActivity extends AppCompatActivity implements Sen
             }
         }
 
+        BTPacketCallback packetCallback = new BTPacketCallback() {
+            @Override
+            public void packetReceived(BluetoothSocket socket, BTDataPacket packet) {
+                if ( packet.getHeader() == BTPacketHeader.STRING_DATA ) {
+                    Toast.makeText(AppData.getInstance().getApplicationContext(), packet.stringData, Toast.LENGTH_SHORT).show();
+                }
+            }
+        };
+        BTClientManager.getInstance().setCallback(packetCallback);
+
     }
 
     @Override
@@ -111,15 +122,6 @@ public class InstrumentTriangleActivity extends AppCompatActivity implements Sen
 
         float actualVolume = (float) audioManager
                 .getStreamVolume(AudioManager.STREAM_MUSIC);
-
-
-        BTPacketCallback callback = new BTPacketCallback() {
-            @Override
-            public void packetReceived(BluetoothSocket socket, BTDataPacket packet) {
-                Toast.makeText(AppData.getInstance().getApplicationContext(), packet.stringData, Toast.LENGTH_SHORT).show();
-            }
-        };
-        BTClientManager.getInstance().setCallback(callback);
 
         float maxVolume = (float) audioManager
                 .getStreamMaxVolume(AudioManager.STREAM_MUSIC);

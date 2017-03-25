@@ -132,6 +132,7 @@ public class ConductorActivity extends AppCompatActivity implements SensorEventL
 
     Button detectGestureButton;
 
+    //TODO: Remove these
     private SensorManager mSensorManager;
     private Sensor mAccelerometer;
     private TextView dataText;

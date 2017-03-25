@@ -1,6 +1,5 @@
-package nus.cs4347.commductor.server;
+package nus.cs4347.commductor.gestures;
 
-import android.gesture.Gesture;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 

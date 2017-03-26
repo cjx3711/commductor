@@ -186,12 +186,16 @@ public class Piano extends View {
         }
 
         private void pushKeyDown(MotionEvent event){
-            int pointer_index = event.getPointerId(event.getActionIndex());
-            Key key = isPressingKey(event.getX(pointer_index), event.getY(pointer_index));
-            if(!fingers.containsKey(pointer_index)){
-                Finger finger = new Finger();
-                finger.press(key);
-                fingers.put(pointer_index,finger);
+            try {
+                int pointer_index = event.getPointerId(event.getActionIndex());
+                Key key = isPressingKey(event.getX(pointer_index), event.getY(pointer_index));
+                if (!fingers.containsKey(pointer_index)) {
+                    Finger finger = new Finger();
+                    finger.press(key);
+                    fingers.put(pointer_index, finger);
+                }
+            } catch ( Exception e ) {
+
             }
         }
 
@@ -201,11 +205,13 @@ public class Piano extends View {
             Key key = isPressingKey(event.getX(index), event.getY(index));
             Finger finger = fingers.get(pointer_id);
 
-            if(key == null){
-                finger.lift();
-            } else if(finger.isPressing(key) == false){
-                finger.lift();
-                finger.press(key);
+            if ( finger != null ) {
+                if (key == null) {
+                    finger.lift();
+                } else if (!finger.isPressing(key)) {
+                    finger.lift();
+                    finger.press(key);
+                }
             }
 
         }

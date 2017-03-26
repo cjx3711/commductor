@@ -23,13 +23,15 @@
         <activity android:name=".MenuActivity"></activity>
         <activity android:name=".ClientLobbyActivity"></activity>
         <activity android:name=".ServerLobbyActivity"></activity>
+        <activity android:name=".InstrumentPianoActivity"
+            android:screenOrientation="landscape"></activity>
         <activity android:name=".InstrumentTriangleActivity"></activity>
         <activity
             android:name=".ConductorActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_conductor"
             android:theme="@style/FullscreenTheme" />
-        <activity android:name=".InstrumentPianoActivity"></activity>
+
     </application>
 
 </manifest>

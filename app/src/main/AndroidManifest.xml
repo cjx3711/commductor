@@ -2,6 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="nus.cs4347.commductor">
 
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -17,22 +20,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MenuActivity">
-        </activity>
-        <activity android:name=".ClientLobbyActivity">
-        </activity>
-        <activity android:name=".ServerLobbyActivity">
-        </activity>
-        <activity android:name=".InstrumentTriangleActivity">
-        </activity>
+        <activity android:name=".MenuActivity"></activity>
+        <activity android:name=".ClientLobbyActivity"></activity>
+        <activity android:name=".ServerLobbyActivity"></activity>
+        <activity android:name=".InstrumentTriangleActivity"></activity>
         <activity
             android:name=".ConductorActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_conductor"
-            android:theme="@style/FullscreenTheme"></activity>
+            android:theme="@style/FullscreenTheme" />
+        <activity android:name=".InstrumentPianoActivity"></activity>
     </application>
-
-    <uses-permission android:name="android.permission.BLUETOOTH" />
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
 
 </manifest>

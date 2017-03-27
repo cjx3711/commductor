@@ -20,24 +20,12 @@
         android:textStyle="bold" />
 
     <TextView
-        android:id="@+id/pitch_roll_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Pitch: null\nRoll: null"
-        android:textSize="18sp"
-        android:layout_marginTop="50dp"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
-
-    <TextView
         android:id="@+id/gesture_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Gesture: null"
-        android:textSize="18sp"
-        android:layout_marginTop="10dp"
+        android:textSize="20sp"
+        android:layout_marginTop="30dp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentRight="true"
@@ -48,13 +36,24 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Data: null"
-        android:textSize="18sp"
-        android:layout_marginTop="100dp"
+        android:textSize="20sp"
+        android:layout_marginTop="60dp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
 
+    <TextView
+        android:id="@+id/count_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Count: null"
+        android:textSize="20sp"
+        android:layout_marginTop="150dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 
     <!-- This FrameLayout insets its children based on system windows using
          android:fitsSystemWindows. -->

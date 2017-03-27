@@ -1,8 +1,7 @@
 package nus.cs4347.commductor;
 
 import android.annotation.SuppressLint;
-import android.hardware.Sensor;
-import android.hardware.SensorManager;
+
 import android.media.MediaPlayer;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -13,19 +12,18 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
+import android.content.Context;
 
-import java.lang.Math;
 
 import nus.cs4347.commductor.bluetooth.BTServerManager;
-
+import nus.cs4347.commductor.gestures.GesturesProcessor;
+import nus.cs4347.commductor.gestures.GesturesTapCallback;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
-public class ConductorActivity extends AppCompatActivity implements SensorEventListener{
+public class ConductorActivity extends AppCompatActivity {
     private final String TAG = "ConductorActivity";
     /**
      * Whether or not the system UI should be auto-hidden after
@@ -88,7 +86,11 @@ public class ConductorActivity extends AppCompatActivity implements SensorEventL
      * while interacting with activity UI.
      */
     private int gestureType = 0;
-    private final int GESTURE_PACKET_DELAY_MILLIS = 200;
+//    155
+    private final int GESTURE_PACKET_DELAY_MILLIS = 550;
+    private final GesturesProcessor gesturesProcessor = GesturesProcessor.getInstance();
+    private double startOp;
+    private double endOp;
 
     private final View.OnTouchListener mDetectGestureButtonTouchListener = new View.OnTouchListener() {
         private Handler mHandler = null;
@@ -97,13 +99,14 @@ public class ConductorActivity extends AppCompatActivity implements SensorEventL
 //            if (AUTO_HIDE) {
 //                delayedHide(AUTO_HIDE_DELAY_MILLIS);
 //            }
-
             // When User holds onto button
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
                 Log.d("Pressed", "Button pressed");
                 if (mHandler != null) return true;
                 mHandler = new Handler();
                 mHandler.postDelayed(sendGesturePackets, GESTURE_PACKET_DELAY_MILLIS);
+                startOp = GesturesProcessor.getInstance().numOps;
+
             }
             // When User releases button
             else if (event.getAction() == MotionEvent.ACTION_UP) {
@@ -111,6 +114,9 @@ public class ConductorActivity extends AppCompatActivity implements SensorEventL
                 // Stop sending packets
                 mHandler.removeCallbacks(sendGesturePackets);
                 mHandler = null;
+                endOp = GesturesProcessor.getInstance().numOps;
+                countText.setText("Num Ops: " + (endOp - startOp));
+
             }
 
             BTServerManager.getInstance().sendMessage("Test packet message");
@@ -120,8 +126,11 @@ public class ConductorActivity extends AppCompatActivity implements SensorEventL
         private Runnable sendGesturePackets = new Runnable() {
             @Override
             public void run() {
+                gestureType = gesturesProcessor.getCurrentGesture();
                 Log.d("Sending Packets", "Sending packets for gestures. Gesture: " + GesturesProcessor.gestureTypeFromCode(gestureType));
-
+                Log.d("AccData", "y: " + GesturesProcessor.getInstance().currentY + " " + "z: " + GesturesProcessor.getInstance().currentZ + "\t" + "Pitch: " + GesturesProcessor.getInstance().getCurrentPitch());
+                gestureText.setText("Gesture: " + GesturesProcessor.gestureTypeFromCode(gestureType));
+                dataText.setText("x: " + GesturesProcessor.getInstance().currentX + "\n" + "y: " + GesturesProcessor.getInstance().currentY + "\n" + "z: " + GesturesProcessor.getInstance().currentZ);
                 // Post itself to handler again
                 mHandler.postDelayed(this, GESTURE_PACKET_DELAY_MILLIS);
             }
@@ -132,13 +141,12 @@ public class ConductorActivity extends AppCompatActivity implements SensorEventL
 
     Button detectGestureButton;
 
-    //TODO: Remove these
-    private SensorManager mSensorManager;
-    private Sensor mAccelerometer;
     private TextView dataText;
     private TextView gestureText;
     private TextView pitchRollText;
+    private TextView countText;
 
+    private int numTaps=0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -150,7 +158,9 @@ public class ConductorActivity extends AppCompatActivity implements SensorEventL
         mControlsView = findViewById(R.id.fullscreen_content_controls);
         mContentView = findViewById(R.id.fullscreen_content);
         detectGestureButton = (Button)findViewById(R.id.detect_gesture_button);
-
+        gestureText = (TextView)findViewById(R.id.gesture_text);
+        dataText = (TextView)findViewById(R.id.data_text);
+        countText = (TextView)findViewById(R.id.count_text);
 
         // Set up the user interaction to manually show or hide the system UI.
         mContentView.setOnClickListener(new View.OnClickListener() {
@@ -165,12 +175,8 @@ public class ConductorActivity extends AppCompatActivity implements SensorEventL
         // while interacting with the UI.
         detectGestureButton.setOnTouchListener(mDetectGestureButtonTouchListener);
 
-        // Sensor Data
-        mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
-        mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        dataText = (TextView)findViewById(R.id.data_text);
-        gestureText = (TextView)findViewById(R.id.gesture_text);
-        pitchRollText = (TextView)findViewById(R.id.pitch_roll_text);
+        AppData.getInstance().init(getApplicationContext());
+        GesturesProcessor.getInstance().init();
     }
 
     @Override
@@ -239,36 +245,6 @@ public class ConductorActivity extends AppCompatActivity implements SensorEventL
             Log.d(TAG, "Still NULL");
         }
 
-    }
-
-    /*
-        All sensor-related methods
-     */
-    protected void onResume() {
-        super.onResume();
-        mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
-    }
-
-    protected void onPause() {
-        super.onPause();
-        mSensorManager.unregisterListener(this);
-    }
-
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-    }
-
-    public void onSensorChanged(SensorEvent event) {
-        float x = event.values[0];
-        float y = event.values[1];
-        float z = event.values[2];
-        double pitchAngle = Math.toDegrees(Math.atan(y/z));
-        double rollAngle = Math.toDegrees(Math.atan(x/z));
-        pitchRollText.setText("Pitch: " + pitchAngle + "\n" + "Roll: " + rollAngle);
-
-        gestureType = GesturesProcessor.detectGesture(pitchAngle, rollAngle);
-        // Just for debugging purposes
-        gestureText.setText("Gesture: " + GesturesProcessor.gestureTypeFromCode(gestureType));
-        dataText.setText("Data: \n" + "x: " + x + "\n" + "y: " + y + "\n" + "z: " + z);
     }
 
 }

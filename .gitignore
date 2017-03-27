@@ -1,5 +1,10 @@
 *.iml
 .gradle
+app/gradle
+app/gradlew
+app/gradlew.bat
+app/.idea/*
+app/local.properties
 /local.properties
 /.idea/workspace.xml
 /.idea/libraries
@@ -8,3 +13,4 @@
 /captures
 .externalNativeBuild
 gradle/wrapper/gradle-wrapper.properties
+

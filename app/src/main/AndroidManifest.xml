@@ -20,12 +20,22 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MenuActivity"></activity>
-        <activity android:name=".ClientLobbyActivity"></activity>
-        <activity android:name=".ServerLobbyActivity"></activity>
+
+        <activity android:name=".MenuActivity">
+        </activity>
+        <activity android:name=".ClientLobbyActivity">
+        </activity>
+        <activity android:name=".ServerLobbyActivity">
+        </activity>
+        <activity android:name=".InstrumentTriangleActivity">
+        </activity>
         <activity android:name=".InstrumentPianoActivity"
-            android:screenOrientation="landscape"></activity>
-        <activity android:name=".InstrumentTriangleActivity"></activity>
+            android:screenOrientation="landscape">
+        </activity>
+        <activity android:name=".InstrumentDrumkitActivity"
+            android:screenOrientation="landscape">
+        </activity>
+
         <activity
             android:name=".ConductorActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"

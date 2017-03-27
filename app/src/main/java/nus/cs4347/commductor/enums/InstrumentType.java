@@ -6,9 +6,10 @@ import java.util.Map;
 public enum InstrumentType {
     TRIANGLE(0),
     COCONUT(1),
-    PIANO(2);
+    PIANO(2),
+    DRUMS(3);
 
-    private final String [] nameMap = { "Triangle", "Coconut", "Piano" };
+    private final String [] nameMap = { "Triangle", "Coconut", "Piano", "Drums" };
 
     private int mValue;
 

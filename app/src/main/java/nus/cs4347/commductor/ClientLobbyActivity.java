@@ -171,8 +171,17 @@ public class ClientLobbyActivity extends AppCompatActivity {
 
     protected void startInstrumentActivity() {
         if ( selectedInstrument != null ) {
-            Intent intent = new Intent(getApplicationContext(), InstrumentTriangleActivity.class);
-            startActivity(intent);
+            Intent intent;
+            switch (selectedInstrument) {
+                case PIANO:
+                    intent = new Intent(getApplicationContext(), InstrumentPianoActivity.class);
+                    break;
+                default:
+                    intent = new Intent(getApplicationContext(), InstrumentTriangleActivity.class);
+                    break;
+            }
+            if ( intent != null ) startActivity(intent);
+
         } else {
             Toast.makeText(AppData.getInstance().getApplicationContext(), "Can't start without selecting an instrument", Toast.LENGTH_SHORT).show();
         }

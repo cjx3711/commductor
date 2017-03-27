@@ -185,6 +185,9 @@ public class ClientLobbyActivity extends AppCompatActivity {
                 case DRUMS:
                     intent = new Intent(getApplicationContext(), InstrumentDrumkitActivity.class);
                     break;
+                case PIANO:
+                    intent = new Intent(getApplicationContext(), InstrumentPianoActivity.class);
+                    break;
                 default:
                     intent = new Intent(getApplicationContext(), InstrumentTriangleActivity.class);
                     break;

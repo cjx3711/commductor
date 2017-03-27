@@ -52,7 +52,6 @@ public class GesturesProcessor implements SensorEventListener{
     public float currentX = 0;
     public float currentY = 0;
     public float currentZ = 0;
-    public double numOps = 0;
 
     private GesturesProcessor() {}
     private static GesturesProcessor singleton = new GesturesProcessor();
@@ -112,7 +111,6 @@ public class GesturesProcessor implements SensorEventListener{
 
         this.currentPitch = Math.toDegrees(Math.atan(y/z));
         this.currentRoll = Math.toDegrees(Math.atan(x/z));
-        this.numOps += 1;
         detectGesture();
 
     }

@@ -105,8 +105,6 @@ public class ConductorActivity extends AppCompatActivity {
                 if (mHandler != null) return true;
                 mHandler = new Handler();
                 mHandler.postDelayed(sendGesturePackets, GESTURE_PACKET_DELAY_MILLIS);
-                startOp = GesturesProcessor.getInstance().numOps;
-
             }
             // When User releases button
             else if (event.getAction() == MotionEvent.ACTION_UP) {
@@ -114,9 +112,6 @@ public class ConductorActivity extends AppCompatActivity {
                 // Stop sending packets
                 mHandler.removeCallbacks(sendGesturePackets);
                 mHandler = null;
-                endOp = GesturesProcessor.getInstance().numOps;
-                countText.setText("Num Ops: " + (endOp - startOp));
-
             }
 
             BTServerManager.getInstance().sendMessage("Test packet message");
@@ -144,9 +139,6 @@ public class ConductorActivity extends AppCompatActivity {
     private TextView dataText;
     private TextView gestureText;
     private TextView pitchRollText;
-    private TextView countText;
-
-    private int numTaps=0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -160,7 +152,6 @@ public class ConductorActivity extends AppCompatActivity {
         detectGestureButton = (Button)findViewById(R.id.detect_gesture_button);
         gestureText = (TextView)findViewById(R.id.gesture_text);
         dataText = (TextView)findViewById(R.id.data_text);
-        countText = (TextView)findViewById(R.id.count_text);
 
         // Set up the user interaction to manually show or hide the system UI.
         mContentView.setOnClickListener(new View.OnClickListener() {

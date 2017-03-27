@@ -1,5 +1,10 @@
 *.iml
 .gradle
+app/gradlew
+app/gradlew.bat
+app/.idea/*
+app/gradle/*
+app/local.properties
 /local.properties
 /.idea/workspace.xml
 /.idea/libraries

@@ -63,8 +63,9 @@ Consists of `GesturesProcessor` class, `SensorData` class and `GesturesTapCallba
 
 ### Conductor:
 
-Get a singleton instance and call `init()` in your activity's `onCreate()`
+Get a singleton instance and call `init()` in your activity's `onCreate()`.
 Call `getCurrentGesture` when you want to send packets of the gesture to the Players, for example.
+`getCurrentGesture` returns integers representing the gestures. `GesturesProcessor.gestureTypeFromCode(int_code)` will return a human-readable string of the gesture. e.g. Rest, Rolling left, Tilting up, Flip. 
 
 ```
 // in onCreate()
@@ -73,6 +74,8 @@ GesturesProcessor.getInstance().init();
 // in method for sending packets
 GesturesProcessor.getCurrentGesture();
 ```
+
+
 
 ### Player:
 

@@ -87,7 +87,7 @@ public class ConductorActivity extends AppCompatActivity {
      */
     private int gestureType = 0;
 //    155
-    private final int GESTURE_PACKET_DELAY_MILLIS = 550;
+    private final int GESTURE_PACKET_DELAY_MILLIS = 400;
     private final GesturesProcessor gesturesProcessor = GesturesProcessor.getInstance();
     private double startOp;
     private double endOp;

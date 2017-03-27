@@ -74,7 +74,7 @@ GesturesProcessor.getInstance().init();
 GesturesProcessor.getCurrentGesture();
 ```
 
-## Player:
+### Player:
 
 Provide a tapCallback with the functions you want to be executed upon a Tap. 
 Does not currently support force-tap ie. some sort of control of amplitude the harder you tap. 

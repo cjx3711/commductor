@@ -9,6 +9,7 @@ import android.widget.Toast;
 import nus.cs4347.commductor.bluetooth.BTClientManager;
 import nus.cs4347.commductor.bluetooth.BTDataPacket;
 import nus.cs4347.commductor.bluetooth.BTPacketCallback;
+import nus.cs4347.commductor.bluetooth.BTPacketHeader;
 import nus.cs4347.commductor.gestures.GesturesTapCallback;
 import nus.cs4347.commductor.gestures.GesturesProcessor;
 
@@ -35,12 +36,6 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
     private SoundPool soundPool;
     private int soundID;
     boolean loaded = false;
-
-    private SensorManager mSensorManager;
-    private Sensor mAccelSensor;
-
-    boolean accelerometerPresent = false;
-    int times = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,7 +80,25 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
         // Init Gesture Processor with callback
         GesturesProcessor.getInstance().init(tapCallback);
 
+        BTPacketCallback packetCallback = new BTPacketCallback() {
+            @Override
+            public void packetReceived(BluetoothSocket socket, BTDataPacket packet) {
+                if ( packet.getHeader() == BTPacketHeader.STRING_DATA ) {
+                    Toast.makeText(AppData.getInstance().getApplicationContext(), packet.stringData, Toast.LENGTH_SHORT).show();
+                }
+            }
+        };
+        BTClientManager.getInstance().setCallback(packetCallback);
+
     }
+
+
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//    }
+
+
 
     public void spamSound() {
 
@@ -96,15 +109,6 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
 
         float actualVolume = (float) audioManager
                 .getStreamVolume(AudioManager.STREAM_MUSIC);
-
-
-        BTPacketCallback callback = new BTPacketCallback() {
-            @Override
-            public void packetReceived(BluetoothSocket socket, BTDataPacket packet) {
-                Toast.makeText(AppData.getInstance().getApplicationContext(), packet.stringData, Toast.LENGTH_SHORT).show();
-            }
-        };
-        BTClientManager.getInstance().setCallback(callback);
 
         float maxVolume = (float) audioManager
                 .getStreamMaxVolume(AudioManager.STREAM_MUSIC);

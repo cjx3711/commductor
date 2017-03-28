@@ -64,9 +64,6 @@ public class BTServerManager {
         }
     }
 
-    public ArrayList<ServerInstrumentalist> getInstrumentalistList() {
-        return instrumentalistList;
-    }
 
     public void reset() {
         bluetoothSockets.clear();
@@ -113,6 +110,14 @@ public class BTServerManager {
 
     public ArrayList<BluetoothSocket> getBluetoothSockets() {
         return bluetoothSockets;
+    }
+
+    public int getInstrumentalistCount() {
+        return instrumentalistList.size();
+    }
+
+    public ArrayList<ServerInstrumentalist> getInstrumentalistList() {
+        return instrumentalistList;
     }
 
 }

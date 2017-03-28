@@ -15,14 +15,15 @@ import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 
 public class MenuActivity extends AppCompatActivity implements SensorEventListener {
 
-    Button startServer;
-    Button startClient;
+    ImageButton startServer;
+    ImageButton startClient;
     TextView message;
     ImageView sunburst;
     AppCompatActivity activity;
@@ -55,8 +56,8 @@ public class MenuActivity extends AppCompatActivity implements SensorEventListen
 
         Typeface russian_font = Typeface.createFromAsset(getAssets(), "fonts/Russian.ttf");
 
-        startServer = (Button)findViewById(R.id.button_start_server);
-        startClient = (Button)findViewById(R.id.button_start_client);
+        startServer = (ImageButton)findViewById(R.id.button_start_server);
+        startClient = (ImageButton)findViewById(R.id.button_start_client);
         message = (TextView)findViewById(R.id.message);
         sunburst = (ImageView)findViewById(R.id.sunburst);
         mp = MediaPlayer.create(activity.getApplicationContext(), R.raw.kick_mp3);

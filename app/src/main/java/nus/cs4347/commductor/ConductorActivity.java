@@ -39,11 +39,7 @@ public class ConductorActivity extends AppCompatActivity {
      * while interacting with activity UI.
      */
     private int gestureType = 0;
-//    155
     private final int GESTURE_PACKET_DELAY_MILLIS = 400;
-    private final GesturesProcessor gesturesProcessor = GesturesProcessor.getInstance();
-    private double startOp;
-    private double endOp;
 
     private final View.OnTouchListener mDetectGestureButtonTouchListener = new View.OnTouchListener() {
         private Handler mHandler = null;
@@ -74,11 +70,11 @@ public class ConductorActivity extends AppCompatActivity {
         private Runnable sendGesturePackets = new Runnable() {
             @Override
             public void run() {
-                gestureType = gesturesProcessor.getCurrentGesture();
+                gestureType = GesturesProcessor.getInstance().getCurrentGesture();
                 Log.d("Sending Packets", "Sending packets for gestures. Gesture: " + GesturesProcessor.gestureTypeFromCode(gestureType));
-                Log.d("AccData", "y: " + GesturesProcessor.getInstance().currentY + " " + "z: " + GesturesProcessor.getInstance().currentZ + "\t" + "Pitch: " + GesturesProcessor.getInstance().getCurrentPitch());
-                gestureText.setText("Gesture: " + GesturesProcessor.gestureTypeFromCode(gestureType));
-                dataText.setText("x: " + GesturesProcessor.getInstance().currentX + "\n" + "y: " + GesturesProcessor.getInstance().currentY + "\n" + "z: " + GesturesProcessor.getInstance().currentZ);
+                Log.d("Angle", "Pitch: " + GesturesProcessor.getInstance().getCurrentPitch() + " Roll: " + GesturesProcessor.getInstance().getCurrentRoll());
+                Log.d("Gesture", GesturesProcessor.gestureTypeFromCode(gestureType));
+                Log.d("Data", "x: " + GesturesProcessor.getInstance().currentX + "\n" + "y: " + GesturesProcessor.getInstance().currentY + "\n" + "z: " + GesturesProcessor.getInstance().currentZ);
                 // Post itself to handler again
                 mHandler.postDelayed(this, GESTURE_PACKET_DELAY_MILLIS);
             }
@@ -86,9 +82,6 @@ public class ConductorActivity extends AppCompatActivity {
     };
 
     Button detectGestureButton;
-
-    private TextView dataText;
-    private TextView gestureText;
 
     PlayerPagerAdapter playersPagerAdapter;
     ViewPager playersPager;
@@ -105,16 +98,13 @@ public class ConductorActivity extends AppCompatActivity {
 
         serverInstrumentalists = BTServerManager.getInstance().getInstrumentalistList();
         detectGestureButton = (Button)findViewById(R.id.detect_gesture_button);
-        gestureText = (TextView)findViewById(R.id.gesture_text);
-        dataText = (TextView)findViewById(R.id.data_text);
-
 
         // Upon interacting with UI controls, delay any scheduled hide()
         // operations to prevent the jarring behavior of controls going away
         // while interacting with the UI.
         detectGestureButton.setOnTouchListener(mDetectGestureButtonTouchListener);
 
-        AppData.getInstance().init(getApplicationContext());
+//        AppData.getInstance().init(getApplicationContext());
         GesturesProcessor.getInstance().init();
 
         // Set up the pager stuff

@@ -10,6 +10,8 @@ import nus.cs4347.commductor.bluetooth.BTClientManager;
 import nus.cs4347.commductor.bluetooth.BTDataPacket;
 import nus.cs4347.commductor.bluetooth.BTPacketCallback;
 import nus.cs4347.commductor.bluetooth.BTPacketHeader;
+import nus.cs4347.commductor.gestures.GesturesTapCallback;
+import nus.cs4347.commductor.gestures.GesturesProcessor;
 
 import android.content.Context;
 import android.hardware.Sensor;
@@ -26,7 +28,7 @@ import android.media.SoundPool.OnLoadCompleteListener;
 import android.widget.TextView;
 
 
-public class InstrumentTriangleActivity extends AppCompatActivity implements SensorEventListener {
+public class InstrumentTriangleActivity extends AppCompatActivity {
 
     Button playButton;
     TextView message;
@@ -75,19 +77,14 @@ public class InstrumentTriangleActivity extends AppCompatActivity implements Sen
         });
         message = (TextView)findViewById(R.id.message);
 
-        //Load sensors
-        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null){
-            // Success! There's an accelerometer.
-            accelerometerPresent = true;
-        }
-
-        if (mAccelSensor == null && accelerometerPresent){
-            // Use the accelerometer.
-            if (mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null) {
-                mAccelSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        // GesturesTapCallback
+        GesturesTapCallback tapCallback = new GesturesTapCallback(){
+            public void tapDetected(){
+                spamSound();
             }
-        }
+        };
+        // Init Gesture Processor with callback
+        GesturesProcessor.getInstance().init(tapCallback);
 
         BTPacketCallback packetCallback = new BTPacketCallback() {
             @Override
@@ -101,17 +98,16 @@ public class InstrumentTriangleActivity extends AppCompatActivity implements Sen
 
     }
 
+
+
+
     @Override
     protected void onResume() {
         super.onResume();
-        mSensorManager.registerListener(this, mAccelSensor, SensorManager.SENSOR_DELAY_NORMAL);
+//        mSensorManager.registerListener(this, mAccelSensor, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        mSensorManager.unregisterListener(this);
-    }
+
 
     public void spamSound() {
 
@@ -136,28 +132,6 @@ public class InstrumentTriangleActivity extends AppCompatActivity implements Sen
         }
     }
 
-    @Override
-    public final void onSensorChanged(SensorEvent event) {
-        // The light sensor returns a single value.
-        // Many sensors return 3 values, one for each axis.
-        float value = Math.abs(event.values[0]) + Math.abs(event.values[1]) + Math.abs(event.values[2]);
-        // Do something with this sensor value.
-        if ( value > 20 ) {
-            times ++;
-            try {
-                spamSound();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        message.setText("Times: " + times + " Total: " + value);
-
-    }
-
-    @Override
-    public final void onAccuracyChanged(Sensor sensor, int accuracy) {
-        // Do something here if sensor accuracy changes.
-    }
 
 
 }

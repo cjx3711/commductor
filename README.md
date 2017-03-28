@@ -57,3 +57,40 @@ packet.stringData = message;
 // Send the packet
 BTClientManager.getInstance().sendPacket(packet);
 ```
+## Gestures Package
+
+Consists of `GesturesProcessor` class, `SensorData` class and `GesturesTapCallback` interface
+
+### Conductor:
+
+Get a singleton instance and call `init()` in your activity's `onCreate()`.
+Call `getCurrentGesture` when you want to send packets of the gesture to the Players, for example.
+`getCurrentGesture` returns integers representing the gestures. `GesturesProcessor.gestureTypeFromCode(int_code)` will return a human-readable string of the gesture. e.g. Rest, Rolling left, Tilting up, Flip. 
+
+```
+// in onCreate()
+GesturesProcessor.getInstance().init();
+
+// in method for sending packets
+GesturesProcessor.getCurrentGesture();
+```
+
+
+
+### Player:
+
+Provide a tapCallback with the functions you want to be executed upon a Tap. 
+Does not currently support force-tap ie. some sort of control of amplitude the harder you tap. 
+
+```
+GesturesTapCallback tapCallback = new GesturesTapCallback(){
+            public void tapDetected(){
+                // Play sound upon tap...
+                gestureText.setText("Tap detected!" + numTaps);
+                numTaps += 1;
+            }
+};
+
+//in OnCreate()
+GesturesProcessor.getInstance().init(tapCallback);
+```

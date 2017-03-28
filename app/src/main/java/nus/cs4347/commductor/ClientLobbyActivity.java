@@ -38,6 +38,7 @@ public class ClientLobbyActivity extends AppCompatActivity {
     Button triangleButton;
     Button coconutButton;
     Button pianoButton;
+    Button drumsButton;
     Button devStartButton;
 
     // Feedback text views
@@ -56,6 +57,7 @@ public class ClientLobbyActivity extends AppCompatActivity {
         triangleButton = (Button) findViewById(R.id.button_triangle);
         coconutButton = (Button) findViewById(R.id.button_coconut);
         pianoButton = (Button) findViewById(R.id.button_piano);
+        drumsButton = (Button) findViewById(R.id.button_drums);
         devStartButton = (Button) findViewById(R.id.button_dev_start);
 
         pairedListview = (ListView)findViewById(R.id.listview_paired);
@@ -111,16 +113,21 @@ public class ClientLobbyActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if ( v == triangleButton ) {
                     selectedInstrument = InstrumentType.TRIANGLE;
-                    selectedTextView.setText("Selected: Triangle");
                 }
                 if ( v == coconutButton ) {
                     selectedInstrument = InstrumentType.COCONUT;
-                    selectedTextView.setText("Selected: Coconut");
                 }
                 if ( v == pianoButton ) {
                     selectedInstrument = InstrumentType.PIANO;
-                    selectedTextView.setText("Selected: Piamo");
                 }
+                if ( v == drumsButton ) {
+                    selectedInstrument = InstrumentType.DRUMS;
+                }
+
+                if ( selectedInstrument != null ) {
+                    selectedTextView.setText("Selected: " + selectedInstrument.toString());
+                }
+
                 sendInstrumentPacket();
 
             }
@@ -128,6 +135,7 @@ public class ClientLobbyActivity extends AppCompatActivity {
         triangleButton.setOnClickListener(instrumentSelect);
         coconutButton.setOnClickListener(instrumentSelect);
         pianoButton.setOnClickListener(instrumentSelect);
+        drumsButton.setOnClickListener(instrumentSelect);
 
         devStartButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -168,9 +176,22 @@ public class ClientLobbyActivity extends AppCompatActivity {
     }
 
     protected void startInstrumentActivity() {
+
         if ( selectedInstrument != null ) {
-            Intent intent = new Intent(getApplicationContext(), InstrumentTriangleActivity.class);
-            startActivity(intent);
+            Intent intent;
+            switch (selectedInstrument) {
+                case DRUMS:
+                    intent = new Intent(getApplicationContext(), InstrumentDrumkitActivity.class);
+                    break;
+                case PIANO:
+                    intent = new Intent(getApplicationContext(), InstrumentPianoActivity.class);
+                    break;
+                default:
+                    intent = new Intent(getApplicationContext(), InstrumentTriangleActivity.class);
+                    break;
+            }
+            if ( intent != null ) startActivity(intent);
+
         } else {
             Toast.makeText(AppData.getInstance().getApplicationContext(), "Can't start without selecting an instrument", Toast.LENGTH_SHORT).show();
         }

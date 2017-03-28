@@ -34,7 +34,7 @@ public class GesturesProcessor implements SensorEventListener{
     private static final double PITCH_ANGLE_THRESHOLD = 15.0;
     private static final double ROLL_ANGLE_THRESHOLD = 15.0;
     private static final double FLIP_THRESHOLD = 19.6;
-    private static final double TAP_THRESHOLD = 25.0;
+    private static final double TAP_THRESHOLD = 19.0;
     private static final int CONDUCTOR_WINDOW_SIZE = 20;
     private static final int PLAYER_WINDOW_SIZE = 3;
 
@@ -55,7 +55,9 @@ public class GesturesProcessor implements SensorEventListener{
 
     private GesturesProcessor() {}
     private static GesturesProcessor singleton = new GesturesProcessor();
-    public static GesturesProcessor getInstance() { return singleton; }
+    public static GesturesProcessor getInstance() {
+        return singleton;
+    }
 
     // PLAYER init will have to provide a tapCallBack that gets executed when a TAP is detected.
     public void init(GesturesTapCallback tapCallback) {
@@ -108,7 +110,6 @@ public class GesturesProcessor implements SensorEventListener{
         currentX = x;
         currentY = y;
         currentZ = z;
-
         this.currentPitch = Math.toDegrees(Math.atan(y/z));
         this.currentRoll = Math.toDegrees(Math.atan(x/z));
         detectGesture();

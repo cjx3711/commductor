@@ -37,12 +37,6 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
     private int soundID;
     boolean loaded = false;
 
-    private SensorManager mSensorManager;
-    private Sensor mAccelSensor;
-
-    boolean accelerometerPresent = false;
-    int times = 0;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -99,13 +93,10 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
     }
 
 
-
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-//        mSensorManager.registerListener(this, mAccelSensor, SensorManager.SENSOR_DELAY_NORMAL);
-    }
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//    }
 
 
 

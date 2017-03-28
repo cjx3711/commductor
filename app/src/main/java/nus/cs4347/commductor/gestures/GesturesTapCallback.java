@@ -5,7 +5,7 @@ package nus.cs4347.commductor.gestures;
  */
 
 public interface GesturesTapCallback {
-    public void tapDetected();
+    void tapDetected();
 }
 
 /* Example callback in your class

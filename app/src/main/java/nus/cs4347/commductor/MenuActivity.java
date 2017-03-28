@@ -2,6 +2,7 @@ package nus.cs4347.commductor;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -10,15 +11,21 @@ import android.media.MediaPlayer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
+import android.view.animation.RotateAnimation;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 
 public class MenuActivity extends AppCompatActivity implements SensorEventListener {
 
-    Button startServer;
-    Button startClient;
+    ImageButton startServer;
+    ImageButton startClient;
     TextView message;
+    ImageView sunburst;
     AppCompatActivity activity;
     private SensorManager mSensorManager;
     private Sensor mAccelSensor;
@@ -47,10 +54,20 @@ public class MenuActivity extends AppCompatActivity implements SensorEventListen
             }
         }
 
-        startServer = (Button)findViewById(R.id.button_start_server);
-        startClient = (Button)findViewById(R.id.button_start_client);
+        Typeface russian_font = Typeface.createFromAsset(getAssets(), "fonts/Russian.ttf");
+
+        startServer = (ImageButton)findViewById(R.id.button_start_server);
+        startClient = (ImageButton)findViewById(R.id.button_start_client);
         message = (TextView)findViewById(R.id.message);
+        sunburst = (ImageView)findViewById(R.id.sunburst);
         mp = MediaPlayer.create(activity.getApplicationContext(), R.raw.kick_mp3);
+
+        RotateAnimation r;
+        r = new RotateAnimation(0, 360f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        r.setInterpolator(new LinearInterpolator());
+        r.setDuration(20000);
+        r.setRepeatCount(Animation.INFINITE);
+        sunburst.startAnimation(r);
 
         startServer.setOnClickListener(new View.OnClickListener() {
             @Override

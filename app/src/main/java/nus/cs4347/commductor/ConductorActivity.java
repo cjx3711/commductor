@@ -1,7 +1,7 @@
 package nus.cs4347.commductor;
 
 import android.annotation.SuppressLint;
-import android.bluetooth.BluetoothManager;
+
 import android.media.MediaPlayer;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -11,8 +11,13 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
+import android.content.Context;
+
 
 import nus.cs4347.commductor.bluetooth.BTServerManager;
+import nus.cs4347.commductor.gestures.GesturesProcessor;
+import nus.cs4347.commductor.gestures.GesturesTapCallback;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -80,20 +85,60 @@ public class ConductorActivity extends AppCompatActivity {
      * system UI. This is to prevent the jarring behavior of controls going away
      * while interacting with activity UI.
      */
-    private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
+    private int gestureType = 0;
+//    155
+    private final int GESTURE_PACKET_DELAY_MILLIS = 400;
+    private final GesturesProcessor gesturesProcessor = GesturesProcessor.getInstance();
+    private double startOp;
+    private double endOp;
+
+    private final View.OnTouchListener mDetectGestureButtonTouchListener = new View.OnTouchListener() {
+        private Handler mHandler = null;
         @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
+        public boolean onTouch(View view, MotionEvent event) {
 //            if (AUTO_HIDE) {
 //                delayedHide(AUTO_HIDE_DELAY_MILLIS);
 //            }
+            // When User holds onto button
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                Log.d("Pressed", "Button pressed");
+                if (mHandler != null) return true;
+                mHandler = new Handler();
+                mHandler.postDelayed(sendGesturePackets, GESTURE_PACKET_DELAY_MILLIS);
+            }
+            // When User releases button
+            else if (event.getAction() == MotionEvent.ACTION_UP) {
+                Log.d("Released", "Button released");
+                // Stop sending packets
+                mHandler.removeCallbacks(sendGesturePackets);
+                mHandler = null;
+            }
+
             BTServerManager.getInstance().sendMessage("Test packet message");
             return false;
         }
+
+        private Runnable sendGesturePackets = new Runnable() {
+            @Override
+            public void run() {
+                gestureType = gesturesProcessor.getCurrentGesture();
+                Log.d("Sending Packets", "Sending packets for gestures. Gesture: " + GesturesProcessor.gestureTypeFromCode(gestureType));
+                Log.d("AccData", "y: " + GesturesProcessor.getInstance().currentY + " " + "z: " + GesturesProcessor.getInstance().currentZ + "\t" + "Pitch: " + GesturesProcessor.getInstance().getCurrentPitch());
+                gestureText.setText("Gesture: " + GesturesProcessor.gestureTypeFromCode(gestureType));
+                dataText.setText("x: " + GesturesProcessor.getInstance().currentX + "\n" + "y: " + GesturesProcessor.getInstance().currentY + "\n" + "z: " + GesturesProcessor.getInstance().currentZ);
+                // Post itself to handler again
+                mHandler.postDelayed(this, GESTURE_PACKET_DELAY_MILLIS);
+            }
+        };
     };
 
     MediaPlayer kickMP;
 
-    Button dummyButton;
+    Button detectGestureButton;
+
+    private TextView dataText;
+    private TextView gestureText;
+    private TextView pitchRollText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,8 +149,9 @@ public class ConductorActivity extends AppCompatActivity {
         mVisible = true;
         mControlsView = findViewById(R.id.fullscreen_content_controls);
         mContentView = findViewById(R.id.fullscreen_content);
-        dummyButton = (Button)findViewById(R.id.dummy_button);
-
+        detectGestureButton = (Button)findViewById(R.id.detect_gesture_button);
+        gestureText = (TextView)findViewById(R.id.gesture_text);
+        dataText = (TextView)findViewById(R.id.data_text);
 
         // Set up the user interaction to manually show or hide the system UI.
         mContentView.setOnClickListener(new View.OnClickListener() {
@@ -118,7 +164,10 @@ public class ConductorActivity extends AppCompatActivity {
         // Upon interacting with UI controls, delay any scheduled hide()
         // operations to prevent the jarring behavior of controls going away
         // while interacting with the UI.
-        dummyButton.setOnTouchListener(mDelayHideTouchListener);
+        detectGestureButton.setOnTouchListener(mDetectGestureButtonTouchListener);
+
+        AppData.getInstance().init(getApplicationContext());
+        GesturesProcessor.getInstance().init();
     }
 
     @Override
@@ -188,4 +237,5 @@ public class ConductorActivity extends AppCompatActivity {
         }
 
     }
+
 }

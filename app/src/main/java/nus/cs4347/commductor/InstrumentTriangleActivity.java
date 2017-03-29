@@ -27,6 +27,8 @@ import android.media.SoundPool;
 import android.media.SoundPool.OnLoadCompleteListener;
 import android.widget.TextView;
 
+import org.w3c.dom.Text;
+
 
 public class InstrumentTriangleActivity extends AppCompatActivity {
 
@@ -36,6 +38,9 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
     private SoundPool soundPool;
     private int soundID;
     boolean loaded = false;
+
+    TextView volumeText;
+    TextView bandpassText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +75,8 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
             }
         });
         message = (TextView)findViewById(R.id.message);
+        volumeText = (TextView)findViewById(R.id.text_volume);
+        bandpassText = (TextView)findViewById(R.id.text_bandpass);
 
         // GesturesTapCallback
         GesturesTapCallback tapCallback = new GesturesTapCallback(){
@@ -80,19 +87,26 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
         // Init Gesture Processor with callback
         GesturesProcessor.getInstance().init(tapCallback);
 
+        final Runnable updateTextRunnable = new Runnable() {
+            @Override
+            public void run() {
+                updateText();
+            }
+        };
         BTPacketCallback packetCallback = new BTPacketCallback() {
             @Override
             public void packetReceived(BluetoothSocket socket, BTDataPacket packet) {
-                if ( packet.getHeader() == BTPacketHeader.STRING_DATA ) {
-                    Toast.makeText(AppData.getInstance().getApplicationContext(), packet.stringData, Toast.LENGTH_SHORT).show();
-                }
+                runOnUiThread(updateTextRunnable);
             }
         };
         BTClientManager.getInstance().setCallback(packetCallback);
 
     }
 
-
+    public void updateText() {
+        volumeText.setText((BTClientManager.getInstance().getInstrumentalist().getModifier1() * 100 )+ "");
+        bandpassText.setText((BTClientManager.getInstance().getInstrumentalist().getModifier2() * 100 )+ "");
+    }
 //    @Override
 //    protected void onResume() {
 //        super.onResume();

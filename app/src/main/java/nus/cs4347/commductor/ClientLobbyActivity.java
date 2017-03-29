@@ -21,6 +21,7 @@ import nus.cs4347.commductor.bluetooth.BTDataPacket;
 import nus.cs4347.commductor.bluetooth.BTPacketCallback;
 import nus.cs4347.commductor.bluetooth.BTPacketHeader;
 import nus.cs4347.commductor.bluetooth.BTConnectCallback;
+import nus.cs4347.commductor.client.Instrumentalist;
 import nus.cs4347.commductor.enums.InstrumentType;
 
 public class ClientLobbyActivity extends AppCompatActivity {
@@ -44,8 +45,6 @@ public class ClientLobbyActivity extends AppCompatActivity {
     // Feedback text views
     TextView connectedTextView;
     TextView selectedTextView;
-
-    InstrumentType selectedInstrument = null;
 
     BTPacketCallback startActivityCallback;
 
@@ -111,21 +110,22 @@ public class ClientLobbyActivity extends AppCompatActivity {
         View.OnClickListener instrumentSelect = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Instrumentalist instrumentalist = BTClientManager.getInstance().getInstrumentalist();
                 if ( v == triangleButton ) {
-                    selectedInstrument = InstrumentType.TRIANGLE;
+                    instrumentalist.setType(InstrumentType.TRIANGLE);
                 }
                 if ( v == coconutButton ) {
-                    selectedInstrument = InstrumentType.COCONUT;
+                    instrumentalist.setType(InstrumentType.COCONUT);
                 }
                 if ( v == pianoButton ) {
-                    selectedInstrument = InstrumentType.PIANO;
+                    instrumentalist.setType(InstrumentType.PIANO);
                 }
                 if ( v == drumsButton ) {
-                    selectedInstrument = InstrumentType.DRUMS;
+                    instrumentalist.setType(InstrumentType.DRUMS);
                 }
 
-                if ( selectedInstrument != null ) {
-                    selectedTextView.setText("Selected: " + selectedInstrument.toString());
+                if ( instrumentalist.getType() != null ) {
+                    selectedTextView.setText("Selected: " + instrumentalist.getType().toString());
                 }
 
                 sendInstrumentPacket();
@@ -168,18 +168,18 @@ public class ClientLobbyActivity extends AppCompatActivity {
     }
 
     protected void sendInstrumentPacket() {
-        if ( selectedInstrument != null ) {
+        if ( BTClientManager.getInstance().getInstrumentalist().getType() != null ) {
             BTDataPacket packet = new BTDataPacket(BTPacketHeader.CLIENT_INSTRUMENT_TYPE);
-            packet.intData = selectedInstrument.getInt();
+            packet.intData = BTClientManager.getInstance().getInstrumentalist().getType().getInt();
             BTClientManager.getInstance().sendPacket(packet);
         }
     }
 
     protected void startInstrumentActivity() {
 
-        if ( selectedInstrument != null ) {
+        if ( BTClientManager.getInstance().getInstrumentalist().getType() != null ) {
             Intent intent;
-            switch (selectedInstrument) {
+            switch (BTClientManager.getInstance().getInstrumentalist().getType()) {
                 case DRUMS:
                     intent = new Intent(getApplicationContext(), InstrumentDrumkitActivity.class);
                     break;

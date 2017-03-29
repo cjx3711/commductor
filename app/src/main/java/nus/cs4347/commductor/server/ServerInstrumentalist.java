@@ -29,14 +29,14 @@ public class ServerInstrumentalist extends Instrumentalist {
         return service;
     }
 
-    public void updateModifier1() {
+    public void sendModifier1() {
         if ( service != null ) {
             BTDataPacket packet = new BTDataPacket(BTPacketHeader.SERVER_UPDATE_MODIFIER_1);
             packet.floatData = modifier1;
             service.write(packet);
         }
     }
-    public void updateModifier2() {
+    public void sendModifier2() {
         if ( service != null ) {
             BTDataPacket packet = new BTDataPacket(BTPacketHeader.SERVER_UPDATE_MODIFIER_2);
             packet.floatData = modifier2;

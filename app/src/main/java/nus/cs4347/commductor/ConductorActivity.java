@@ -2,18 +2,13 @@ package nus.cs4347.commductor;
 
 import android.os.Handler;
 import android.support.v4.view.ViewPager;
-import android.annotation.SuppressLint;
 
-import android.media.MediaPlayer;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
-import android.content.Context;
 
 
 import java.util.ArrayList;
@@ -24,7 +19,6 @@ import nus.cs4347.commductor.bluetooth.BTServerManager;
 import nus.cs4347.commductor.display.PlayerPagerAdapter;
 import nus.cs4347.commductor.server.ServerInstrumentalist;
 import nus.cs4347.commductor.gestures.GesturesProcessor;
-import nus.cs4347.commductor.gestures.GesturesTapCallback;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -33,13 +27,8 @@ import nus.cs4347.commductor.gestures.GesturesTapCallback;
 public class ConductorActivity extends AppCompatActivity {
     private final String TAG = "ConductorActivity";
 
-    /**
-     * Touch listener to use for in-layout UI controls to delay hiding the
-     * system UI. This is to prevent the jarring behavior of controls going away
-     * while interacting with activity UI.
-     */
     private int gestureType = 0;
-    private final int GESTURE_PACKET_DELAY_MILLIS = 400;
+    private final int GESTURE_PACKET_DELAY_MILLIS = 200;
 
     private final View.OnTouchListener mDetectGestureButtonTouchListener = new View.OnTouchListener() {
         private Handler mHandler = null;
@@ -50,14 +39,14 @@ public class ConductorActivity extends AppCompatActivity {
 //            }
             // When User holds onto button
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                Log.d("Pressed", "Button pressed");
+                Log.d(TAG, "Button pressed");
                 if (mHandler != null) return true;
                 mHandler = new Handler();
                 mHandler.postDelayed(sendGesturePackets, GESTURE_PACKET_DELAY_MILLIS);
             }
             // When User releases button
             else if (event.getAction() == MotionEvent.ACTION_UP) {
-                Log.d("Released", "Button released");
+                Log.d(TAG, "Button released");
                 // Stop sending packets
                 mHandler.removeCallbacks(sendGesturePackets);
                 mHandler = null;
@@ -71,10 +60,37 @@ public class ConductorActivity extends AppCompatActivity {
             @Override
             public void run() {
                 gestureType = GesturesProcessor.getInstance().getCurrentGesture();
-                Log.d("Sending Packets", "Sending packets for gestures. Gesture: " + GesturesProcessor.gestureTypeFromCode(gestureType));
-                Log.d("Angle", "Pitch: " + GesturesProcessor.getInstance().getCurrentPitch() + " Roll: " + GesturesProcessor.getInstance().getCurrentRoll());
-                Log.d("Gesture", GesturesProcessor.gestureTypeFromCode(gestureType));
-                Log.d("Data", "x: " + GesturesProcessor.getInstance().currentX + "\n" + "y: " + GesturesProcessor.getInstance().currentY + "\n" + "z: " + GesturesProcessor.getInstance().currentZ);
+//                Log.d(TAG, "Sending packets for gestures. Gesture: " + GesturesProcessor.gestureTypeFromCode(gestureType));
+                Log.d(TAG, "Pitch: " + GesturesProcessor.getInstance().getCurrentPitch() + " Roll: " + GesturesProcessor.getInstance().getCurrentRoll());
+                Log.d(TAG, GesturesProcessor.gestureTypeFromCode(gestureType));
+//                Log.d(TAG, "x: " + GesturesProcessor.getInstance().currentX + "\n" + "y: " + GesturesProcessor.getInstance().currentY + "\n" + "z: " + GesturesProcessor.getInstance().currentZ);
+
+                switch ( gestureType ) {
+                    case GesturesProcessor.TILTING_DOWN:
+                    case GesturesProcessor.TILTING_UP:
+                        double pitch = GesturesProcessor.getInstance().getCurrentPitch();
+                        // Convert pitch from (-50 to 50) to (0 to 1)
+                        pitch = (pitch + 50) / 100.0;
+                        Log.d(TAG, "Modifier: " + pitch);
+                        if ( selectedInstrumentalist != null ) {
+                            selectedInstrumentalist.setModifier1((float)pitch);
+                            selectedInstrumentalist.sendModifier1();
+                        }
+                        break;
+
+                    case GesturesProcessor.ROLLING_RIGHT:
+                    case GesturesProcessor.ROLLING_LEFT:
+                        double roll = GesturesProcessor.getInstance().getCurrentRoll();
+                        // Convert roll from (50 to -50) to (0 to 1)
+                        roll = 1 - ((roll + 50 ) / 100.0);
+                        Log.d(TAG, "Modifier: " + roll);
+
+                        if ( selectedInstrumentalist != null ) {
+                            selectedInstrumentalist.setModifier2((float)roll);
+                            selectedInstrumentalist.sendModifier2();
+                        }
+                        break;
+                }
                 // Post itself to handler again
                 mHandler.postDelayed(this, GESTURE_PACKET_DELAY_MILLIS);
             }

@@ -1,6 +1,7 @@
 package nus.cs4347.commductor.bluetooth;
 
 import android.bluetooth.BluetoothSocket;
+import android.util.Log;
 
 import nus.cs4347.commductor.client.Instrumentalist;
 
@@ -14,6 +15,7 @@ public class BTClientManager {
         return singleton;
     }
 
+    private static final String TAG = "BTClientManager";
     private BluetoothSocket bluetoothSocket;
     private BluetoothService bluetoothService;
 
@@ -28,12 +30,16 @@ public class BTClientManager {
         interceptCallback = new BTPacketCallback() {
             @Override
             public void packetReceived(BluetoothSocket socket, BTDataPacket packet) {
-                BTPacketHeader header = packet.getHeader();
-                if ( header == BTPacketHeader.SERVER_UPDATE_MODIFIER_1 ) {
-                    instrumentalist.setModifier1(packet.floatData);
-                } else if ( header == BTPacketHeader.SERVER_UPDATE_MODIFIER_2 ) {
-                    instrumentalist.setModifier2(packet.floatData);
+                if ( packet != null ) {
+                    BTPacketHeader header = packet.getHeader();
+                    if ( header == BTPacketHeader.SERVER_UPDATE_MODIFIER_1 ) {
+                        instrumentalist.setModifier1(packet.floatData);
+                    } else if ( header == BTPacketHeader.SERVER_UPDATE_MODIFIER_2 ) {
+                        instrumentalist.setModifier2(packet.floatData);
+                    }
+                    Log.d(TAG, "Modifiers updated: " + instrumentalist.getModifier1() + " " + instrumentalist.getModifier2());
                 }
+
                 if ( externalCallback != null ) {
                     externalCallback.packetReceived(socket, packet);
                 }

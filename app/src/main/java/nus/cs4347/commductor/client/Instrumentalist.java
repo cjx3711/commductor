@@ -49,21 +49,21 @@ public class Instrumentalist {
 
     public void setModifier1(float modifier1) {
         this.modifier1 = modifier1;
-        if ( modifier1 > 1 ) {
-            modifier1 = 1;
+        if ( this.modifier1 > 1 ) {
+            this.modifier1 = 1;
         }
-        if ( modifier1 < 0 ) {
-            modifier1 = 0;
+        if ( this.modifier1 < 0 ) {
+            this.modifier1 = 0;
         }
     }
 
     public void setModifier2(float modifier2) {
         this.modifier2 = modifier2;
-        if ( modifier2 > 1 ) {
-            modifier2 = 1;
+        if ( this.modifier2 > 1 ) {
+            this.modifier2 = 1;
         }
-        if ( modifier2 < 0 ) {
-            modifier2 = 0;
+        if ( this.modifier2 < 0 ) {
+            this.modifier2 = 0;
         }
     }
 

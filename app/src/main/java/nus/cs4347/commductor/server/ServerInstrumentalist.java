@@ -2,22 +2,23 @@ package nus.cs4347.commductor.server;
 
 import android.bluetooth.BluetoothSocket;
 
+import nus.cs4347.commductor.bluetooth.BTDataPacket;
+import nus.cs4347.commductor.bluetooth.BTPacketHeader;
 import nus.cs4347.commductor.bluetooth.BluetoothService;
-import nus.cs4347.commductor.enums.InstrumentType;
+import nus.cs4347.commductor.client.Instrumentalist;
+
 
 /**
  * This object represents the state of a given instrument on the server
  */
 
-public class ServerInstrumentalist {
+public class ServerInstrumentalist extends Instrumentalist {
     private BluetoothSocket socket;
     private BluetoothService service;
-    private InstrumentType type;
 
     public ServerInstrumentalist(BluetoothSocket socket, BluetoothService service) {
         this.socket = socket;
         this.service = service;
-        type = null;
     }
 
     public BluetoothSocket getSocket() {
@@ -28,12 +29,19 @@ public class ServerInstrumentalist {
         return service;
     }
 
-    public InstrumentType getType() {
-        return type;
+    public void updateModifier1() {
+        if ( service != null ) {
+            BTDataPacket packet = new BTDataPacket(BTPacketHeader.SERVER_UPDATE_MODIFIER_1);
+            packet.floatData = modifier1;
+            service.write(packet);
+        }
     }
-
-    public void setType(InstrumentType type) {
-        this.type = type;
+    public void updateModifier2() {
+        if ( service != null ) {
+            BTDataPacket packet = new BTDataPacket(BTPacketHeader.SERVER_UPDATE_MODIFIER_2);
+            packet.floatData = modifier2;
+            service.write(packet);
+        }
     }
 }
 

@@ -18,8 +18,9 @@ public enum BTPacketHeader {
     SEND_FAILURE(1),
     STRING_DATA(2),
     CLIENT_INSTRUMENT_TYPE(3),
-    SERVER_START_GAME(4);
-
+    SERVER_START_GAME(4),
+    SERVER_UPDATE_MODIFIER_1(5),
+    SERVER_UPDATE_MODIFIER_2(6);
     private int mValue;
 
     private static Map<Integer, BTPacketHeader> map = new HashMap<>();

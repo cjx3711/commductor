@@ -2,6 +2,8 @@ package nus.cs4347.commductor.bluetooth;
 
 import android.bluetooth.BluetoothSocket;
 
+import nus.cs4347.commductor.client.Instrumentalist;
+
 /**
  * Singleton that manages the single connection for the client.
  */
@@ -15,12 +17,37 @@ public class BTClientManager {
     private BluetoothSocket bluetoothSocket;
     private BluetoothService bluetoothService;
 
+    private BTPacketCallback interceptCallback;
+    private BTPacketCallback externalCallback;
+
+    private Instrumentalist instrumentalist;
+
+    private BTClientManager() {
+        instrumentalist = new Instrumentalist();
+        // Allows the client manager to
+        interceptCallback = new BTPacketCallback() {
+            @Override
+            public void packetReceived(BluetoothSocket socket, BTDataPacket packet) {
+                BTPacketHeader header = packet.getHeader();
+                if ( header == BTPacketHeader.SERVER_UPDATE_MODIFIER_1 ) {
+                    instrumentalist.setModifier1(packet.floatData);
+                } else if ( header == BTPacketHeader.SERVER_UPDATE_MODIFIER_2 ) {
+                    instrumentalist.setModifier2(packet.floatData);
+                }
+                if ( externalCallback != null ) {
+                    externalCallback.packetReceived(socket, packet);
+                }
+            }
+        };
+    }
+
     public void setSocket(BluetoothSocket socket) {
         if ( bluetoothSocket != null ) {
             reset();
         }
         bluetoothSocket = socket;
         bluetoothService = new BluetoothService(bluetoothSocket);
+        bluetoothService.setCallback(interceptCallback);
     }
 
 //    public void initBluetoothService() {
@@ -35,9 +62,7 @@ public class BTClientManager {
      * @param callback Callback to set
      */
     public void setCallback(BTPacketCallback callback) {
-        if ( bluetoothService != null ) {
-            bluetoothService.setCallback(callback);
-        }
+        externalCallback = callback;
     }
 
     public void sendPacket(BTDataPacket packet) {
@@ -57,6 +82,10 @@ public class BTClientManager {
 
             }
         }
+    }
+
+    public Instrumentalist getInstrumentalist() {
+        return instrumentalist;
     }
 
 }

@@ -31,7 +31,7 @@ public class ConductorActivity extends AppCompatActivity {
     private final int GESTURE_PACKET_DELAY_MILLIS = 200;
 
     private final View.OnTouchListener mDetectGestureButtonTouchListener = new View.OnTouchListener() {
-        private Handler mHandler = null;
+        private Handler mHandler = new Handler();
         @Override
         public boolean onTouch(View view, MotionEvent event) {
 //            if (AUTO_HIDE) {
@@ -40,8 +40,6 @@ public class ConductorActivity extends AppCompatActivity {
             // When User holds onto button
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
                 Log.d(TAG, "Button pressed");
-                if (mHandler != null) return true;
-                mHandler = new Handler();
                 mHandler.postDelayed(sendGesturePackets, GESTURE_PACKET_DELAY_MILLIS);
             }
             // When User releases button
@@ -49,7 +47,6 @@ public class ConductorActivity extends AppCompatActivity {
                 Log.d(TAG, "Button released");
                 // Stop sending packets
                 mHandler.removeCallbacks(sendGesturePackets);
-                mHandler = null;
             }
 
             BTServerManager.getInstance().sendMessage("Test packet message");

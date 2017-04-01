@@ -9,6 +9,8 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 
 import java.util.ArrayList;
@@ -29,6 +31,11 @@ public class ConductorActivity extends AppCompatActivity {
 
     private int gestureType = 0;
     private final int GESTURE_PACKET_DELAY_MILLIS = 200;
+
+    private TextView modifier1NameText;
+    private TextView modifier2NameText;
+    private ProgressBar modifier1Progress;
+    private ProgressBar modifier2Progress;
 
     private final View.OnTouchListener mDetectGestureButtonTouchListener = new View.OnTouchListener() {
         private Handler mHandler = new Handler();
@@ -69,7 +76,6 @@ public class ConductorActivity extends AppCompatActivity {
                         // Convert pitch from (-50 to 50) to (-1 to 1)
                         pitch = (pitch) / 50.0;
                         if ( selectedInstrumentalist != null ) {
-//                            selectedInstrumentalist.setModifier1((float)pitch);
                             selectedInstrumentalist.changeModifier1((float)(pitch * 0.3));
                             Log.d(TAG, "Modifier: " + selectedInstrumentalist.getModifier1());
                             selectedInstrumentalist.sendModifier1();
@@ -89,6 +95,8 @@ public class ConductorActivity extends AppCompatActivity {
                         }
                         break;
                 }
+
+                updateProgress();
                 // Post itself to handler again
                 mHandler.postDelayed(this, GESTURE_PACKET_DELAY_MILLIS);
             }
@@ -104,11 +112,19 @@ public class ConductorActivity extends AppCompatActivity {
 
     ServerInstrumentalist selectedInstrumentalist;
     ArrayList<ServerInstrumentalist> serverInstrumentalists;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_conductor);
+
+        modifier1NameText = (TextView)findViewById(R.id.text_modifier1);
+        modifier2NameText = (TextView)findViewById(R.id.text_modifier2);
+
+        modifier1Progress = (ProgressBar) findViewById(R.id.progress_modifier1);
+        modifier2Progress = (ProgressBar) findViewById(R.id.progress_modifier2);
 
         serverInstrumentalists = BTServerManager.getInstance().getInstrumentalistList();
         detectGestureButton = (Button)findViewById(R.id.detect_gesture_button);
@@ -142,6 +158,8 @@ public class ConductorActivity extends AppCompatActivity {
                 int selectedIndex = position % serverInstrumentalists.size();
                 selectedInstrumentalist = serverInstrumentalists.get(selectedIndex);
                 Log.d(TAG, "Selected:" + selectedIndex);
+
+                updateProgress();
             }
 
             @Override
@@ -163,6 +181,24 @@ public class ConductorActivity extends AppCompatActivity {
             }
         });
 
+        updateProgress();
+
+    }
+
+    private void updateProgress() {
+        // Update progress bar
+        if ( selectedInstrumentalist != null ) {
+            modifier1NameText.setText("Volume");
+            modifier2NameText.setText("Bandpass");
+            modifier1Progress.setProgress((int)(selectedInstrumentalist.getModifier1() * 100));
+            modifier2Progress.setProgress((int)(selectedInstrumentalist.getModifier2() * 100));
+        } else {
+            modifier1NameText.setText("No player selected");
+            modifier2NameText.setText("No player selected");
+            modifier1Progress.setProgress(0);
+            modifier2Progress.setProgress(0);
+
+        }
     }
 
 }

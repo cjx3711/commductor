@@ -18,28 +18,45 @@ public class SynthThreadManager {
 
     private SynthesizerThread synthThreads[];
     private Stack<Integer> unusedThreadIndices;
+    private boolean isInitialized = false;
 
     //HashMap to store user input to thread mapping.
     private Map<Integer, Integer> keyToThreadMap = new HashMap<Integer, Integer>();
 
-    public SynthThreadManager() {
+    private static SynthThreadManager singleton = new SynthThreadManager();
+
+    private SynthThreadManager() {
         synthThreads = new SynthesizerThread[NUM_THREADS];
         unusedThreadIndices = new Stack<Integer> ();
         for (int i = 0; i < synthThreads.length; i++) {
             synthThreads[i] = new SynthesizerThread();
-            unusedThreadIndices.push (i);
+            unusedThreadIndices.push(i);
         }
     }
 
+    public static SynthThreadManager getInstance(){
+        return singleton;
+    }
+
     public void init () {
+        if(isInitialized){
+            return;
+        }
         for (int i = 0; i < synthThreads.length; i++) {
             synthThreads[i].start();
         }
+        isInitialized = true;
     }
 
     public boolean playNote (int key) {
         //There is a free thread and the note can be played.
         if (unusedThreadIndices.size() > 0) {
+            //Don't play the note if there's another thread playing the same key.
+            if (keyToThreadMap.containsKey (key)) {
+                if (keyToThreadMap.get (key) >= 0) {
+                    return false;
+                }
+            }
             int threadToUseIndex = unusedThreadIndices.pop();
             synthThreads[threadToUseIndex].setFundamentalFrequency (60 + key);
             synthThreads[threadToUseIndex].startSynthesizing();
@@ -61,13 +78,5 @@ public class SynthThreadManager {
             }
         }
         return false;
-    }
-
-    public void destroy() {
-        for (int i = 0; i < synthThreads.length; i++) {
-            synthThreads[i].finish();
-            synthThreads[i].interrupt();
-            synthThreads[i] = null;
-        }
     }
 }

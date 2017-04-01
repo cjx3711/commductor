@@ -7,6 +7,7 @@ import android.util.Log;
 
 import nus.cs4347.commductor.AppData;
 
+
 /**
  * Created by glutSolidSphere on 29/3/2017.
  */
@@ -23,14 +24,16 @@ public class SynthesizerThread extends Thread {
     private short samples[];
 
     public int samplingRate = 8000;
-    public int amplitude = 10000;
+    public int amplitude = 1000;
+    private double currentADSRMultiplier = 0.f;
+    public double ADSRAttackVelocity = 0.f;
     public double fundamentalFrequency = 440.f;
     private int wave = 0;
 
     private boolean isRunning = true;
     private boolean isSynthesizing = false;
 
-    public SynthesizerThread() {
+    SynthesizerThread() {
         //Set the buffer size
         bufferSize = AudioTrack.getMinBufferSize (
             samplingRate,

@@ -8,16 +8,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 
+import nus.cs4347.commductor.bluetooth.BTClientManager;
 import nus.cs4347.commductor.display.Piano;
 import nus.cs4347.commductor.synthesizer.SynthThreadManager;
 
 public class InstrumentPianoActivity extends AppCompatActivity {
     private static final String TAG = "InstrumentPianoActivity";
     Piano piano;
-
-    private SoundPool soundPool;
-    private int soundID;
-    boolean loaded = false;
 
     private SynthThreadManager synthThreadManager;
 
@@ -41,13 +38,8 @@ public class InstrumentPianoActivity extends AppCompatActivity {
                 }
                 Log.d(TAG, id + " " + action);
                 synthThreadManager.playNote(id);
-                AudioManager audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
-                float actualVolume = (float) audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-                float maxVolume = (float) audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
 
-                float volume = actualVolume / maxVolume;
-
-                //soundPool.play(soundID, volume, volume, 1, 0, 1f);
+                Log.d ( TAG, "Piano Activity Volume Modulator: " + BTClientManager.getInstance().getInstrumentalist().getModifier1() );
             }
         });
     }

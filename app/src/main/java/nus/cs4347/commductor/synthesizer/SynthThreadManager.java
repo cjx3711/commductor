@@ -48,6 +48,12 @@ public class SynthThreadManager {
     public boolean playNote (int key) {
         //There is a free thread and the note can be played.
         if (unusedThreadIndices.size() > 0) {
+            //Don't play the note if there's another thread playing the same key.
+            if (keyToThreadMap.containsKey (key)) {
+                if (keyToThreadMap.get (key) >= 0) {
+                    return false;
+                }
+            }
             int threadToUseIndex = unusedThreadIndices.pop();
             synthThreads[threadToUseIndex].setFundamentalFrequency (60 + key);
             synthThreads[threadToUseIndex].startSynthesizing();

@@ -46,6 +46,7 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
 
     TextView volumeText;
     TextView bandpassText;
+    TextView titleText;
 
     int format;
     int channels;
@@ -79,6 +80,7 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
 
         volumeText = (TextView)findViewById(R.id.text_volume);
         bandpassText = (TextView)findViewById(R.id.text_bandpass);
+        titleText = (TextView)findViewById(R.id.text_title);
 
         // GesturesTapCallback
         GesturesTapCallback tapCallback = new GesturesTapCallback(){
@@ -113,6 +115,9 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
     public void updateText() {
         volumeText.setText((BTClientManager.getInstance().getInstrumentalist().getModifier1() * 100 )+ "");
         bandpassText.setText((BTClientManager.getInstance().getInstrumentalist().getModifier2() * 100 )+ "");
+        if (BTClientManager.getInstance().getInstrumentalist().getType() == InstrumentType.COCONUT) {
+           titleText.setText("Coconut Tok Tok");
+        }
     }
 //    @Override
 //    protected void onResume() {
@@ -272,8 +277,10 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
     public void onDestroy(){
         super.onDestroy();
 //        isRunning = false;
-        t.interrupt();
-        t = null;
+        if (t != null) {
+            t.interrupt();
+            t = null;
+        }
     }
     // Getting the user sound settings
     // This will be changed later on, when controlling it

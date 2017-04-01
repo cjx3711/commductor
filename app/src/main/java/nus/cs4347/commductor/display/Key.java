@@ -4,6 +4,7 @@ package nus.cs4347.commductor.display;
 import java.util.ArrayList;
 
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 
 public class Key {
 
@@ -22,7 +23,14 @@ public class Key {
     }
 
     public Boolean isPressed() {
+        if ( fingers.size() > 0 ) {
+            Log.d("Key", id + " pressed");
+        }
         return fingers.size() > 0;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public void press(Finger finger) {

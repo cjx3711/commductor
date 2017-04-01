@@ -1,5 +1,6 @@
 package nus.cs4347.commductor;
 
+import android.bluetooth.BluetoothSocket;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.view.MotionEvent;
@@ -7,8 +8,13 @@ import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 
 import nus.cs4347.commductor.bluetooth.BTClientManager;
+import nus.cs4347.commductor.bluetooth.BTDataPacket;
+import nus.cs4347.commductor.bluetooth.BTPacketCallback;
 import nus.cs4347.commductor.display.Piano;
 import nus.cs4347.commductor.synthesizer.SynthThreadManager;
 
@@ -17,6 +23,15 @@ public class InstrumentPianoActivity extends AppCompatActivity {
     Piano piano;
 
     private SynthThreadManager synthThreadManager;
+
+    TextView volumeText;
+    TextView bandpassText;
+
+    Button addButton, removeButton;
+
+    int keys = 13;
+    int minKeys = 12;
+    int maxKeys = 25;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +57,51 @@ public class InstrumentPianoActivity extends AppCompatActivity {
                 Log.d ( TAG, "Piano Activity Volume Modulator: " + BTClientManager.getInstance().getInstrumentalist().getModifier1() );
             }
         });
+
+        View.OnClickListener keyAddingListener = new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                if ( v == addButton ) {
+                    keys++;
+                } else {
+                    keys--;
+                }
+                if ( keys > maxKeys ) keys = maxKeys;
+                if ( keys < minKeys ) keys = minKeys;
+                piano.setKeys(keys);
+            }
+        };
+        piano.setKeys(keys);
+
+
+        addButton = (Button)findViewById(R.id.button_add_key);
+        removeButton = (Button)findViewById(R.id.button_remove_key);
+        addButton.setOnClickListener(keyAddingListener);
+        removeButton.setOnClickListener(keyAddingListener);
+
+        volumeText = (TextView)findViewById(R.id.text_volume);
+        bandpassText = (TextView)findViewById(R.id.text_bandpass);
+
+        final Runnable updateTextRunnable = new Runnable() {
+            @Override
+            public void run() {
+                updateText();
+            }
+        };
+        BTPacketCallback packetCallback = new BTPacketCallback() {
+            @Override
+            public void packetReceived(BluetoothSocket socket, BTDataPacket packet) {
+                runOnUiThread(updateTextRunnable);
+            }
+        };
+        BTClientManager.getInstance().setCallback(packetCallback);
+        updateText();
+    }
+
+    public void updateText() {
+        volumeText.setText((BTClientManager.getInstance().getInstrumentalist().getModifier1() * 100 )+ "");
+        bandpassText.setText((BTClientManager.getInstance().getInstrumentalist().getModifier2() * 100 )+ "");
     }
 
 //    @Override

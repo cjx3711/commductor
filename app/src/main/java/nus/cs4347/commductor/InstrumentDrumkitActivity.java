@@ -29,6 +29,7 @@ import nus.cs4347.commductor.bluetooth.BTPacketCallback;
  */
 
 public class InstrumentDrumkitActivity extends AppCompatActivity {
+    Thread t;
     int Fs = 44100; // sample rate, default
     Button [] drumButtons;
 
@@ -82,7 +83,7 @@ public class InstrumentDrumkitActivity extends AppCompatActivity {
                     if ( event.getAction() == MotionEvent.ACTION_DOWN ) {
                         for ( int j = 0; j < 8; j++ ) {
                             if ( v == drumButtons[j] ) {
-                                Thread t = new Thread() {
+                                t = new Thread() {
                                     public void run() {
                                         playDrum(buffsize, context, drumMap[index]);
                                     }
@@ -160,6 +161,15 @@ public class InstrumentDrumkitActivity extends AppCompatActivity {
         audioTrack.release();
     }
 
+    public void onDestroy(){
+        super.onDestroy();
+        try {
+            t.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        t = null;
+    }
 
     public void updateText() {
         volumeText.setText((BTClientManager.getInstance().getInstrumentalist().getModifier1() * 100 )+ "");

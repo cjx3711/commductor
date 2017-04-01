@@ -11,12 +11,12 @@
         android:id="@+id/sunburst"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_marginLeft="-200dp"
-        android:layout_marginRight="-200dp"
-        android:layout_marginBottom="-200dp"
-        android:layout_marginTop="-200dp"
+        android:layout_marginLeft="-300dp"
+        android:layout_marginRight="-300dp"
+        android:layout_marginBottom="-300dp"
+        android:layout_marginTop="-300dp"
         android:src="@drawable/sunburst_3"
-        android:scaleType="center" />
+        android:scaleType="fitCenter" />
 
     <ImageView
         android:layout_width="match_parent"

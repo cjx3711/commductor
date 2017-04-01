@@ -7,6 +7,7 @@ import android.util.Log;
 
 import nus.cs4347.commductor.AppData;
 
+
 /**
  * Created by glutSolidSphere on 29/3/2017.
  */
@@ -30,7 +31,7 @@ public class SynthesizerThread extends Thread {
     private boolean isRunning = true;
     private boolean isSynthesizing = false;
 
-    public SynthesizerThread() {
+    SynthesizerThread() {
         //Set the buffer size
         bufferSize = AudioTrack.getMinBufferSize (
             samplingRate,

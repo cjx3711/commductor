@@ -13,7 +13,7 @@ import nus.cs4347.commductor.synthesizer.SynthesizerThread;
  */
 
 public class SynthThreadManager {
-    private static final int NUM_THREADS = 2;
+    private static final int NUM_THREADS = 3;
     private static final String TAG = "SynthThreadManager";
 
     private SynthesizerThread synthThreads[];
@@ -90,16 +90,5 @@ public class SynthThreadManager {
             synthThreads[i] = null;
         }
         isInitialized = false;
-    }
-
-    public boolean setAmplitude (int key, double amplitudeMod) {
-        if (keyToThreadMap.containsKey (key)) {
-            int threadToAdjustIndex = keyToThreadMap.get (key);
-            if (threadToAdjustIndex >= 0) {
-                synthThreads[threadToAdjustIndex].setAmplitude(amplitudeMod);
-                return true;
-            }
-        }
-        return false;
     }
 }

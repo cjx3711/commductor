@@ -129,7 +129,7 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
                 AudioTrack audioTrack = null;
 
                 try {
-                    InputStream is = getResources().openRawResource(R.raw.fartwav);
+                    InputStream is = getResources().openRawResource(R.raw.triangle);
                     updateHeaderData(is);
 
                     int buffsize = AudioTrack.getMinBufferSize(sample_rate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);

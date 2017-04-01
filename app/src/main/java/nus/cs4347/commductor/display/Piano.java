@@ -15,6 +15,7 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
@@ -31,7 +32,7 @@ public class Piano extends View {
     private int white_key_resource_id;
     private int black_key_resource_id;
     ArrayList<Integer> black_key_indexes = new ArrayList<Integer>(Arrays.asList(1,3,6,8,10));
-
+    private PianoKeyListener listener;
     public Piano(Context context) {
         this(context, null);
     }
@@ -64,6 +65,14 @@ public class Piano extends View {
         initPiano(white_key_resource_id,black_key_resource_id,key_count);
     }
 
+
+    public void setKeys(int key_count) {
+        Log.d("Piano", "Setting keys to " + key_count);
+        generateKeys(key_count);
+        setListenersOnKeys();
+        this.invalidate();
+    }
+
     private void initPiano(int white_key_resource_id, int black_key_resource_id, int key_count){
         this.fingers = new TreeMap<Integer, Finger>();
         this.white_key_resource_id = white_key_resource_id;
@@ -71,6 +80,12 @@ public class Piano extends View {
         this.keymap_white = new TreeMap<Integer, Key>();
         this.keymap_black = new TreeMap<Integer, Key>();
 
+        generateKeys(key_count);
+    }
+
+    private void generateKeys(int key_count) {
+        this.keymap_black.clear();
+        this.keymap_white.clear();
         for(int i = 0; i < key_count; i++){
             if(black_key_indexes.contains(i % 12)){
                 keymap_black.put(i, new Key(i,this));
@@ -81,6 +96,11 @@ public class Piano extends View {
     }
 
     public void setPianoKeyListener(PianoKeyListener listener){
+        this.listener = listener;
+        setListenersOnKeys();
+    }
+
+    private void setListenersOnKeys() {
         for(Key k : this.keymap_black.values()){
             k.setPianoKeyListener(listener);
         }
@@ -88,7 +108,6 @@ public class Piano extends View {
             k.setPianoKeyListener(listener);
         }
     }
-
     public interface PianoKeyListener{
         public void keyPressed(int id, int action);
     }

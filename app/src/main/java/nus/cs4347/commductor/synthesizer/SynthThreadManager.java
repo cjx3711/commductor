@@ -69,7 +69,7 @@ public class SynthThreadManager {
         if (keyToThreadMap.containsKey (key)) {
             int threadToFreeIndex = keyToThreadMap.get (key);
             if (threadToFreeIndex >= 0) {
-                synthThreads[threadToFreeIndex].stopSythesizing();
+                synthThreads[threadToFreeIndex].stopSynthesizing();
                 unusedThreadIndices.push(threadToFreeIndex);
                 keyToThreadMap.put (key, -1);
                 return true;

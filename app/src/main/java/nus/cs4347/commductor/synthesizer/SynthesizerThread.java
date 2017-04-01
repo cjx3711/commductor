@@ -85,7 +85,7 @@ public class SynthesizerThread extends Thread {
         audioTrack.play();
     }
 
-    public void stopSythnesizing() {
+    public void stopSynthesizing() {
         currentADSRState = ADSR_RELEASE;
     }
 

@@ -79,4 +79,15 @@ public class SynthThreadManager {
         }
         return false;
     }
+
+    public boolean setAmplitude (int key, double amplitudeMod) {
+        if (keyToThreadMap.containsKey (key)) {
+            int threadToAdjustIndex = keyToThreadMap.get (key);
+            if (threadToAdjustIndex >= 0) {
+                synthThreads[threadToAdjustIndex].setAmplitude(amplitudeMod);
+                return true;
+            }
+        }
+        return false;
+    }
 }

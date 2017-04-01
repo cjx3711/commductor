@@ -53,8 +53,6 @@ public class InstrumentPianoActivity extends AppCompatActivity {
                 }
                 Log.d(TAG, id + " " + action);
                 synthThreadManager.playNote(id);
-                synthThreadManager.setAmplitude(id, BTClientManager.getInstance().getInstrumentalist().getModifier1());
-                Log.d ( TAG, "Piano Activity Volume Modulator: " + BTClientManager.getInstance().getInstrumentalist().getModifier1() );
             }
         });
 

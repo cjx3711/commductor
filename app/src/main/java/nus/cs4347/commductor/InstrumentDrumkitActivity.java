@@ -1,5 +1,6 @@
 package nus.cs4347.commductor;
 
+import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.media.AudioFormat;
 import android.media.AudioManager;
@@ -20,6 +21,8 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import nus.cs4347.commductor.bluetooth.BTClientManager;
+import nus.cs4347.commductor.bluetooth.BTDataPacket;
+import nus.cs4347.commductor.bluetooth.BTPacketCallback;
 
 /**
  * Basic soundboard for an instrument.
@@ -28,7 +31,9 @@ import nus.cs4347.commductor.bluetooth.BTClientManager;
 public class InstrumentDrumkitActivity extends AppCompatActivity {
     int Fs = 44100; // sample rate, default
     Button [] drumButtons;
-    TextView volumeTV;
+
+    TextView volumeText;
+    TextView bandpassText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +43,9 @@ public class InstrumentDrumkitActivity extends AppCompatActivity {
         final int buffsize = AudioTrack.getMinBufferSize(Fs, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
         final Context context = getApplicationContext();
 
-        volumeTV = (TextView)findViewById(R.id.textview_volume);
+        volumeText = (TextView)findViewById(R.id.text_volume);
+        bandpassText = (TextView)findViewById(R.id.text_bandpass);
+
         drumButtons = new Button[8];
 
         final String [] drumNames = {
@@ -90,6 +97,22 @@ public class InstrumentDrumkitActivity extends AppCompatActivity {
             };
             drumButtons[i].setOnTouchListener(drumTouch);
         }
+
+
+        final Runnable updateTextRunnable = new Runnable() {
+            @Override
+            public void run() {
+                updateText();
+            }
+        };
+        BTPacketCallback packetCallback = new BTPacketCallback() {
+            @Override
+            public void packetReceived(BluetoothSocket socket, BTDataPacket packet) {
+                runOnUiThread(updateTextRunnable);
+            }
+        };
+        BTClientManager.getInstance().setCallback(packetCallback);
+
     }
 
     private void playDrum(int buffsize, Context context, int file) {
@@ -121,7 +144,7 @@ public class InstrumentDrumkitActivity extends AppCompatActivity {
                 int j = 0;
                 while(bb.hasRemaining()) {
                     short v = bb.getShort();
-                    sample[j++] = (short)( v * volume );
+                    sample[j++] = (short)( (float)v * volume );
                 }
 
                 Log.d("Buffer", "J: " + j + " buffer: " + buffsize + " i : " + i);
@@ -135,6 +158,12 @@ public class InstrumentDrumkitActivity extends AppCompatActivity {
 
         audioTrack.stop();
         audioTrack.release();
+    }
+
+
+    public void updateText() {
+        volumeText.setText((BTClientManager.getInstance().getInstrumentalist().getModifier1() * 100 )+ "");
+        bandpassText.setText((BTClientManager.getInstance().getInstrumentalist().getModifier2() * 100 )+ "");
     }
 
 }

@@ -6,6 +6,7 @@ import android.media.AudioFormat;
 import android.media.AudioTrack;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.MotionEvent;
 import android.widget.Toast;
 
 import nus.cs4347.commductor.bluetooth.BTClientManager;
@@ -43,10 +44,13 @@ import java.util.Arrays;
 public class InstrumentTriangleActivity extends AppCompatActivity {
 
     Button playButton;
+    Button holdButton;
 
     TextView volumeText;
     TextView bandpassText;
     TextView titleText;
+
+    boolean isHold = false;
 
     int format;
     int channels;
@@ -66,12 +70,15 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
         setContentView(R.layout.activity_instrument_triangle);
 
         playButton = (Button) findViewById(R.id.button_play_triangle);
+        holdButton = (Button) findViewById(R.id.button_hold);
 
         playButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 try {
-                    playSound();
+                    if (!isHold) {
+                        playSound();
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -82,11 +89,26 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
         bandpassText = (TextView)findViewById(R.id.text_bandpass);
         titleText = (TextView)findViewById(R.id.text_title);
 
+        View.OnTouchListener holdDown = new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if ( event.getAction() == MotionEvent.ACTION_DOWN ) {
+                    isHold = true;
+                } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                    isHold = false;
+                }
+                return false;
+            }
+        };
+        holdButton.setOnTouchListener(holdDown);
+
         // GesturesTapCallback
         GesturesTapCallback tapCallback = new GesturesTapCallback(){
             public void tapDetected(){
                 try {
-                    playSound();
+                    if (!isHold) {
+                        playSound();
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -160,7 +182,7 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
                     byte[] sound = new byte[buffsize];
                     int count = 0;
 
-                    while ((count = is.read(sound, 0, buffsize)) > -1) {
+                    while (!isHold && (count = is.read(sound, 0, buffsize)) > -1) {
 
                         float[] audio = byteToFloat(sound);
                         Log.e("byte count", Arrays.toString(audio));

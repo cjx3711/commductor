@@ -106,7 +106,7 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
         GesturesTapCallback tapCallback = new GesturesTapCallback(){
             public void tapDetected(){
                 try {
-                    if (!isHold) {
+                    if (BTClientManager.getInstance().getInstrumentalist().getType() == InstrumentType.COCONUT || !isHold) {
                         playSound();
                     }
                 } catch (IOException e) {
@@ -139,6 +139,7 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
         bandpassText.setText((BTClientManager.getInstance().getInstrumentalist().getModifier2() * 100 )+ "");
         if (BTClientManager.getInstance().getInstrumentalist().getType() == InstrumentType.COCONUT) {
            titleText.setText("Coconut Tok Tok");
+            holdButton.setVisibility(View.GONE);
         }
     }
 //    @Override
@@ -182,7 +183,7 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
                     byte[] sound = new byte[buffsize];
                     int count = 0;
 
-                    while (!isHold && (count = is.read(sound, 0, buffsize)) > -1) {
+                    while ((BTClientManager.getInstance().getInstrumentalist().getType() == InstrumentType.COCONUT || !isHold) && (count = is.read(sound, 0, buffsize)) > -1) {
 
                         float[] audio = byteToFloat(sound);
                         Log.e("byte count", Arrays.toString(audio));

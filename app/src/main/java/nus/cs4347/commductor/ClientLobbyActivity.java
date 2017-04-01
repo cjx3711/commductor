@@ -15,6 +15,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.Set;
+
 import nus.cs4347.commductor.bluetooth.BTClientConnector;
 import nus.cs4347.commductor.bluetooth.BTClientManager;
 import nus.cs4347.commductor.bluetooth.BTDataPacket;
@@ -68,10 +71,13 @@ public class ClientLobbyActivity extends AppCompatActivity {
 
         // Get paired devices
         String[] pairedStrings;
-        BluetoothDevice [] pairedDevicesSomething = new BluetoothDevice[0];
-        pairedDevicesSomething = AppData.getInstance().getBluetoothAdapter().getBondedDevices().toArray(pairedDevicesSomething);
+        BluetoothDevice [] pairedDevicesTemp = new BluetoothDevice[0];
+        Set<BluetoothDevice> pairedDevicesSet = AppData.getInstance().getBluetoothAdapter().getBondedDevices();
+        if ( pairedDevicesSet != null ) {
+            pairedDevicesTemp = pairedDevicesSet.toArray(pairedDevicesTemp);
+        }
 
-        final BluetoothDevice [] pairedDevices = pairedDevicesSomething;
+        final BluetoothDevice [] pairedDevices = pairedDevicesTemp;
 
         int index = 0;
 

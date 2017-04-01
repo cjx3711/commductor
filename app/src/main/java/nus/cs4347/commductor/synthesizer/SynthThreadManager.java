@@ -43,6 +43,7 @@ public class SynthThreadManager {
             synthThreads[i].start();
             unusedThreadIndices.push(i);
         }
+        isInitialized = true;
     }
 
     public boolean playNote (int key) {
@@ -68,8 +69,8 @@ public class SynthThreadManager {
         if (keyToThreadMap.containsKey (key)) {
             int threadToFreeIndex = keyToThreadMap.get (key);
             if (threadToFreeIndex >= 0) {
-                synthThreads[threadToFreeIndex].stopSythnesizing();
-                unusedThreadIndices.push (threadToFreeIndex);
+                synthThreads[threadToFreeIndex].stopSythesizing();
+                unusedThreadIndices.push(threadToFreeIndex);
                 keyToThreadMap.put (key, -1);
                 return true;
             }
@@ -78,9 +79,14 @@ public class SynthThreadManager {
     }
 
     public void destroy() {
+        // In case destroy is called multiple times due to stupid lifecycle methods firing.
+        if(!isInitialized){
+            return;
+        }
         for (int i = 0; i < synthThreads.length; i++) {
             Log.d("Destroying Thread: ", Integer.toString(i));
             synthThreads[i].interrupt();
+            synthThreads[i].finish();
             synthThreads[i] = null;
         }
         isInitialized = false;

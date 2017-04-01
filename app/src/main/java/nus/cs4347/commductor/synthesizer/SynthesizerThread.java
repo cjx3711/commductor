@@ -65,7 +65,7 @@ public class SynthesizerThread extends Thread {
         audioTrack.play();
     }
 
-    public void stopSythnesizing() {
+    public void stopSythesizing() {
         isSynthesizing = false;
         audioTrack.flush();
         audioTrack.stop();
@@ -87,6 +87,7 @@ public class SynthesizerThread extends Thread {
     public void finish() {
         audioTrack.stop();
         audioTrack.release();
+        isRunning = false;
     }
 
     private void generateNote () {

@@ -26,7 +26,7 @@ public class InstrumentPianoActivity extends AppCompatActivity {
         synthThreadManager = SynthThreadManager.getInstance();
         synthThreadManager.init();
 
-        Log.d("OnCreate", "Creating Piano Activity");
+        Log.d("Lifecycle", "Creating");
 
         piano = (Piano) findViewById(R.id.view_piano);
         piano.setPianoKeyListener(new Piano.PianoKeyListener() {
@@ -44,36 +44,35 @@ public class InstrumentPianoActivity extends AppCompatActivity {
         });
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        Log.d("onStart", "Starting");
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        Log.d("Activity", "Stopping");
-//        synthThreadManager.destroy();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        Log.d("Activity", "Resuming");
-    }
-
-    @Override
-    public void onRestart() {
-        super.onRestart();
-        Log.d("Activity", "Restarting");
-    }
+//    @Override
+//    public void onStart() {
+//        super.onStart();
+//        Log.d("Lifecycle", "Starting");
+//    }
+//
+//    @Override
+//    public void onStop() {
+//        super.onStop();
+//        Log.d("Lifecycle", "Stopping");
+//    }
+//
+//    @Override
+//    public void onResume() {
+//        super.onResume();
+//        Log.d("Lifecycle", "Resuming");
+//    }
+//
+//    @Override
+//    public void onRestart() {
+//        super.onRestart();
+//        Log.d("Lifecycle", "Restarting");
+//    }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.d("Activity", "Destroying");
-//        synthThreadManager.destroy();
+        Log.d("Lifecycle", "Destroying");
+        synthThreadManager.destroy();
     }
 
 }

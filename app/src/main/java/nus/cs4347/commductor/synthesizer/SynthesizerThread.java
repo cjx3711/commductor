@@ -51,8 +51,6 @@ public class SynthesizerThread extends Thread {
         ratios = new double [] {
             5.0/15.0, 4.0/15.0, 3.0/15.0, 2.0/15.0, 1.0/15.0
         };
-
-        audioTrack.play();
     }
 
     public void setFundamentalFrequency (int pitch) {
@@ -61,11 +59,13 @@ public class SynthesizerThread extends Thread {
 
     public void startSynthesizing() {
         isSynthesizing = true;
+        audioTrack.play();
     }
 
     public void stopSythnesizing() {
         isSynthesizing = false;
         audioTrack.flush();
+        audioTrack.stop();
     }
 
     public void run() {
@@ -81,7 +81,7 @@ public class SynthesizerThread extends Thread {
         }
     }
 
-    public void destroy() {
+    public void finish() {
         audioTrack.stop();
         audioTrack.release();
     }

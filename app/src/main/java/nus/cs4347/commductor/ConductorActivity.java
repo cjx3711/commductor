@@ -66,11 +66,12 @@ public class ConductorActivity extends AppCompatActivity {
                     case GesturesProcessor.TILTING_DOWN:
                     case GesturesProcessor.TILTING_UP:
                         double pitch = GesturesProcessor.getInstance().getCurrentPitch();
-                        // Convert pitch from (-50 to 50) to (0 to 1)
-                        pitch = (pitch + 50) / 100.0;
-                        Log.d(TAG, "Modifier: " + pitch);
+                        // Convert pitch from (-50 to 50) to (-1 to 1)
+                        pitch = (pitch) / 50.0;
                         if ( selectedInstrumentalist != null ) {
-                            selectedInstrumentalist.setModifier1((float)pitch);
+//                            selectedInstrumentalist.setModifier1((float)pitch);
+                            selectedInstrumentalist.changeModifier1((float)(pitch * 0.3));
+                            Log.d(TAG, "Modifier: " + selectedInstrumentalist.getModifier1());
                             selectedInstrumentalist.sendModifier1();
                         }
                         break;
@@ -78,12 +79,12 @@ public class ConductorActivity extends AppCompatActivity {
                     case GesturesProcessor.ROLLING_RIGHT:
                     case GesturesProcessor.ROLLING_LEFT:
                         double roll = GesturesProcessor.getInstance().getCurrentRoll();
-                        // Convert roll from (50 to -50) to (0 to 1)
-                        roll = 1 - ((roll + 50 ) / 100.0);
-                        Log.d(TAG, "Modifier: " + roll);
+                        // Convert roll from (50 to -50) to (-1 to 1)
+                        roll = 1 - (roll / 50.0);
 
                         if ( selectedInstrumentalist != null ) {
-                            selectedInstrumentalist.setModifier2((float)roll);
+                            selectedInstrumentalist.changeModifier2((float)(roll * 0.2));
+                            Log.d(TAG, "Modifier: " + selectedInstrumentalist.getModifier2());
                             selectedInstrumentalist.sendModifier2();
                         }
                         break;

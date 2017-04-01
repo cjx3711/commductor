@@ -32,11 +32,6 @@ public class ConductorActivity extends AppCompatActivity {
     private int gestureType = 0;
     private final int GESTURE_PACKET_DELAY_MILLIS = 200;
 
-    private TextView modifier1NameText;
-    private TextView modifier2NameText;
-    private ProgressBar modifier1Progress;
-    private ProgressBar modifier2Progress;
-
     private final View.OnTouchListener mDetectGestureButtonTouchListener = new View.OnTouchListener() {
         private Handler mHandler = new Handler();
         @Override
@@ -75,6 +70,8 @@ public class ConductorActivity extends AppCompatActivity {
                         double pitch = GesturesProcessor.getInstance().getCurrentPitch();
                         // Convert pitch from (-50 to 50) to (-1 to 1)
                         pitch = (pitch) / 50.0;
+                        Log.d(TAG, "Pitch: " + pitch);
+
                         if ( selectedInstrumentalist != null ) {
                             selectedInstrumentalist.changeModifier1((float)(pitch * 0.3));
                             Log.d(TAG, "Modifier: " + selectedInstrumentalist.getModifier1());
@@ -86,7 +83,8 @@ public class ConductorActivity extends AppCompatActivity {
                     case GesturesProcessor.ROLLING_LEFT:
                         double roll = GesturesProcessor.getInstance().getCurrentRoll();
                         // Convert roll from (50 to -50) to (-1 to 1)
-                        roll = 1 - (roll / 50.0);
+                        roll = -1 * (roll / 50.0);
+                        Log.d(TAG, "Roll: " + roll);
 
                         if ( selectedInstrumentalist != null ) {
                             selectedInstrumentalist.changeModifier2((float)(roll * 0.2));
@@ -108,11 +106,13 @@ public class ConductorActivity extends AppCompatActivity {
     PlayerPagerAdapter playersPagerAdapter;
     ViewPager playersPager;
 
-    Button sendMessageButton;
-
     ServerInstrumentalist selectedInstrumentalist;
     ArrayList<ServerInstrumentalist> serverInstrumentalists;
 
+    private TextView modifier1NameText;
+    private TextView modifier2NameText;
+    private ProgressBar modifier1Progress;
+    private ProgressBar modifier2Progress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -147,6 +147,11 @@ public class ConductorActivity extends AppCompatActivity {
         playersPager.setOffscreenPageLimit(3);
         playersPager.setPageMargin(100);
 
+        if ( serverInstrumentalists.size() > 0 ) {
+            int selectedIndex = playersPagerAdapter.getFirstPage() % serverInstrumentalists.size();
+            selectedInstrumentalist = serverInstrumentalists.get(selectedIndex);
+        }
+
         playersPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -165,19 +170,6 @@ public class ConductorActivity extends AppCompatActivity {
             @Override
             public void onPageScrollStateChanged(int state) {
 
-            }
-        });
-
-
-        sendMessageButton = (Button)findViewById(R.id.button_send_message);
-        sendMessageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if ( selectedInstrumentalist != null ) {
-                    BTDataPacket packet = new BTDataPacket(BTPacketHeader.STRING_DATA);
-                    packet.stringData = "I choose you!";
-                    selectedInstrumentalist.getService().write(packet);
-                }
             }
         });
 

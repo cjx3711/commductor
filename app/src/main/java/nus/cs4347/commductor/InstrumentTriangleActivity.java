@@ -38,70 +38,44 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 
-import static android.media.AudioTrack.WRITE_NON_BLOCKING;
-
 
 public class InstrumentTriangleActivity extends AppCompatActivity {
 
     Button playButton;
-    Button playButton2;
-    TextView message;
-
-    private SoundPool soundPool;
-    private int soundID;
-    boolean loaded = false;
 
     TextView volumeText;
     TextView bandpassText;
+
+    int format;
+    int channels;
+    int sample_rate;
+    int bits_per_sample;
+    int dataSize;
+
+    final int HEADER_SIZE = 44;
+
+    Thread t;
+//    boolean isRunning = true;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_instrument_triangle);
 
-        // Load the sound
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-        soundPool = new SoundPool.Builder()
-                .setMaxStreams(10)
-                .build();
-        } else {
-            soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
-        }
-
-
-        soundPool.setOnLoadCompleteListener(new OnLoadCompleteListener() {
-            @Override
-            public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
-
-                loaded = true;
-            }
-        });
-        soundID = soundPool.load(this, R.raw.fart, 1);
-
         playButton = (Button) findViewById(R.id.button_play_triangle);
-        playButton2 = (Button) findViewById(R.id.button_play_triangle2);
 
         playButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 try {
-                    spamSound1();
+                    playSound();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
         });
-        playButton2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    spamSound2();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-        message = (TextView)findViewById(R.id.message);
+
         volumeText = (TextView)findViewById(R.id.text_volume);
         bandpassText = (TextView)findViewById(R.id.text_bandpass);
 
@@ -109,12 +83,13 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
         GesturesTapCallback tapCallback = new GesturesTapCallback(){
             public void tapDetected(){
                 try {
-                    spamSound1();
+                    playSound();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
         };
+
         // Init Gesture Processor with callback
         GesturesProcessor.getInstance().init(tapCallback);
 
@@ -145,190 +120,99 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
 
 
 
-    public void spamSound1() throws IOException {
+    public void playSound() throws IOException {
+        // start a new thread to synthesise audio
+        t = new Thread() {
+            public void run() {
+                // set process priority
+                setPriority(Thread.MAX_PRIORITY);
+                AudioTrack audioTrack = null;
 
-        int Fs = 44100;
+                try {
+                    InputStream is = getResources().openRawResource(R.raw.fartwav);
+                    updateHeaderData(is);
 
-        int header_size = 44;
+                    int buffsize = AudioTrack.getMinBufferSize(sample_rate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
 
-        byte[] sound = null;
-        int i = 0;
-        InputStream is = getResources().openRawResource(R.raw.fartwav);
+                    Log.e("byte - buffer size", String.valueOf(buffsize));
 
-        ByteBuffer buffer = ByteBuffer.allocate(header_size);
-        buffer.order(ByteOrder.LITTLE_ENDIAN);
-
-        is.read(buffer.array(), buffer.arrayOffset(), buffer.capacity());
-
-        buffer.rewind();
-        buffer.position(buffer.position() + 20);
-        int format = buffer.getShort();
-
-        int channels = buffer.getShort();
-
-        int sample_rate = buffer.getInt();
-
-        buffer.position(buffer.position() + 6);
-        int bits_per_sample = buffer.getShort();
-
-        int dataSize = 0;
-        while (buffer.getInt() != 0x61746164) { // "data" marker
-            int size = buffer.getInt();
-            is.skip(size);
-            Log.e("byte me size", String.valueOf(size));
-
-            buffer.rewind();
-            is.read(buffer.array(), buffer.arrayOffset(), 8);
-            buffer.rewind();
-        }
-        dataSize = buffer.getInt();
-        Log.e("byte me", String.valueOf(format));
-        Log.e("byte me", String.valueOf(channels));
-        Log.e("byte me", String.valueOf(sample_rate));
-        Log.e("byte me", String.valueOf(bits_per_sample));
-        Log.e("byte me", String.valueOf(dataSize));
-
-        int buffsize = AudioTrack.getMinBufferSize(Fs, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
-        Log.e("I dont byte", String.valueOf(buffsize));
-
-        AudioTrack audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, Fs,
-                AudioFormat.CHANNEL_OUT_MONO,
-                AudioFormat.ENCODING_PCM_16BIT,
-                buffsize,
-                AudioTrack.MODE_STREAM);
-
-        try {
-            BandPass bandpass = new BandPass(19000,2000,44100);
-            audioTrack.play();
-            sound = new byte[dataSize];
-            int count = 0;
-            while ((count = is.read(sound, 0, dataSize)) > -1) {
-
-                float[] audio = byteToFloat(sound);
-                Log.e("byte count", Arrays.toString(audio));
+                    audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, sample_rate,
+                            AudioFormat.CHANNEL_OUT_MONO,
+                            AudioFormat.ENCODING_PCM_16BIT,
+                            buffsize,
+                            AudioTrack.MODE_STREAM);
 
 
-                bandpass.process(audio);
-                short[] shordio = floatToShort(audio);
+                    BandPass bandpass = new BandPass(19000, 2000, 44100);
+                    audioTrack.play();
+                    byte[] sound = new byte[buffsize];
+                    int count = 0;
 
-                // recombine signals for playback
-                // Load the sound
-                Log.e("byte count", String.valueOf(count));
-                Log.e("byte count", Arrays.toString(shordio));
-                Log.e("byte count", String.valueOf(audio.length));
-                audioTrack.write(shordio, 0, shordio.length);
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-//                    audioTrack.write(audio, 0, audio.length, WRITE_NON_BLOCKING);
-//                }
-            }
-            Log.e("test byte", "out of loop");
+                    while ((count = is.read(sound, 0, buffsize)) > -1) {
 
-
-        } catch (IOException e) {
-
-        }
-        audioTrack.stop();
-        audioTrack.release();
-
-        // Is the sound loaded already?
-//        if (loaded) {
-//            soundPool.play(soundID, volume, volume, 1, 0, 1f);
-//            Log.e("Test", "Played sound");
-//
-//        }
-    }
-
-    public void spamSound2() throws IOException {
-
-        int Fs = 44100;
-
-        int header_size = 44;
-
-        byte[] sound = null;
-        int i = 0;
-        InputStream is = getResources().openRawResource(R.raw.fartwav);
-
-        ByteBuffer buffer = ByteBuffer.allocate(header_size);
-        buffer.order(ByteOrder.LITTLE_ENDIAN);
-
-        is.read(buffer.array(), buffer.arrayOffset(), buffer.capacity());
-
-        buffer.rewind();
-        buffer.position(buffer.position() + 20);
-        int format = buffer.getShort();
-
-        int channels = buffer.getShort();
-
-        int sample_rate = buffer.getInt();
-
-        buffer.position(buffer.position() + 6);
-        int bits_per_sample = buffer.getShort();
-
-        int dataSize = 0;
-        while (buffer.getInt() != 0x61746164) { // "data" marker
-            int size = buffer.getInt();
-            is.skip(size);
-            Log.e("byte me size2", String.valueOf(size));
-
-            buffer.rewind();
-            is.read(buffer.array(), buffer.arrayOffset(), 8);
-            buffer.rewind();
-        }
-        dataSize = buffer.getInt();
-        Log.e("byte me2", String.valueOf(format));
-        Log.e("byte me2", String.valueOf(channels));
-        Log.e("byte me2", String.valueOf(sample_rate));
-        Log.e("byte me2", String.valueOf(bits_per_sample));
-        Log.e("byte me2", String.valueOf(dataSize));
-
-        int buffsize = AudioTrack.getMinBufferSize(Fs, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
-        Log.e("I dont byte2", String.valueOf(buffsize));
-
-        AudioTrack audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, Fs,
-                AudioFormat.CHANNEL_OUT_MONO,
-                AudioFormat.ENCODING_PCM_16BIT,
-                buffsize,
-                AudioTrack.MODE_STREAM);
-
-        try {
-            BandPass bandpass = new BandPass(19000,2000,44100);
-            audioTrack.play();
-            sound = new byte[dataSize];
-            int count = 0;
-            while ((count = is.read(sound, 0, dataSize)) > -1) {
-
-                float[] audio = byteToFloat(sound);
-                Log.e("byte count2", Arrays.toString(audio));
-
+                        float[] audio = byteToFloat(sound);
+                        Log.e("byte count", Arrays.toString(audio));
 
 //                bandpass.process(audio);
-                short[] shordio = floatToShort(audio);
+                        short[] shordio = floatToShort(audio);
 
-                // recombine signals for playback
-                // Load the sound
-                Log.e("byte count2", String.valueOf(count));
-                Log.e("byte count2", Arrays.toString(shordio));
-                Log.e("byte count2", String.valueOf(audio.length));
-                audioTrack.write(shordio, 0, shordio.length);
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-//                    audioTrack.write(audio, 0, audio.length, WRITE_NON_BLOCKING);
-//                }
+                        // recombine signals for playback
+                        // Load the sound
+                        Log.e("byte - count", String.valueOf(count));
+                        Log.e("byte - shordio", Arrays.toString(shordio));
+                        Log.e("byte - audio len", String.valueOf(audio.length));
+                        audioTrack.write(shordio, 0, shordio.length);
+
+                    }
+
+                } catch (IOException e) {
+
+                }
+
+                audioTrack.stop();
+                audioTrack.release();
             }
-            Log.e("test byte2", "out of loop");
 
+        };
 
-        } catch (IOException e) {
+        t.start();
+    }
 
-        }
-        audioTrack.stop();
-        audioTrack.release();
+    public void updateHeaderData(InputStream is) throws IOException {
+        ByteBuffer buffer = ByteBuffer.allocate(HEADER_SIZE);
+        buffer.order(ByteOrder.LITTLE_ENDIAN);
 
-        // Is the sound loaded already?
-//        if (loaded) {
-//            soundPool.play(soundID, volume, volume, 1, 0, 1f);
-//            Log.e("Test", "Played sound");
+        is.read(buffer.array(), buffer.arrayOffset(), buffer.capacity());
+
+        buffer.rewind();
+        buffer.position(buffer.position() + 20);
+        format = buffer.getShort();
+
+        channels = buffer.getShort();
+
+        sample_rate = buffer.getInt();
+
+        buffer.position(buffer.position() + 6);
+        bits_per_sample = buffer.getShort();
+
+        dataSize = 0;
+
+        // not really important I think, but I"m leaving it here
+//        while (buffer.getInt() != 0x61746164) { // "data" marker
+//            int size = buffer.getInt();
+//            is.skip(size);
 //
+//            buffer.rewind();
+//            is.read(buffer.array(), buffer.arrayOffset(), 8);
+//            buffer.rewind();
 //        }
+
+        dataSize = buffer.getInt();
+        Log.e("byte - format", String.valueOf(format));
+        Log.e("byte - channel", String.valueOf(channels));
+        Log.e("byte - sample rate", String.valueOf(sample_rate));
+        Log.e("byte - bps", String.valueOf(bits_per_sample));
+        Log.e("byte - data size", String.valueOf(dataSize));
     }
 
     /**
@@ -358,7 +242,6 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
      * @param audio
      */
     private float[] shortToFloat(short[] audio) {
-//        Log.d("SHORTTOFLOAT","INSIDE SHORTTOFLOAT");
         Log.e("short byte", Arrays.toString(audio));
         float[] converted = new float[audio.length];
 
@@ -379,7 +262,12 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
         return shorts;
     }
 
-
+    public void onDestroy(){
+        super.onDestroy();
+//        isRunning = false;
+        t.interrupt();
+        t = null;
+    }
     // Getting the user sound settings
     // This will be changed later on, when controlling it
     // I'm leaving it here for reference's sake

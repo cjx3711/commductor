@@ -100,7 +100,7 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
             }
         };
         BTClientManager.getInstance().setCallback(packetCallback);
-
+        updateText();
     }
 
     public void updateText() {

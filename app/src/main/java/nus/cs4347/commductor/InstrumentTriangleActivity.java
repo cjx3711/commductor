@@ -12,6 +12,7 @@ import nus.cs4347.commductor.bluetooth.BTClientManager;
 import nus.cs4347.commductor.bluetooth.BTDataPacket;
 import nus.cs4347.commductor.bluetooth.BTPacketCallback;
 import nus.cs4347.commductor.bluetooth.BTPacketHeader;
+import nus.cs4347.commductor.enums.InstrumentType;
 import nus.cs4347.commductor.gestures.GesturesTapCallback;
 import nus.cs4347.commductor.gestures.GesturesProcessor;
 import nus.cs4347.commductor_minim.ddf.minim.effects.BandPass;
@@ -129,7 +130,13 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
                 AudioTrack audioTrack = null;
 
                 try {
-                    InputStream is = getResources().openRawResource(R.raw.triangle);
+                    InputStream is = null;
+
+                    if (BTClientManager.getInstance().getInstrumentalist().getType() == InstrumentType.TRIANGLE) {
+                        is = getResources().openRawResource(R.raw.triangle);
+                    } else {
+                        is = getResources().openRawResource(R.raw.coconut);
+                    }
                     updateHeaderData(is);
 
                     int buffsize = AudioTrack.getMinBufferSize(sample_rate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
@@ -143,7 +150,7 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
                             AudioTrack.MODE_STREAM);
 
 
-                    BandPass bandpass = new BandPass(19000, 2000, 44100);
+//                    BandPass bandpass = new BandPass(19000, 2000, 44100);
                     audioTrack.play();
                     byte[] sound = new byte[buffsize];
                     int count = 0;

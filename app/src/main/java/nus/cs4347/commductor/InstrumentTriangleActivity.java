@@ -2,6 +2,8 @@ package nus.cs4347.commductor;
 
 
 import android.bluetooth.BluetoothSocket;
+import android.media.AudioFormat;
+import android.media.AudioTrack;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
@@ -10,8 +12,10 @@ import nus.cs4347.commductor.bluetooth.BTClientManager;
 import nus.cs4347.commductor.bluetooth.BTDataPacket;
 import nus.cs4347.commductor.bluetooth.BTPacketCallback;
 import nus.cs4347.commductor.bluetooth.BTPacketHeader;
+import nus.cs4347.commductor.enums.InstrumentType;
 import nus.cs4347.commductor.gestures.GesturesTapCallback;
 import nus.cs4347.commductor.gestures.GesturesProcessor;
+import nus.cs4347.commductor_minim.ddf.minim.effects.BandPass;
 
 import android.content.Context;
 import android.hardware.Sensor;
@@ -29,61 +33,66 @@ import android.widget.TextView;
 
 import org.w3c.dom.Text;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.Arrays;
+
 
 public class InstrumentTriangleActivity extends AppCompatActivity {
 
     Button playButton;
-    TextView message;
-
-    private SoundPool soundPool;
-    private int soundID;
-    boolean loaded = false;
 
     TextView volumeText;
     TextView bandpassText;
+    TextView titleText;
+
+    int format;
+    int channels;
+    int sample_rate;
+    int bits_per_sample;
+    int dataSize;
+
+    final int HEADER_SIZE = 44;
+
+    Thread t;
+//    boolean isRunning = true;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_instrument_triangle);
 
-        // Load the sound
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-        soundPool = new SoundPool.Builder()
-                .setMaxStreams(10)
-                .build();
-        } else {
-            soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
-        }
-
-
-        soundPool.setOnLoadCompleteListener(new OnLoadCompleteListener() {
-            @Override
-            public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
-
-                loaded = true;
-            }
-        });
-        soundID = soundPool.load(this, R.raw.fart, 1);
-
         playButton = (Button) findViewById(R.id.button_play_triangle);
 
         playButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                spamSound();
+                try {
+                    playSound();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         });
-        message = (TextView)findViewById(R.id.message);
+
         volumeText = (TextView)findViewById(R.id.text_volume);
         bandpassText = (TextView)findViewById(R.id.text_bandpass);
+        titleText = (TextView)findViewById(R.id.text_title);
 
         // GesturesTapCallback
         GesturesTapCallback tapCallback = new GesturesTapCallback(){
             public void tapDetected(){
-                spamSound();
+                try {
+                    playSound();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         };
+
         // Init Gesture Processor with callback
         GesturesProcessor.getInstance().init(tapCallback);
 
@@ -106,6 +115,9 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
     public void updateText() {
         volumeText.setText((BTClientManager.getInstance().getInstrumentalist().getModifier1() * 100 )+ "");
         bandpassText.setText((BTClientManager.getInstance().getInstrumentalist().getModifier2() * 100 )+ "");
+        if (BTClientManager.getInstance().getInstrumentalist().getType() == InstrumentType.COCONUT) {
+           titleText.setText("Coconut Tok Tok");
+        }
     }
 //    @Override
 //    protected void onResume() {
@@ -114,29 +126,173 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
 
 
 
-    public void spamSound() {
+    public void playSound() throws IOException {
+        // start a new thread to synthesise audio
+        t = new Thread() {
+            public void run() {
+                // set process priority
+                setPriority(Thread.MAX_PRIORITY);
+                AudioTrack audioTrack = null;
 
-        // Getting the user sound settings
-        // This will be changed later on, when controlling it
-        // I'm leaving it here for reference's sake
-        AudioManager audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
+                try {
+                    InputStream is = null;
 
-        float actualVolume = (float) audioManager
-                .getStreamVolume(AudioManager.STREAM_MUSIC);
+                    if (BTClientManager.getInstance().getInstrumentalist().getType() == InstrumentType.TRIANGLE) {
+                        is = getResources().openRawResource(R.raw.triangle);
+                    } else {
+                        is = getResources().openRawResource(R.raw.coconut);
+                    }
+                    updateHeaderData(is);
 
-        float maxVolume = (float) audioManager
-                .getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+                    int buffsize = AudioTrack.getMinBufferSize(sample_rate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
 
-        float volume = actualVolume / maxVolume;
+                    Log.e("byte - buffer size", String.valueOf(buffsize));
 
-        // Is the sound loaded already?
-        if (loaded) {
-            soundPool.play(soundID, volume, volume, 1, 0, 1f);
-            Log.e("Test", "Played sound");
+                    audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, sample_rate,
+                            AudioFormat.CHANNEL_OUT_MONO,
+                            AudioFormat.ENCODING_PCM_16BIT,
+                            buffsize,
+                            AudioTrack.MODE_STREAM);
 
+
+//                    BandPass bandpass = new BandPass(19000, 2000, 44100);
+                    audioTrack.play();
+                    byte[] sound = new byte[buffsize];
+                    int count = 0;
+
+                    while ((count = is.read(sound, 0, buffsize)) > -1) {
+
+                        float[] audio = byteToFloat(sound);
+                        Log.e("byte count", Arrays.toString(audio));
+
+//                bandpass.process(audio);
+                        short[] shordio = floatToShort(audio);
+
+                        // recombine signals for playback
+                        // Load the sound
+                        Log.e("byte - count", String.valueOf(count));
+                        Log.e("byte - shordio", Arrays.toString(shordio));
+                        Log.e("byte - audio len", String.valueOf(audio.length));
+                        audioTrack.write(shordio, 0, shordio.length);
+
+                    }
+
+                } catch (IOException e) {
+
+                }
+
+                audioTrack.stop();
+                audioTrack.release();
+            }
+
+        };
+
+        t.start();
+    }
+
+    public void updateHeaderData(InputStream is) throws IOException {
+        ByteBuffer buffer = ByteBuffer.allocate(HEADER_SIZE);
+        buffer.order(ByteOrder.LITTLE_ENDIAN);
+
+        is.read(buffer.array(), buffer.arrayOffset(), buffer.capacity());
+
+        buffer.rewind();
+        buffer.position(buffer.position() + 20);
+        format = buffer.getShort();
+
+        channels = buffer.getShort();
+
+        sample_rate = buffer.getInt();
+
+        buffer.position(buffer.position() + 6);
+        bits_per_sample = buffer.getShort();
+
+        dataSize = 0;
+
+        // not really important I think, but I"m leaving it here
+//        while (buffer.getInt() != 0x61746164) { // "data" marker
+//            int size = buffer.getInt();
+//            is.skip(size);
+//
+//            buffer.rewind();
+//            is.read(buffer.array(), buffer.arrayOffset(), 8);
+//            buffer.rewind();
+//        }
+
+        dataSize = buffer.getInt();
+        Log.e("byte - format", String.valueOf(format));
+        Log.e("byte - channel", String.valueOf(channels));
+        Log.e("byte - sample rate", String.valueOf(sample_rate));
+        Log.e("byte - bps", String.valueOf(bits_per_sample));
+        Log.e("byte - data size", String.valueOf(dataSize));
+    }
+
+    /**
+     * Convert byte[] raw audio to 16 bit int format.
+     * @param rawdata
+     */
+    private short[] byteToShort(byte[] rawdata) {
+        short[] sample = new short[rawdata.length/2];
+        ByteBuffer bb = ByteBuffer.wrap(rawdata);
+        bb.order( ByteOrder.LITTLE_ENDIAN);
+        int j = 0;
+        while( bb.hasRemaining()) {
+            short v = bb.getShort();
+            sample[j++] = v;
         }
+        return sample;
+    }
+
+    private float[] byteToFloat(byte[] audio) {
+        return shortToFloat(byteToShort(audio));
     }
 
 
+    /**
+     * Convert int[] audio to 32 bit float format.
+     * From [-32768,32768] to [-1,1]
+     * @param audio
+     */
+    private float[] shortToFloat(short[] audio) {
+        Log.e("short byte", Arrays.toString(audio));
+        float[] converted = new float[audio.length];
+
+        for (int i = 0; i < converted.length; i++) {
+            // [-32768,32768] -> [-1,1]
+            converted[i] = audio[i] / 32768f; /* default range for Android PCM audio buffers) */
+
+        }
+
+        return converted;
+    }
+
+    private short[] floatToShort(float[] buffer) {
+        short[] shorts = new short[buffer.length];
+        for (int i = 0; i < buffer.length; i++) {
+            shorts[i] = (short) (buffer[i] * 32768f);
+        }
+        return shorts;
+    }
+
+    public void onDestroy(){
+        super.onDestroy();
+//        isRunning = false;
+        if (t != null) {
+            t.interrupt();
+            t = null;
+        }
+    }
+    // Getting the user sound settings
+    // This will be changed later on, when controlling it
+    // I'm leaving it here for reference's sake
+//        AudioManager audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
+//
+//        float actualVolume = (float) audioManager
+//                .getStreamVolume(AudioManager.STREAM_MUSIC);
+//
+//        float maxVolume = (float) audioManager
+//                .getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+//
+//        float volume = actualVolume / maxVolume;
 
 }

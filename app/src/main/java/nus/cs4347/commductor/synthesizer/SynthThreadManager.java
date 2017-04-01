@@ -13,7 +13,7 @@ import nus.cs4347.commductor.synthesizer.SynthesizerThread;
  */
 
 public class SynthThreadManager {
-    private static final int NUM_THREADS = 5;
+    private static final int NUM_THREADS = 2;
     private static final String TAG = "SynthThreadManager";
 
     private SynthesizerThread synthThreads[];
@@ -28,10 +28,6 @@ public class SynthThreadManager {
     private SynthThreadManager() {
         synthThreads = new SynthesizerThread[NUM_THREADS];
         unusedThreadIndices = new Stack<Integer> ();
-        for (int i = 0; i < synthThreads.length; i++) {
-            synthThreads[i] = new SynthesizerThread();
-            unusedThreadIndices.push(i);
-        }
     }
 
     public static SynthThreadManager getInstance(){
@@ -43,9 +39,10 @@ public class SynthThreadManager {
             return;
         }
         for (int i = 0; i < synthThreads.length; i++) {
+            synthThreads[i] = new SynthesizerThread();
             synthThreads[i].start();
+            unusedThreadIndices.push(i);
         }
-        isInitialized = true;
     }
 
     public boolean playNote (int key) {
@@ -76,13 +73,10 @@ public class SynthThreadManager {
 
     public void destroy() {
         for (int i = 0; i < synthThreads.length; i++) {
-            synthThreads[i].destroy();
-            try {
-                synthThreads[i].join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            Log.d("Destroying Thread: ", Integer.toString(i));
+            synthThreads[i].interrupt();
             synthThreads[i] = null;
         }
+        isInitialized = false;
     }
 }

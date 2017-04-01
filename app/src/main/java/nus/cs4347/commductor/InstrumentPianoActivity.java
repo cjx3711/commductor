@@ -52,11 +52,36 @@ public class InstrumentPianoActivity extends AppCompatActivity {
         });
     }
 
-    /*
+    @Override
+    public void onStart() {
+        super.onStart();
+        Log.d("onStart", "Starting");
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.d("Activity", "Stopping");
+//        synthThreadManager.destroy();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d("Activity", "Resuming");
+    }
+
+    @Override
+    public void onRestart() {
+        super.onRestart();
+        Log.d("Activity", "Restarting");
+    }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
-        synthThreadManager.destroy();
+        Log.d("Activity", "Destroying");
+//        synthThreadManager.destroy();
     }
-    */
+
 }

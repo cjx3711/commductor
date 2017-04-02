@@ -13,7 +13,7 @@ import nus.cs4347.commductor.synthesizer.SynthesizerThread;
  */
 
 public class SynthThreadManager {
-    private static final int NUM_THREADS = 2;
+    private static final int NUM_THREADS = 3;
     private static final String TAG = "SynthThreadManager";
 
     private SynthesizerThread synthThreads[];

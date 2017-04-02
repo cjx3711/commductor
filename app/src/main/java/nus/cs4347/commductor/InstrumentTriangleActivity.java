@@ -43,6 +43,7 @@ import java.util.Arrays;
 public class InstrumentTriangleActivity extends AppCompatActivity {
 
     Button playButton;
+    Button modifiedButton;
 
     TextView volumeText;
     TextView bandpassText;
@@ -67,11 +68,24 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
 
         playButton = (Button) findViewById(R.id.button_play_triangle);
 
+        modifiedButton = (Button) findViewById(R.id.button_play_triangle_modified);
+
         playButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 try {
                     playSound();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        modifiedButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    playSoundModified();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -165,7 +179,71 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
                         float[] audio = byteToFloat(sound);
                         Log.e("byte count", Arrays.toString(audio));
 
-//                bandpass.process(audio);
+//                        bandpass.process(audio);
+                        short[] shordio = floatToShort(audio);
+
+                        // recombine signals for playback
+                        // Load the sound
+                        Log.e("byte - count", String.valueOf(count));
+                        Log.e("byte - shordio", Arrays.toString(shordio));
+                        Log.e("byte - audio len", String.valueOf(audio.length));
+                        audioTrack.write(shordio, 0, shordio.length);
+
+                    }
+
+                } catch (IOException e) {
+
+                }
+
+                audioTrack.stop();
+                audioTrack.release();
+            }
+
+        };
+
+        t.start();
+    }
+
+    public void playSoundModified() throws IOException {
+        // start a new thread to synthesise audio
+        t = new Thread() {
+            public void run() {
+                // set process priority
+                setPriority(Thread.MAX_PRIORITY);
+                AudioTrack audioTrack = null;
+
+                try {
+                    InputStream is = null;
+
+                    if (BTClientManager.getInstance().getInstrumentalist().getType() == InstrumentType.TRIANGLE) {
+                        is = getResources().openRawResource(R.raw.triangle);
+                    } else {
+                        is = getResources().openRawResource(R.raw.coconut);
+                    }
+                    updateHeaderData(is);
+
+                    int buffsize = AudioTrack.getMinBufferSize(sample_rate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
+
+                    Log.e("byte - buffer size", String.valueOf(buffsize));
+
+                    audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, sample_rate,
+                            AudioFormat.CHANNEL_OUT_MONO,
+                            AudioFormat.ENCODING_PCM_16BIT,
+                            buffsize,
+                            AudioTrack.MODE_STREAM);
+
+
+                    BandPass bandpass = new BandPass(10000, 15000, 44100);
+                    audioTrack.play();
+                    byte[] sound = new byte[buffsize];
+                    int count = 0;
+
+                    while ((count = is.read(sound, 0, buffsize)) > -1) {
+
+                        float[] audio = byteToFloat(sound);
+                        Log.e("byte count", Arrays.toString(audio));
+
+                        bandpass.process(audio);
                         short[] shordio = floatToShort(audio);
 
                         // recombine signals for playback

@@ -10,6 +10,12 @@
         android:text="Triangle ding ding"/>
 
     <Button
+        android:id="@+id/button_play_triangle_modified"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Modified"/>
+
+    <Button
         android:id="@+id/button_play_triangle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

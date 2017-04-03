@@ -16,6 +16,8 @@ import nus.cs4347.commductor.enums.InstrumentType;
 import nus.cs4347.commductor.gestures.GesturesTapCallback;
 import nus.cs4347.commductor.gestures.GesturesProcessor;
 import nus.cs4347.commductor_minim.ddf.minim.effects.BandPass;
+import nus.cs4347.commductor_minim.ddf.minim.effects.LowPassSP;
+import nus.cs4347.commductor_minim.ddf.minim.effects.LowPassFS;
 
 import android.content.Context;
 import android.hardware.Sensor;
@@ -233,7 +235,8 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
                             AudioTrack.MODE_STREAM);
 
 
-                    BandPass bandpass = new BandPass(10000, 15000, 44100);
+                    BandPass bandpass = new BandPass(5000, 2000, sample_rate);
+//                    LowPassSP lpFilter = new LowPassSP(100, sample_rate);
                     audioTrack.play();
                     byte[] sound = new byte[buffsize];
                     int count = 0;
@@ -242,17 +245,15 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
 
                         float[] audio = byteToFloat(sound);
                         Log.e("byte count", Arrays.toString(audio));
-
                         bandpass.process(audio);
                         short[] shordio = floatToShort(audio);
 
                         // recombine signals for playback
                         // Load the sound
                         Log.e("byte - count", String.valueOf(count));
-                        Log.e("byte - shordio", Arrays.toString(shordio));
+//                        Log.e("byte - shordio", Arrays.toString(shordio));
                         Log.e("byte - audio len", String.valueOf(audio.length));
-                        audioTrack.write(shordio, 0, shordio.length);
-
+                        audioTrack.write(shordio, 0, shordio.length, AudioTrack.WRITE_NON_BLOCKING);
                     }
 
                 } catch (IOException e) {
@@ -301,53 +302,66 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
         Log.e("byte - format", String.valueOf(format));
         Log.e("byte - channel", String.valueOf(channels));
         Log.e("byte - sample rate", String.valueOf(sample_rate));
+        Log.d("sample rate", String.valueOf(sample_rate));
         Log.e("byte - bps", String.valueOf(bits_per_sample));
         Log.e("byte - data size", String.valueOf(dataSize));
     }
 
-    /**
-     * Convert byte[] raw audio to 16 bit int format.
-     * @param rawdata
-     */
-    private short[] byteToShort(byte[] rawdata) {
-        short[] sample = new short[rawdata.length/2];
-        ByteBuffer bb = ByteBuffer.wrap(rawdata);
-        bb.order( ByteOrder.LITTLE_ENDIAN);
-        int j = 0;
-        while( bb.hasRemaining()) {
-            short v = bb.getShort();
-            sample[j++] = v;
-        }
-        return sample;
-    }
 
     private float[] byteToFloat(byte[] audio) {
         return shortToFloat(byteToShort(audio));
     }
 
-
-    /**
-     * Convert int[] audio to 32 bit float format.
-     * From [-32768,32768] to [-1,1]
-     * @param audio
-     */
-    private float[] shortToFloat(short[] audio) {
-        Log.e("short byte", Arrays.toString(audio));
-        float[] converted = new float[audio.length];
-
-        for (int i = 0; i < converted.length; i++) {
-            // [-32768,32768] -> [-1,1]
-            converted[i] = audio[i] / 32768f; /* default range for Android PCM audio buffers) */
-
+    private float[] shortToFloat (short[] shortArray){
+        float[] floatOut = new float[shortArray.length];
+        for (int i = 0; i < shortArray.length; i++) {
+            floatOut[i] = shortArray[i];
         }
-
-        return converted;
+        return floatOut;
     }
+//    /**
+//     * Convert int[] audio to 32 bit float format.
+//     * From [-32768,32768] to [-1,1]
+//     * @param audio
+//     */
+//    private float[] shortToFloat(short[] audio) {
+//        Log.e("short byte", Arrays.toString(audio));
+//        float[] converted = new float[audio.length];
+//
+//        for (int i = 0; i < converted.length; i++) {
+//            // [-32768,32768] -> [-1,1]
+//            converted[i] = audio[i] / 32768f; /* default range for Android PCM audio buffers) */
+//            converted[i] = (float)audio[i]; /* default range for Android PCM audio buffers) */
+//
+//        }
+//
+//        return converted;
+//    }
+
+    private short[] byteToShort (byte[] byteArray){
+        short[] shortOut = new short[byteArray.length / 2];
+        ByteBuffer byteBuffer = ByteBuffer.wrap(byteArray);
+        byteBuffer.order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().get(shortOut);
+        return shortOut;
+    }
+
+//    private int[] byteToShort(byte[] rawdata) {
+//        int[] converted = new int[rawdata.length / 2];
+//
+//        for (int i = 0; i < converted.length; i++) {
+//            // Wave file data are stored in little-endian order
+//            int lo = rawdata[2*i];
+//            int hi = rawdata[2*i+1];
+//            converted[i] = ((hi&0xFF)<<8) | (lo&0xFF);
+//        }
+//        return converted;
+//    }
 
     private short[] floatToShort(float[] buffer) {
         short[] shorts = new short[buffer.length];
         for (int i = 0; i < buffer.length; i++) {
-            shorts[i] = (short) (buffer[i] * 32768f);
+//            shorts[i] = (short) (buffer[i] * 32768f);
+            shorts[i] = (short) buffer[i];
         }
         return shorts;
     }

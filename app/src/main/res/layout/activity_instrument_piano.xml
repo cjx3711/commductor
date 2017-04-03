@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -12,10 +13,13 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:id="@+id/linearLayout3">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -24,15 +28,17 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:textSize="20sp"
-                    android:text="Volume: "/>
+                    android:text="Volume: "
+                    android:textSize="20sp" />
+
                 <TextView
                     android:id="@+id/text_volume"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:textSize="25sp"
-                    android:text="0.626"/>
+                    android:text="0.626"
+                    android:textSize="25sp" />
             </LinearLayout>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -41,49 +47,114 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:textSize="20sp"
-                    android:text="Bandpass: "/>
+                    android:text="Bandpass: "
+                    android:textSize="20sp" />
+
                 <TextView
                     android:id="@+id/text_bandpass"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:textSize="25sp"
-                    android:text="0.744"/>
+                    android:text="0.744"
+                    android:textSize="25sp" />
             </LinearLayout>
         </LinearLayout>
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_alignParentTop="true"
+            android:gravity="center_horizontal"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/linearLayout3"
+            android:layout_toEndOf="@+id/linearLayout3"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"
+            android:id="@+id/linearLayout5">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Chord mode:"/>
+            <android.support.v7.widget.SwitchCompat
+                android:id="@+id/switch_chord_mode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"/>
+        </LinearLayout>
+
+        <android.support.v7.widget.ToggleGroup
+            android:id="@+id/toggle_chord_type"
+            style="@style/Widget.Material.ToggleButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:exclusive="true"
+            app:orientation="horizontal"
+            android:divider="@drawable/toggle_divider"
+            android:layout_centerVertical="true"
+            android:layout_toEndOf="@+id/linearLayout5">
+
+            <android.support.v7.widget.ToggleButton
+                android:layout_width="wrap_content"
+                android:id="@+id/toggle_major"
+                style="@style/Widget.Material.ToggleButton"
+                app:textOff="Major"
+                app:textOn="Major"
+                android:checked="true"/>
+
+            <android.support.v7.widget.ToggleButton
+                android:layout_width="wrap_content"
+
+                android:id="@+id/toggle_minor"
+                style="@style/Widget.Material.ToggleButton"
+                app:textOff="Minor"
+                app:textOn="Minor"/>
+
+        </android.support.v7.widget.ToggleGroup>
+
+        <!--<Button-->
+            <!--android:id="@+id/button_chord_type"-->
+            <!--style="@style/Widget.AppCompat.Button.Colored"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="60dp"-->
+            <!--android:text="Major"-->
+            <!--android:layout_centerVertical="true"-->
+            <!--android:layout_toLeftOf="@+id/linearLayout"-->
+            <!--android:layout_toStartOf="@+id/linearLayout" />-->
+
+        <LinearLayout
+            android:id="@+id/linearLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true">
+            android:layout_alignParentTop="true"
+            android:orientation="vertical">
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textAlignment="center"
-                android:text="Keys:"/>
+                android:text="Keys:"
+                android:textAlignment="center" />
+
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 android:orientation="horizontal">
+
                 <Button
                     android:id="@+id/button_remove_key"
                     style="@style/Widget.AppCompat.Button.Borderless.Colored"
                     android:layout_width="50dp"
                     android:layout_height="40dp"
-                    android:textSize="20dp"
                     android:text="-"
-                    />
+                    android:textSize="20dp" />
+
                 <Button
                     android:id="@+id/button_add_key"
                     style="@style/Widget.AppCompat.Button.Borderless.Colored"
                     android:layout_width="50dp"
                     android:layout_height="40dp"
-                    android:textSize="20dp"
                     android:text="+"
-                    />
+                    android:textSize="20dp" />
             </LinearLayout>
         </LinearLayout>
 

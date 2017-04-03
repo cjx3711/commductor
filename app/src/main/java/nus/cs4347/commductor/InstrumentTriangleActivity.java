@@ -44,6 +44,7 @@ import java.util.Arrays;
 public class InstrumentTriangleActivity extends AppCompatActivity {
 
     Button playButton;
+    Button playButton2;
     Button holdButton;
 
     TextView volumeText;
@@ -71,28 +72,56 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
 
         playButton = (Button) findViewById(R.id.button_play_triangle);
         holdButton = (Button) findViewById(R.id.button_hold);
+        playButton2 = (Button) findViewById(R.id.button_play_triangle2);
 
         playButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try {
-                    if (!isHold) {
-                        playSound();
+                t = new Thread() {
+                    public void run() {
+                        // set process priority
+                        setPriority(Thread.MAX_PRIORITY);
+                        try {
+                            if (!isHold) {
+                                playSound(false);
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                };
+                t.start();
+            }
+        });
+        playButton2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                t = new Thread() {
+                    public void run() {
+                        // set process priority
+                        setPriority(Thread.MAX_PRIORITY);
+                        try {
+                            if (!isHold) {
+                                playSound(true);
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                };
+
+                t.start();
             }
         });
 
-        volumeText = (TextView)findViewById(R.id.text_volume);
-        bandpassText = (TextView)findViewById(R.id.text_bandpass);
-        titleText = (TextView)findViewById(R.id.text_title);
+        volumeText = (TextView) findViewById(R.id.text_volume);
+        bandpassText = (TextView) findViewById(R.id.text_bandpass);
+        titleText = (TextView) findViewById(R.id.text_title);
 
         View.OnTouchListener holdDown = new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                if ( event.getAction() == MotionEvent.ACTION_DOWN ) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     isHold = true;
                 } else if (event.getAction() == MotionEvent.ACTION_UP) {
                     isHold = false;
@@ -103,15 +132,22 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
         holdButton.setOnTouchListener(holdDown);
 
         // GesturesTapCallback
-        GesturesTapCallback tapCallback = new GesturesTapCallback(){
-            public void tapDetected(){
-                try {
-                    if (BTClientManager.getInstance().getInstrumentalist().getType() == InstrumentType.COCONUT || !isHold) {
-                        playSound();
+        GesturesTapCallback tapCallback = new GesturesTapCallback() {
+            public void tapDetected() {
+                t = new Thread() {
+                    public void run() {
+                        // set process priority
+                        setPriority(Thread.MAX_PRIORITY);
+                        try {
+                            if (!isHold) {
+                                playSound(false);
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                };
+                t.start();
             }
         };
 
@@ -132,16 +168,20 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
         };
         BTClientManager.getInstance().setCallback(packetCallback);
         updateText();
+
+        if (BTClientManager.getInstance().getInstrumentalist().getType() == InstrumentType.COCONUT) {
+            titleText.setText("Coconut Tok Tok");
+
+            holdButton.setVisibility(View.GONE);
+            isHold = false;
+        }
     }
 
     public void updateText() {
         volumeText.setText((BTClientManager.getInstance().getInstrumentalist().getModifier1() * 100 )+ "");
         bandpassText.setText((BTClientManager.getInstance().getInstrumentalist().getModifier2() * 100 )+ "");
-        if (BTClientManager.getInstance().getInstrumentalist().getType() == InstrumentType.COCONUT) {
-           titleText.setText("Coconut Tok Tok");
-            holdButton.setVisibility(View.GONE);
-        }
     }
+
 //    @Override
 //    protected void onResume() {
 //        super.onResume();
@@ -149,68 +189,62 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
 
 
 
-    public void playSound() throws IOException {
-        // start a new thread to synthesise audio
-        t = new Thread() {
-            public void run() {
-                // set process priority
-                setPriority(Thread.MAX_PRIORITY);
-                AudioTrack audioTrack = null;
+    public void playSound(Boolean isFilter) throws IOException {
 
-                try {
-                    InputStream is = null;
+        AudioTrack audioTrack = null;
 
-                    if (BTClientManager.getInstance().getInstrumentalist().getType() == InstrumentType.TRIANGLE) {
-                        is = getResources().openRawResource(R.raw.triangle);
-                    } else {
-                        is = getResources().openRawResource(R.raw.coconut);
-                    }
-                    updateHeaderData(is);
+        try {
+            InputStream is = null;
 
-                    int buffsize = AudioTrack.getMinBufferSize(sample_rate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
+            if (BTClientManager.getInstance().getInstrumentalist().getType() == InstrumentType.TRIANGLE) {
+                is = getResources().openRawResource(R.raw.triangle16);
+            } else {
+                is = getResources().openRawResource(R.raw.coconut);
+            }
+            updateHeaderData(is);
 
-                    Log.e("byte - buffer size", String.valueOf(buffsize));
+            int buffsize = AudioTrack.getMinBufferSize(sample_rate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
 
-                    audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, sample_rate,
-                            AudioFormat.CHANNEL_OUT_MONO,
-                            AudioFormat.ENCODING_PCM_16BIT,
-                            buffsize,
-                            AudioTrack.MODE_STREAM);
+            Log.e("byte - buffer size", String.valueOf(buffsize));
 
+            audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, sample_rate,
+                    AudioFormat.CHANNEL_OUT_MONO,
+                    AudioFormat.ENCODING_PCM_16BIT,
+                    buffsize,
+                    AudioTrack.MODE_STREAM);
 
-//                    BandPass bandpass = new BandPass(19000, 2000, 44100);
-                    audioTrack.play();
-                    byte[] sound = new byte[buffsize];
-                    int count = 0;
+            BandPass bandpass = new BandPass(5000, 2000, sample_rate);
+            audioTrack.play();
+            byte[] sound = new byte[buffsize];
+            int count = 0;
 
-                    while ((BTClientManager.getInstance().getInstrumentalist().getType() == InstrumentType.COCONUT || !isHold) && (count = is.read(sound, 0, buffsize)) > -1) {
+            while (!isHold && ((count = is.read(sound, 0, buffsize)) > -1)) {
 
-                        float[] audio = byteToFloat(sound);
-                        Log.e("byte count", Arrays.toString(audio));
+                float[] audio = byteToFloat(sound);
+                Log.e("byte count", Arrays.toString(audio));
 
-//                bandpass.process(audio);
-                        short[] shordio = floatToShort(audio);
-
-                        // recombine signals for playback
-                        // Load the sound
-                        Log.e("byte - count", String.valueOf(count));
-                        Log.e("byte - shordio", Arrays.toString(shordio));
-                        Log.e("byte - audio len", String.valueOf(audio.length));
-                        audioTrack.write(shordio, 0, shordio.length);
-
-                    }
-
-                } catch (IOException e) {
-
+                if (isFilter) {
+                    bandpass.process(audio);
                 }
+                short[] shordio = floatToShort(audio);
 
-                audioTrack.stop();
-                audioTrack.release();
+                // recombine signals for playback
+                // Load the sound
+                Log.e("byte - count", String.valueOf(count));
+                Log.e("byte - shordio", Arrays.toString(shordio));
+                Log.e("byte - audio len", String.valueOf(audio.length));
+                Log.e("byte-end", "=======================");
+
+                audioTrack.write(shordio, 0, shordio.length);
+
             }
 
-        };
+        } catch (IOException e) {
 
-        t.start();
+        }
+
+        audioTrack.stop();
+        audioTrack.release();
     }
 
     public void updateHeaderData(InputStream is) throws IOException {

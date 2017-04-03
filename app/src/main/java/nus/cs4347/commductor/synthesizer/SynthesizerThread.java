@@ -6,6 +6,7 @@ import android.media.AudioTrack;
 import android.util.Log;
 
 import nus.cs4347.commductor.AppData;
+import nus.cs4347.commductor.bluetooth.BTClientManager;
 
 
 /**
@@ -23,26 +24,27 @@ public class SynthesizerThread extends Thread {
     private int currentADSRState = ADSR_ATTACK;
 
     public int numHarmonics = 5;
-    public double ratios[];
+    public double weights[];
 
     private AudioTrack audioTrack;
 
     private int bufferSize;
     private short samples[];
 
-    public int samplingRate = 8000;
+    public int samplingRate = 16000;
     private int samplesPerMs = samplingRate / 1000;
     private int baseAmplitude = 10000;
     public int amplitude = baseAmplitude;
 
     private double currentADSRMultiplier = 0.f;
     public double ADSRSustainValue = 0.7f;
-    public double ADSRAttackVelocity = 1.f / (250.f * samplesPerMs);
-    public double ADSRDecayVelocity = -(1.f - ADSRSustainValue) / (200.f * samplesPerMs);
+    public double ADSRAttackVelocity = 1.f / (50.f * samplesPerMs);
+    public double ADSRDecayVelocity = -(1.f - ADSRSustainValue) / (25.f * samplesPerMs);
     public double ADSRReleaseVelocity = -(ADSRSustainValue) / (200.f * samplesPerMs);
 
     public double fundamentalFrequency = 440.f;
-    private int wave = 0;
+    //private int wave = 0;
+    private double wave[];
 
     private boolean isRunning = true;
     private boolean isSynthesizing = false;
@@ -65,24 +67,26 @@ public class SynthesizerThread extends Thread {
 
         samples = new short[bufferSize];
 
-        ratios = new double [] {
-            5.0/15.0, 4.0/15.0, 3.0/15.0, 2.0/15.0, 1.0/15.0
+        weights = new double [] {
+            /*5.0/15.0, 4.0/15.0, 3.0/15.0, 2.0/15.0, 1.0/15.0*/
+            5.0, 4.0, 3.0, 2.0, 1.0
         };
+        //weights = new double [] { 1.0 };
+        wave = new double [] {
+          0.0, 0.0, 0.0, 0.0, 0.0
+        };
+
+        audioTrack.play();
     }
 
     public void setFundamentalFrequency (int pitch) {
         fundamentalFrequency = (pitch == 0) ? 0.f : (440.f * (Math.pow (2.f, (pitch - 69) / 12.f)));
-    }
-
-    public void setAmplitude (double amplitudeModifier) {
-        amplitude = (int) (amplitudeModifier * baseAmplitude);
+        Log.d ("FundamentalFrequency", "Fundamental Freq : " + fundamentalFrequency);
     }
 
     public void startSynthesizing() {
         isSynthesizing = true;
         currentADSRState = ADSR_ATTACK;
-        currentADSRMultiplier = 0.f;
-        audioTrack.play();
     }
 
     public void stopSynthesizing() {
@@ -100,8 +104,6 @@ public class SynthesizerThread extends Thread {
                 audioTrack.write(samples, 0, bufferSize);
                 if (currentADSRState == ADSR_END) {
                     isSynthesizing = false;
-                    audioTrack.flush();
-                    audioTrack.stop();
                 }
             }
         }
@@ -114,6 +116,16 @@ public class SynthesizerThread extends Thread {
     }
 
     private void generateNote () {
+        float modifier = BTClientManager.getInstance().getInstrumentalist().getModifier2();
+        float gradient = numHarmonics - (modifier * 4.f);
+        double weightSum = 0;
+        for ( int j = 0; j < numHarmonics; j++ ) {
+            weights[j] = (-gradient * (j) + numHarmonics) < 0 ? 0 : (-gradient * (j) + numHarmonics);
+            weightSum += weights[j];
+        }
+
+        amplitude = (int) (BTClientManager.getInstance().getInstrumentalist().getModifier1() * baseAmplitude);
+
         for (int i = 0; i < bufferSize; i++) {
             switch (currentADSRState) {
                 case ADSR_ATTACK:
@@ -146,10 +158,16 @@ public class SynthesizerThread extends Thread {
             }
             samples[i] = 0;
             for (int j = 1; j < numHarmonics + 1; j++) {
-                samples[i] += currentADSRMultiplier * amplitude * ratios[j-1] * AppData.getInstance().getLUT().getValAt(wave, j * fundamentalFrequency);
+                double weight = weights[j-1] / weightSum;
+                //samples[i] += (short) (currentADSRMultiplier * amplitude * weights[j-1] * AppData.getInstance().getLUT().getValAt(wave, j * fundamentalFrequency));
+                samples[i] += currentADSRMultiplier * amplitude * weight * Math.sin (wave[j -1]);
+                wave[j - 1] += (TWOPI * j * fundamentalFrequency / samplingRate);
+                wave[j - 1] = wave[j - 1] % TWOPI;
             }
+            /*
             wave += 1;
-            wave = wave % samplingRate;
+            wave = wave % (samplingRate-1);
+            */
         }
     }
 }

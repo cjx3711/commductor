@@ -6,6 +6,7 @@ import android.media.AudioFormat;
 import android.media.AudioTrack;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.MotionEvent;
 import android.widget.Toast;
 
 import nus.cs4347.commductor.bluetooth.BTClientManager;
@@ -44,10 +45,13 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
 
     Button playButton;
     Button playButton2;
+    Button holdButton;
 
     TextView volumeText;
     TextView bandpassText;
     TextView titleText;
+
+    boolean isHold = false;
 
     int format;
     int channels;
@@ -67,6 +71,7 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
         setContentView(R.layout.activity_instrument_triangle);
 
         playButton = (Button) findViewById(R.id.button_play_triangle);
+        holdButton = (Button) findViewById(R.id.button_hold);
         playButton2 = (Button) findViewById(R.id.button_play_triangle2);
 
         playButton.setOnClickListener(new View.OnClickListener() {
@@ -77,7 +82,9 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
                         // set process priority
                         setPriority(Thread.MAX_PRIORITY);
                         try {
-                            playSound(false);
+                            if (!isHold) {
+                                playSound(false);
+                            }
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -94,7 +101,9 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
                         // set process priority
                         setPriority(Thread.MAX_PRIORITY);
                         try {
-                            playSound(true);
+                            if (!isHold) {
+                                playSound(true);
+                            }
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -105,19 +114,34 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
             }
         });
 
-        volumeText = (TextView)findViewById(R.id.text_volume);
-        bandpassText = (TextView)findViewById(R.id.text_bandpass);
-        titleText = (TextView)findViewById(R.id.text_title);
+        volumeText = (TextView) findViewById(R.id.text_volume);
+        bandpassText = (TextView) findViewById(R.id.text_bandpass);
+        titleText = (TextView) findViewById(R.id.text_title);
+
+        View.OnTouchListener holdDown = new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    isHold = true;
+                } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                    isHold = false;
+                }
+                return false;
+            }
+        };
+        holdButton.setOnTouchListener(holdDown);
 
         // GesturesTapCallback
-        GesturesTapCallback tapCallback = new GesturesTapCallback(){
-            public void tapDetected(){
+        GesturesTapCallback tapCallback = new GesturesTapCallback() {
+            public void tapDetected() {
                 t = new Thread() {
                     public void run() {
                         // set process priority
                         setPriority(Thread.MAX_PRIORITY);
                         try {
-                            playSound(false);
+                            if (!isHold) {
+                                playSound(false);
+                            }
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -144,15 +168,20 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
         };
         BTClientManager.getInstance().setCallback(packetCallback);
         updateText();
+
+        if (BTClientManager.getInstance().getInstrumentalist().getType() == InstrumentType.COCONUT) {
+            titleText.setText("Coconut Tok Tok");
+
+            holdButton.setVisibility(View.GONE);
+            isHold = false;
+        }
     }
 
     public void updateText() {
         volumeText.setText((BTClientManager.getInstance().getInstrumentalist().getModifier1() * 100 )+ "");
         bandpassText.setText((BTClientManager.getInstance().getInstrumentalist().getModifier2() * 100 )+ "");
-        if (BTClientManager.getInstance().getInstrumentalist().getType() == InstrumentType.COCONUT) {
-           titleText.setText("Coconut Tok Tok");
-        }
     }
+
 //    @Override
 //    protected void onResume() {
 //        super.onResume();
@@ -160,7 +189,7 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
 
 
 
-    public void playSound(Boolean bool) throws IOException {
+    public void playSound(Boolean isFilter) throws IOException {
 
         AudioTrack audioTrack = null;
 
@@ -184,18 +213,17 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
                     buffsize,
                     AudioTrack.MODE_STREAM);
 
-
             BandPass bandpass = new BandPass(5000, 2000, sample_rate);
             audioTrack.play();
             byte[] sound = new byte[buffsize];
             int count = 0;
 
-            while ((count = is.read(sound, 0, buffsize)) > -1) {
+            while (!isHold && ((count = is.read(sound, 0, buffsize)) > -1)) {
 
                 float[] audio = byteToFloat(sound);
                 Log.e("byte count", Arrays.toString(audio));
 
-                if (bool) {
+                if (isFilter) {
                     bandpass.process(audio);
                 }
                 short[] shordio = floatToShort(audio);

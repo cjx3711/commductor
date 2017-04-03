@@ -54,4 +54,10 @@
             android:textSize="25sp"
             android:text="0.744"/>
     </LinearLayout>
+
+    <Button
+        android:id="@+id/button_hold"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="Hold" />
 </LinearLayout>

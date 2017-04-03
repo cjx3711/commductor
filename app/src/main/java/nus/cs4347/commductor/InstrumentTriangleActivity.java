@@ -233,9 +233,12 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
                 Log.e("byte - count", String.valueOf(count));
                 Log.e("byte - shordio", Arrays.toString(shordio));
                 Log.e("byte - audio len", String.valueOf(audio.length));
+                Log.e("byte buffer", String.valueOf(buffsize));
+                Log.e("byte shordio", String.valueOf(shordio.length));
+                Log.e("byte count", String.valueOf(count/2));
                 Log.e("byte-end", "=======================");
 
-                audioTrack.write(shordio, 0, shordio.length);
+                audioTrack.write(shordio, 0, count/2);
 
             }
 

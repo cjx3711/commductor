@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Arrays;
 
 import nus.cs4347.commductor.bluetooth.BTClientManager;
 import nus.cs4347.commductor.bluetooth.BTDataPacket;
@@ -35,6 +36,7 @@ public class InstrumentDrumkitActivity extends AppCompatActivity {
 
     TextView volumeText;
     TextView bandpassText;
+    final int HEADER_SIZE = 44;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,16 +119,11 @@ public class InstrumentDrumkitActivity extends AppCompatActivity {
     }
 
     private void playDrum(int buffsize, Context context, int file) {
-        int i = 0;
-        InputStream is = context.getResources().openRawResource(file);
-        byte[] header = new byte[44];
-        try {
-            is.read(header);
-            ByteBuffer wrapped = ByteBuffer.wrap(header, 24, 4).order(ByteOrder.LITTLE_ENDIAN);
-            Fs = wrapped.getInt();
-        } catch (IOException e) {
 
-        }
+        InputStream is = context.getResources().openRawResource(file);
+        ByteBuffer buffer = ByteBuffer.allocate(HEADER_SIZE);
+        buffer.order(ByteOrder.LITTLE_ENDIAN);
+
 
         AudioTrack audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, Fs,
                 AudioFormat.CHANNEL_OUT_MONO,
@@ -135,24 +132,27 @@ public class InstrumentDrumkitActivity extends AppCompatActivity {
                 AudioTrack.MODE_STREAM);
 
         try {
-            byte[] sound = new byte[buffsize*2];
-            audioTrack.play();
-            float volume = BTClientManager.getInstance().getInstrumentalist().getModifier1();
-            while ((i = is.read(sound)) != -1) {
-                short[] sample = new short[buffsize];
-                ByteBuffer bb = ByteBuffer.wrap(sound);
-                bb.order( ByteOrder.LITTLE_ENDIAN);
-                int j = 0;
-                while(bb.hasRemaining()) {
-                    short v = bb.getShort();
-                    sample[j++] = (short)( (float)v * volume );
-                }
+            // read away the header whoosh~
+            is.read(buffer.array(), buffer.arrayOffset(), buffer.capacity());
 
-                Log.d("Buffer", "J: " + j + " buffer: " + buffsize + " i : " + i);
-                // audioTrack.setStereoVolume(volSliderVal, volSliderVal);
-                // setStereoVolume is deprecated
-                audioTrack.write(sample, 0, i/2);
+            audioTrack.play();
+            byte[] sound = new byte[buffsize];
+            int count = 0;
+
+            float volume = BTClientManager.getInstance().getInstrumentalist().getModifier1();
+            // audioTrack.setStereoVolume(volSliderVal, volSliderVal);
+            // setStereoVolume is deprecated
+            while ((count = is.read(sound, 0, buffsize)) > -1) {
+
+                float[] audio = byteToFloat(sound);
+
+                short[] shordio = floatToShort(audio);
+//                sample[j++] = (short)( (float)v * volume );
+
+                audioTrack.write(shordio, 0, count/2);
+
             }
+
         } catch (IOException e) {
 
         }
@@ -163,17 +163,63 @@ public class InstrumentDrumkitActivity extends AppCompatActivity {
 
     public void onDestroy(){
         super.onDestroy();
-        try {
-            t.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+
+        if (t != null) {
+            t.interrupt();
+            t = null;
         }
-        t = null;
     }
 
     public void updateText() {
         volumeText.setText((BTClientManager.getInstance().getInstrumentalist().getModifier1() * 100 )+ "");
         bandpassText.setText((BTClientManager.getInstance().getInstrumentalist().getModifier2() * 100 )+ "");
+    }
+
+    /**
+     * Convert byte[] raw audio to 16 bit int format.
+     * @param rawdata
+     */
+    private short[] byteToShort(byte[] rawdata) {
+        short[] sample = new short[rawdata.length/2];
+        ByteBuffer bb = ByteBuffer.wrap(rawdata);
+        bb.order( ByteOrder.LITTLE_ENDIAN);
+        int j = 0;
+        while( bb.hasRemaining()) {
+            short v = bb.getShort();
+            sample[j++] = v;
+        }
+        return sample;
+    }
+
+    private float[] byteToFloat(byte[] audio) {
+        return shortToFloat(byteToShort(audio));
+    }
+
+
+    /**
+     * Convert int[] audio to 32 bit float format.
+     * From [-32768,32768] to [-1,1]
+     * @param audio
+     */
+    private float[] shortToFloat(short[] audio) {
+        Log.e("short byte", Arrays.toString(audio));
+        float[] converted = new float[audio.length];
+
+        for (int i = 0; i < converted.length; i++) {
+            // [-32768,32768] -> [-1,1]
+            converted[i] = audio[i] / 32768f; /* default range for Android PCM audio buffers) */
+
+        }
+
+        return converted;
+    }
+
+    private short[] floatToShort(float[] buffer) {
+        short[] shorts = new short[buffer.length];
+        for (int i = 0; i < buffer.length; i++) {
+            shorts[i] = (short) (buffer[i] * 32768f);
+        }
+        return shorts;
     }
 
 }

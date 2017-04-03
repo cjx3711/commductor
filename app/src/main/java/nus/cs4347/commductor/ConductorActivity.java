@@ -29,6 +29,10 @@ import nus.cs4347.commductor.gestures.GesturesProcessor;
 public class ConductorActivity extends AppCompatActivity {
     private final String TAG = "ConductorActivity";
 
+    // Increase to increase rate of tilt or roll.
+    private final double TILT_RATE = 0.2;
+    private final double ROLL_RATE = 0.1;
+
     private int gestureType = 0;
     private final int GESTURE_PACKET_DELAY_MILLIS = 200;
 
@@ -73,7 +77,7 @@ public class ConductorActivity extends AppCompatActivity {
                         Log.d(TAG, "Pitch: " + pitch);
 
                         if ( selectedInstrumentalist != null ) {
-                            selectedInstrumentalist.changeModifier1((float)(pitch * 0.3));
+                            selectedInstrumentalist.changeModifier1((float)(pitch * TILT_RATE));
                             Log.d(TAG, "Modifier: " + selectedInstrumentalist.getModifier1());
                             selectedInstrumentalist.sendModifier1();
                         }
@@ -83,11 +87,12 @@ public class ConductorActivity extends AppCompatActivity {
                     case GesturesProcessor.ROLLING_LEFT:
                         double roll = GesturesProcessor.getInstance().getCurrentRoll();
                         // Convert roll from (50 to -50) to (-1 to 1)
+                        Log.d("Roll", Double.toString(roll));
                         roll = -1 * (roll / 50.0);
                         Log.d(TAG, "Roll: " + roll);
 
                         if ( selectedInstrumentalist != null ) {
-                            selectedInstrumentalist.changeModifier2((float)(roll * 0.2));
+                            selectedInstrumentalist.changeModifier2((float)(roll * ROLL_RATE ));
                             Log.d(TAG, "Modifier: " + selectedInstrumentalist.getModifier2());
                             selectedInstrumentalist.sendModifier2();
                         }

@@ -1,43 +1,53 @@
 package nus.cs4347.commductor;
 
+import android.bluetooth.BluetoothSocket;
+import android.content.Context;
+import android.media.AudioFormat;
 import android.media.AudioManager;
+import android.media.AudioTrack;
 import android.media.SoundPool;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+
+import nus.cs4347.commductor.bluetooth.BTClientManager;
+import nus.cs4347.commductor.bluetooth.BTDataPacket;
+import nus.cs4347.commductor.bluetooth.BTPacketCallback;
 
 /**
  * Basic soundboard for an instrument.
  */
 
 public class InstrumentDrumkitActivity extends AppCompatActivity {
+    Thread t;
+    int Fs = 44100; // sample rate, default
     Button [] drumButtons;
-    TextView volumeTV;
 
-    private SoundPool soundPool;
-    private int [] soundIDs;
-    boolean loaded = false;
+    TextView volumeText;
+    TextView bandpassText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_instrument_drumkit);
 
-        volumeTV = (TextView)findViewById(R.id.textview_volume);
-        drumButtons = new Button[8];
+        final int buffsize = AudioTrack.getMinBufferSize(Fs, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
+        final Context context = getApplicationContext();
 
-        // Load the sound
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            soundPool = new SoundPool.Builder()
-                    .setMaxStreams(10)
-                    .build();
-        } else {
-            soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
-        }
+        volumeText = (TextView)findViewById(R.id.text_volume);
+        bandpassText = (TextView)findViewById(R.id.text_bandpass);
+
+        drumButtons = new Button[8];
 
         final String [] drumNames = {
                 "Kick", "Conga", "High hat", "Cowbell", "Snare", "Tom Tom 1", "Tom Tom 2", "Tom Tom 3"
@@ -62,55 +72,108 @@ public class InstrumentDrumkitActivity extends AppCompatActivity {
         drumButtons[6] = (Button)findViewById(R.id.button_drum_7);
         drumButtons[7] = (Button)findViewById(R.id.button_drum_8);
 
-        soundIDs = new int[8];
-        for ( int i = 0; i < 8; i ++ ) {
-            soundIDs[i] = soundPool.load(this, drumMap[i], 1);
-        }
+        for ( int i = 0; i < 8; i++ ) {
+            final int index = i;
+            drumButtons[i].setText(drumNames[i]);
 
-        soundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
-            @Override
-            public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
-                loaded = true;
-            }
-        });
-
-        View.OnTouchListener drumTouch = new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if ( event.getAction() == MotionEvent.ACTION_DOWN ) {
-                    for ( int i = 0; i < 8; i++ ) {
-                        if ( v == drumButtons[i] ) {
-                            playSound(soundIDs[i]);
-                            break;
+            // new code that plays from AudioTrack
+            View.OnTouchListener drumTouch = new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    if ( event.getAction() == MotionEvent.ACTION_DOWN ) {
+                        for ( int j = 0; j < 8; j++ ) {
+                            if ( v == drumButtons[j] ) {
+                                t = new Thread() {
+                                    public void run() {
+                                        playDrum(buffsize, context, drumMap[index]);
+                                    }
+                                };
+                                t.start();
+                                break;
+                            }
                         }
                     }
+                    return false;
                 }
-                return false;
+            };
+            drumButtons[i].setOnTouchListener(drumTouch);
+        }
+
+
+        final Runnable updateTextRunnable = new Runnable() {
+            @Override
+            public void run() {
+                updateText();
             }
         };
-        for ( int i = 0; i < 8; i++ ) {
-            drumButtons[i].setOnTouchListener(drumTouch);
-            drumButtons[i].setText(drumNames[i]);
-        }
+        BTPacketCallback packetCallback = new BTPacketCallback() {
+            @Override
+            public void packetReceived(BluetoothSocket socket, BTDataPacket packet) {
+                runOnUiThread(updateTextRunnable);
+            }
+        };
+        BTClientManager.getInstance().setCallback(packetCallback);
 
     }
 
-    private void playSound(int soundID) {
-        // Getting the user sound settings
-        // This will be changed later on, when controlling it
-        // I'm leaving it here for reference's sake
-        AudioManager audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
-        float actualVolume = (float) audioManager
-                .getStreamVolume(AudioManager.STREAM_MUSIC);
-        float maxVolume = (float) audioManager
-                .getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-
-        float volume = actualVolume / maxVolume;
-
-        if (loaded) {
-            soundPool.play(soundID, volume, volume, 1, 0, 1f);
+    private void playDrum(int buffsize, Context context, int file) {
+        int i = 0;
+        InputStream is = context.getResources().openRawResource(file);
+        byte[] header = new byte[44];
+        try {
+            is.read(header);
+            ByteBuffer wrapped = ByteBuffer.wrap(header, 24, 4).order(ByteOrder.LITTLE_ENDIAN);
+            Fs = wrapped.getInt();
+        } catch (IOException e) {
 
         }
+
+        AudioTrack audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, Fs,
+                AudioFormat.CHANNEL_OUT_MONO,
+                AudioFormat.ENCODING_PCM_16BIT,
+                buffsize,
+                AudioTrack.MODE_STREAM);
+
+        try {
+            byte[] sound = new byte[buffsize*2];
+            audioTrack.play();
+            float volume = BTClientManager.getInstance().getInstrumentalist().getModifier1();
+            while ((i = is.read(sound)) != -1) {
+                short[] sample = new short[buffsize];
+                ByteBuffer bb = ByteBuffer.wrap(sound);
+                bb.order( ByteOrder.LITTLE_ENDIAN);
+                int j = 0;
+                while(bb.hasRemaining()) {
+                    short v = bb.getShort();
+                    sample[j++] = (short)( (float)v * volume );
+                }
+
+                Log.d("Buffer", "J: " + j + " buffer: " + buffsize + " i : " + i);
+                // audioTrack.setStereoVolume(volSliderVal, volSliderVal);
+                // setStereoVolume is deprecated
+                audioTrack.write(sample, 0, i/2);
+            }
+        } catch (IOException e) {
+
+        }
+
+        audioTrack.stop();
+        audioTrack.release();
+    }
+
+    public void onDestroy(){
+        super.onDestroy();
+        try {
+            t.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        t = null;
+    }
+
+    public void updateText() {
+        volumeText.setText((BTClientManager.getInstance().getInstrumentalist().getModifier1() * 100 )+ "");
+        bandpassText.setText((BTClientManager.getInstance().getInstrumentalist().getModifier2() * 100 )+ "");
     }
 
 }

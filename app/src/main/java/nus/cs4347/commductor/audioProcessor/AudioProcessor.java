@@ -35,7 +35,9 @@ public class AudioProcessor {
     private LowPassSP lowPassFilter;
     private HighPassSP highPassFilter;
 
-    public AudioProcessor(InputStream is){
+    public AudioProcessor(){}
+
+    public void setInputStream(InputStream is){
         this.inputStream = is;
     }
 

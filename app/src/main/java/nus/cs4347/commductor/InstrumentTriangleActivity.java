@@ -6,6 +6,7 @@ import android.media.AudioFormat;
 import android.media.AudioTrack;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.MotionEvent;
 import android.widget.Toast;
 
 import nus.cs4347.commductor.bluetooth.BTClientManager;
@@ -15,9 +16,8 @@ import nus.cs4347.commductor.bluetooth.BTPacketHeader;
 import nus.cs4347.commductor.enums.InstrumentType;
 import nus.cs4347.commductor.gestures.GesturesTapCallback;
 import nus.cs4347.commductor.gestures.GesturesProcessor;
-import nus.cs4347.commductor_minim.ddf.minim.effects.BandPass;
-import nus.cs4347.commductor_minim.ddf.minim.effects.LowPassSP;
-import nus.cs4347.commductor_minim.ddf.minim.effects.LowPassFS;
+import nus.cs4347.commductor.audioProcessor.AudioProcessor;
+
 
 import android.content.Context;
 import android.hardware.Sensor;
@@ -45,19 +45,21 @@ import java.util.Arrays;
 public class InstrumentTriangleActivity extends AppCompatActivity {
 
     Button playButton;
-    Button modifiedButton;
+    Button playButtonModified;
+    Button holdButton;
 
     TextView volumeText;
     TextView bandpassText;
     TextView titleText;
 
-    int format;
-    int channels;
-    int sample_rate;
-    int bits_per_sample;
-    int dataSize;
+    boolean isHold = false;
 
-    final int HEADER_SIZE = 44;
+    AudioProcessor audioProcessor;
+    InputStream inputStream;
+
+
+
+
 
     Thread t;
 //    boolean isRunning = true;
@@ -66,47 +68,93 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Init Audio Processor
+        audioProcessor = new AudioProcessor();
+
         setContentView(R.layout.activity_instrument_triangle);
 
         playButton = (Button) findViewById(R.id.button_play_triangle);
+        holdButton = (Button) findViewById(R.id.button_hold);
+        playButtonModified = (Button) findViewById(R.id.button_play_triangle_modified);
 
-        modifiedButton = (Button) findViewById(R.id.button_play_triangle_modified);
 
         playButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try {
-                    playSound();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                t = new Thread() {
+                    public void run() {
+                        // set process priority
+                        setPriority(Thread.MAX_PRIORITY);
+                        try {
+                            if (!isHold) {
+                                playSound(false);
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                };
+                t.start();
             }
         });
-
-        modifiedButton.setOnClickListener(new View.OnClickListener() {
+        playButtonModified.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try {
-                    playSoundModified();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                t = new Thread() {
+                    public void run() {
+                        // set process priority
+                        setPriority(Thread.MAX_PRIORITY);
+                        try {
+                            if (!isHold) {
+                                playSound(true);
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                };
+
+                t.start();
             }
         });
 
-        volumeText = (TextView)findViewById(R.id.text_volume);
-        bandpassText = (TextView)findViewById(R.id.text_bandpass);
-        titleText = (TextView)findViewById(R.id.text_title);
+        volumeText = (TextView) findViewById(R.id.text_volume);
+        bandpassText = (TextView) findViewById(R.id.text_bandpass);
+        titleText = (TextView) findViewById(R.id.text_title);
+
+        View.OnTouchListener holdDown = new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    isHold = true;
+                } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                    isHold = false;
+                }
+                return false;
+            }
+        };
+        holdButton.setOnTouchListener(holdDown);
 
         // GesturesTapCallback
-        GesturesTapCallback tapCallback = new GesturesTapCallback(){
-            public void tapDetected(){
-                try {
-                    playSound();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+        GesturesTapCallback tapCallback = new GesturesTapCallback() {
+            public void tapDetected() {
+                t = new Thread() {
+                    public void run() {
+                        // set process priority
+                        setPriority(Thread.MAX_PRIORITY);
+                        try {
+                            if (!isHold) {
+                                playSound(false);
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                };
+                t.start();
             }
+
         };
 
         // Init Gesture Processor with callback
@@ -126,15 +174,21 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
         };
         BTClientManager.getInstance().setCallback(packetCallback);
         updateText();
+
+        if (BTClientManager.getInstance().getInstrumentalist().getType() == InstrumentType.COCONUT) {
+            titleText.setText("Coconut Tok Tok");
+
+            holdButton.setVisibility(View.GONE);
+            isHold = false;
+        }
+
     }
 
     public void updateText() {
         volumeText.setText((BTClientManager.getInstance().getInstrumentalist().getModifier1() * 100 )+ "");
         bandpassText.setText((BTClientManager.getInstance().getInstrumentalist().getModifier2() * 100 )+ "");
-        if (BTClientManager.getInstance().getInstrumentalist().getType() == InstrumentType.COCONUT) {
-           titleText.setText("Coconut Tok Tok");
-        }
     }
+
 //    @Override
 //    protected void onResume() {
 //        super.onResume();
@@ -142,229 +196,69 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
 
 
 
-    public void playSound() throws IOException {
-        // start a new thread to synthesise audio
-        t = new Thread() {
-            public void run() {
-                // set process priority
-                setPriority(Thread.MAX_PRIORITY);
-                AudioTrack audioTrack = null;
+    public void playSound(Boolean isFilter) throws IOException {
 
-                try {
-                    InputStream is = null;
+        AudioTrack audioTrack = null;
 
-                    if (BTClientManager.getInstance().getInstrumentalist().getType() == InstrumentType.TRIANGLE) {
-                        is = getResources().openRawResource(R.raw.triangle);
-                    } else {
-                        is = getResources().openRawResource(R.raw.coconut);
-                    }
-                    updateHeaderData(is);
+        try {
+            // Init Audio processor
+            if (BTClientManager.getInstance().getInstrumentalist().getType() == InstrumentType.TRIANGLE) {
+                inputStream = getResources().openRawResource(R.raw.triangle16);
+            } else {
+                inputStream = getResources().openRawResource(R.raw.coconut);
+            }
+            audioProcessor.setInputStream(inputStream);
+            audioProcessor.updateHeaderData();
 
-                    int buffsize = AudioTrack.getMinBufferSize(sample_rate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
+            int buffsize = AudioTrack.getMinBufferSize(audioProcessor.getSampleRate(), AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
 
-                    Log.e("byte - buffer size", String.valueOf(buffsize));
+            Log.e("byte - buffer size", String.valueOf(buffsize));
 
-                    audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, sample_rate,
-                            AudioFormat.CHANNEL_OUT_MONO,
-                            AudioFormat.ENCODING_PCM_16BIT,
-                            buffsize,
-                            AudioTrack.MODE_STREAM);
+            audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, audioProcessor.getSampleRate(),
+                    AudioFormat.CHANNEL_OUT_MONO,
+                    AudioFormat.ENCODING_PCM_16BIT,
+                    buffsize,
+                    AudioTrack.MODE_STREAM);
 
+            audioTrack.play();
+            byte[] sound = new byte[buffsize];
+            int count = 0;
 
-//                    BandPass bandpass = new BandPass(19000, 2000, 44100);
-                    audioTrack.play();
-                    byte[] sound = new byte[buffsize];
-                    int count = 0;
+            while (!isHold && ((count = inputStream.read(sound, 0, buffsize)) > -1)) {
 
-                    while ((count = is.read(sound, 0, buffsize)) > -1) {
+                float[] audio = AudioProcessor.byteToFloat(sound);
+                Log.e("byte count", Arrays.toString(audio));
 
-                        float[] audio = byteToFloat(sound);
-                        Log.e("byte count", Arrays.toString(audio));
-
-//                        bandpass.process(audio);
-                        short[] shordio = floatToShort(audio);
-
-                        // recombine signals for playback
-                        // Load the sound
-                        Log.e("byte - count", String.valueOf(count));
-                        Log.e("byte - shordio", Arrays.toString(shordio));
-                        Log.e("byte - audio len", String.valueOf(audio.length));
-                        audioTrack.write(shordio, 0, shordio.length);
-
-                    }
-
-                } catch (IOException e) {
-
+                if (isFilter) {
+                    audioProcessor.processAudio(audio, AudioProcessor.LOW_PASS_FILTER, 500);
                 }
+                short[] shordio = AudioProcessor.floatToShort(audio);
 
-                audioTrack.stop();
-                audioTrack.release();
+                // recombine signals for playback
+                // Load the sound
+                Log.e("byte - count", String.valueOf(count));
+                Log.e("byte - shordio", Arrays.toString(shordio));
+                Log.e("byte - audio len", String.valueOf(audio.length));
+                Log.e("byte-end", "=======================");
+
+                audioTrack.write(shordio, 0, shordio.length);
+
             }
 
-        };
+        } catch (IOException e) {
 
-        t.start();
-    }
-
-    public void playSoundModified() throws IOException {
-        // start a new thread to synthesise audio
-        t = new Thread() {
-            public void run() {
-                // set process priority
-                setPriority(Thread.MAX_PRIORITY);
-                AudioTrack audioTrack = null;
-
-                try {
-                    InputStream is = null;
-
-                    if (BTClientManager.getInstance().getInstrumentalist().getType() == InstrumentType.TRIANGLE) {
-                        is = getResources().openRawResource(R.raw.triangle);
-                    } else {
-                        is = getResources().openRawResource(R.raw.coconut);
-                    }
-                    updateHeaderData(is);
-
-                    int buffsize = AudioTrack.getMinBufferSize(sample_rate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
-
-                    Log.e("byte - buffer size", String.valueOf(buffsize));
-
-                    audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, sample_rate,
-                            AudioFormat.CHANNEL_OUT_MONO,
-                            AudioFormat.ENCODING_PCM_16BIT,
-                            buffsize,
-                            AudioTrack.MODE_STREAM);
-
-
-                    BandPass bandpass = new BandPass(5000, 2000, sample_rate);
-//                    LowPassSP lpFilter = new LowPassSP(100, sample_rate);
-                    audioTrack.play();
-                    byte[] sound = new byte[buffsize];
-                    int count = 0;
-
-                    while ((count = is.read(sound, 0, buffsize)) > -1) {
-
-                        float[] audio = byteToFloat(sound);
-                        Log.e("byte count", Arrays.toString(audio));
-                        bandpass.process(audio);
-                        short[] shordio = floatToShort(audio);
-
-                        // recombine signals for playback
-                        // Load the sound
-                        Log.e("byte - count", String.valueOf(count));
-//                        Log.e("byte - shordio", Arrays.toString(shordio));
-                        Log.e("byte - audio len", String.valueOf(audio.length));
-                        audioTrack.write(shordio, 0, shordio.length, AudioTrack.WRITE_NON_BLOCKING);
-                    }
-
-                } catch (IOException e) {
-
-                }
-
-                audioTrack.stop();
-                audioTrack.release();
-            }
-
-        };
-
-        t.start();
-    }
-
-    public void updateHeaderData(InputStream is) throws IOException {
-        ByteBuffer buffer = ByteBuffer.allocate(HEADER_SIZE);
-        buffer.order(ByteOrder.LITTLE_ENDIAN);
-
-        is.read(buffer.array(), buffer.arrayOffset(), buffer.capacity());
-
-        buffer.rewind();
-        buffer.position(buffer.position() + 20);
-        format = buffer.getShort();
-
-        channels = buffer.getShort();
-
-        sample_rate = buffer.getInt();
-
-        buffer.position(buffer.position() + 6);
-        bits_per_sample = buffer.getShort();
-
-        dataSize = 0;
-
-        // not really important I think, but I"m leaving it here
-//        while (buffer.getInt() != 0x61746164) { // "data" marker
-//            int size = buffer.getInt();
-//            is.skip(size);
-//
-//            buffer.rewind();
-//            is.read(buffer.array(), buffer.arrayOffset(), 8);
-//            buffer.rewind();
-//        }
-
-        dataSize = buffer.getInt();
-        Log.e("byte - format", String.valueOf(format));
-        Log.e("byte - channel", String.valueOf(channels));
-        Log.e("byte - sample rate", String.valueOf(sample_rate));
-        Log.d("sample rate", String.valueOf(sample_rate));
-        Log.e("byte - bps", String.valueOf(bits_per_sample));
-        Log.e("byte - data size", String.valueOf(dataSize));
-    }
-
-
-    private float[] byteToFloat(byte[] audio) {
-        return shortToFloat(byteToShort(audio));
-    }
-
-    private float[] shortToFloat (short[] shortArray){
-        float[] floatOut = new float[shortArray.length];
-        for (int i = 0; i < shortArray.length; i++) {
-            floatOut[i] = shortArray[i];
         }
-        return floatOut;
-    }
-//    /**
-//     * Convert int[] audio to 32 bit float format.
-//     * From [-32768,32768] to [-1,1]
-//     * @param audio
-//     */
-//    private float[] shortToFloat(short[] audio) {
-//        Log.e("short byte", Arrays.toString(audio));
-//        float[] converted = new float[audio.length];
-//
-//        for (int i = 0; i < converted.length; i++) {
-//            // [-32768,32768] -> [-1,1]
-//            converted[i] = audio[i] / 32768f; /* default range for Android PCM audio buffers) */
-//            converted[i] = (float)audio[i]; /* default range for Android PCM audio buffers) */
-//
-//        }
-//
-//        return converted;
-//    }
 
-    private short[] byteToShort (byte[] byteArray){
-        short[] shortOut = new short[byteArray.length / 2];
-        ByteBuffer byteBuffer = ByteBuffer.wrap(byteArray);
-        byteBuffer.order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().get(shortOut);
-        return shortOut;
+        audioTrack.stop();
+        audioTrack.release();
     }
 
-//    private int[] byteToShort(byte[] rawdata) {
-//        int[] converted = new int[rawdata.length / 2];
-//
-//        for (int i = 0; i < converted.length; i++) {
-//            // Wave file data are stored in little-endian order
-//            int lo = rawdata[2*i];
-//            int hi = rawdata[2*i+1];
-//            converted[i] = ((hi&0xFF)<<8) | (lo&0xFF);
-//        }
-//        return converted;
-//    }
 
-    private short[] floatToShort(float[] buffer) {
-        short[] shorts = new short[buffer.length];
-        for (int i = 0; i < buffer.length; i++) {
-//            shorts[i] = (short) (buffer[i] * 32768f);
-            shorts[i] = (short) buffer[i];
-        }
-        return shorts;
-    }
+
+
+
+
+
 
     public void onDestroy(){
         super.onDestroy();

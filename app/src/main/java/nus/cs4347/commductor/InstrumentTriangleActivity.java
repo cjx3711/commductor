@@ -51,11 +51,18 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
     TextView volumeText;
     TextView bandpassText;
     TextView titleText;
+    TextView filterText;
 
     boolean isHold = false;
 
     AudioProcessor audioProcessor;
     InputStream inputStream;
+
+    float volumeCoeff;
+    float bandPassCoeff;
+
+    private final float POSITIVE_FLOOR = 10.0f;
+    private final float NEGATIVE_CEIL = -10.0f;
 
 
 
@@ -122,6 +129,7 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
         volumeText = (TextView) findViewById(R.id.text_volume);
         bandpassText = (TextView) findViewById(R.id.text_bandpass);
         titleText = (TextView) findViewById(R.id.text_title);
+        filterText = (TextView) findViewById(R.id.text_filter);
 
         View.OnTouchListener holdDown = new View.OnTouchListener() {
             @Override
@@ -185,8 +193,21 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
     }
 
     public void updateText() {
-        volumeText.setText((BTClientManager.getInstance().getInstrumentalist().getModifier1() * 100 )+ "");
-        bandpassText.setText((BTClientManager.getInstance().getInstrumentalist().getModifier2() * 100 )+ "");
+        volumeCoeff = BTClientManager.getInstance().getInstrumentalist().getModifier1() * 100;
+        bandPassCoeff = BTClientManager.getInstance().getInstrumentalist().getModifier2() * 100 - 50;
+        volumeText.setText((volumeCoeff)+ "");
+        bandpassText.setText((bandPassCoeff)+ "");
+
+        float limitFreq = AudioProcessor.getLimitFreq(bandPassCoeff);
+        if(bandPassCoeff > POSITIVE_FLOOR){
+            filterText.setText("High pass, " + Float.toString(limitFreq) + "Hz");
+        }
+        else if(bandPassCoeff < NEGATIVE_CEIL) {
+            filterText.setText("Low pass, " + Float.toString(limitFreq) + "Hz");
+        } else {
+            filterText.setText("No filtering");
+        }
+
     }
 
 //    @Override
@@ -230,7 +251,22 @@ public class InstrumentTriangleActivity extends AppCompatActivity {
                 Log.e("byte count", Arrays.toString(audio));
 
                 if (isFilter) {
-                    audioProcessor.processAudio(audio, AudioProcessor.LOW_PASS_FILTER, 500);
+                    float limitFreq = AudioProcessor.getLimitFreq(bandPassCoeff);
+                    if(bandPassCoeff > POSITIVE_FLOOR){
+                        audioProcessor.processAudio(audio, AudioProcessor.HIGH_PASS_FILTER, limitFreq);
+                        Log.d("audioprocess", "Bandpasscoeff: " + Float.toString(bandPassCoeff));
+                        Log.d("audioprocess", "Limitfreq: " + Float.toString(limitFreq));
+                    }
+                    else if (bandPassCoeff < NEGATIVE_CEIL) {
+                        audioProcessor.processAudio(audio, AudioProcessor.LOW_PASS_FILTER, limitFreq);
+                        Log.d("audioprocess", "Bandpasscoeff: " + Float.toString(bandPassCoeff));
+                        Log.d("audioprocess", "Limitfreq: " + Float.toString(limitFreq));
+                    }
+                    else {
+                        // bandPassCoeff is within POSITIVE_FLOOR and NEGATIVE_CEIL -> do nothing
+                        Log.d("bandpasscoeff", "within range");
+                    }
+
                 }
                 short[] shordio = AudioProcessor.floatToShort(audio);
 

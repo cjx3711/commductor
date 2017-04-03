@@ -20,8 +20,8 @@ import nus.cs4347.commductor_minim.ddf.minim.effects.HighPassSP;
 public class AudioProcessor {
 
     final int HEADER_SIZE = 44;
-    final int MAX_FREQ = 10000;
-    final int MIN_FREQ = 500;
+    final static float MAX_FREQ = 10000f;
+    final static float MIN_FREQ = 500f;
 
     public final static int LOW_PASS_FILTER = 0;
     public final static int HIGH_PASS_FILTER = 1;
@@ -43,7 +43,7 @@ public class AudioProcessor {
 
     public int getSampleRate(){ return this.sampleRate; }
 
-    public void processAudio(float[] audio, int filterType, int limitFreq){
+    public void processAudio(float[] audio, int filterType, float limitFreq){
         if(filterType == LOW_PASS_FILTER){
             lowPassFilter = new LowPassSP(limitFreq, this.sampleRate);
             lowPassFilter.process(audio);
@@ -89,6 +89,37 @@ public class AudioProcessor {
         Log.d("sample rate", String.valueOf(sampleRate));
         Log.e("byte - bps", String.valueOf(bitsPerSample));
         Log.e("byte - data size", String.valueOf(dataSize));
+    }
+
+    // Gives the limit freq for a filter.
+    public static float getLimitFreq(float bandPassCoeff){
+        if(bandPassCoeff == 50.0){
+            return MAX_FREQ;
+        }
+        if(bandPassCoeff == -50.0){
+            return MIN_FREQ;
+        }
+
+        double min = Math.log10(MIN_FREQ);
+        double max = Math.log10(MAX_FREQ);
+        double range = max - min;
+        double frac;
+        double level;
+        double freq;
+
+        if(bandPassCoeff > 0){
+            // Positive: Return a lower limit for High-pass filter
+            frac = Math.abs(bandPassCoeff) / 50.0 * range;
+            level = frac + min;
+            freq = Math.pow(10, level);
+
+        } else {
+            // Negative: Return an upper limit for Low-pass filter
+            frac = Math.abs(bandPassCoeff) / 50.0 * range;
+            level = max - frac;
+            freq = Math.pow(10, level);
+        }
+        return (float) freq;
     }
 
     public static float[] byteToFloat(byte[] audio) {

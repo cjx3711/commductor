@@ -55,7 +55,7 @@ public class InstrumentDrumkitActivity extends InstrumentPreRecordedActivity {
                 R.raw.drum_conga_mid,
                 R.raw.drum_hihat_close,
                 R.raw.drum_cowbell,
-                R.raw.drum_snare1,
+                R.raw.drum_snare116,
                 R.raw.drum_tom1,
                 R.raw.drum_tom2,
                 R.raw.drum_tom3,

@@ -9,8 +9,6 @@ import java.io.InputStream;
 
 import nus.cs4347.commductor.audioProcessor.AudioProcessor;
 import nus.cs4347.commductor.bluetooth.BTClientManager;
-import nus.cs4347.commductor.bluetooth.BTDataPacket;
-import nus.cs4347.commductor.bluetooth.BTPacketCallback;
 
 /**
  * Created by haritha on 4/4/17.

@@ -29,10 +29,14 @@ public class Piano extends View {
     private TreeMap<Integer,Key> keymap_white;
     private TreeMap<Integer,Key> keymap_black;
     private TreeMap<Integer,Finger> fingers;
+    private ArrayList<Key> keymap_all;
     private int white_key_resource_id;
     private int black_key_resource_id;
     ArrayList<Integer> black_key_indexes = new ArrayList<Integer>(Arrays.asList(1,3,6,8,10));
     private PianoKeyListener listener;
+
+    private boolean chordMode = true;
+    private boolean minor = false;
     public Piano(Context context) {
         this(context, null);
     }
@@ -65,6 +69,13 @@ public class Piano extends View {
         initPiano(white_key_resource_id,black_key_resource_id,key_count);
     }
 
+    public void setChordMode(boolean chordMode) {
+        this.chordMode = chordMode;
+    }
+
+    public void setMinor(boolean minor) {
+        this.minor = minor;
+    }
 
     public void setKeys(int key_count) {
         Log.d("Piano", "Setting keys to " + key_count);
@@ -79,6 +90,8 @@ public class Piano extends View {
         this.black_key_resource_id = black_key_resource_id;
         this.keymap_white = new TreeMap<Integer, Key>();
         this.keymap_black = new TreeMap<Integer, Key>();
+        this.keymap_all = new ArrayList<>();
+
 
         generateKeys(key_count);
     }
@@ -86,12 +99,15 @@ public class Piano extends View {
     private void generateKeys(int key_count) {
         this.keymap_black.clear();
         this.keymap_white.clear();
+        this.keymap_all.clear();
         for(int i = 0; i < key_count; i++){
+            Key key = new Key(i,this);
             if(black_key_indexes.contains(i % 12)){
-                keymap_black.put(i, new Key(i,this));
+                keymap_black.put(i, key);
             } else {
-                keymap_white.put(i, new Key(i,this));
+                keymap_white.put(i, key);
             }
+            keymap_all.add(key);
         }
     }
 
@@ -206,11 +222,35 @@ public class Piano extends View {
 
         private void pushKeyDown(MotionEvent event){
             try {
+                if ( chordMode && fingers.size() > 0 ) {
+                    return;
+                }
+
                 int pointer_index = event.getPointerId(event.getActionIndex());
                 Key key = isPressingKey(event.getX(pointer_index), event.getY(pointer_index));
+                int id = key.getId();
+
+                Key key2 = null, key3 = null;
+                int key2Ind = minor ? 3 : 4;
+                int key3Ind = 7;
+                if ( chordMode ) {
+                    if ( id + key2Ind < keymap_all.size() ) {
+                        key2 = keymap_all.get(key.getId() + key2Ind);
+                    } else {
+                        key2 = keymap_all.get(key.getId() + key2Ind - 12);
+                    }
+                    if ( id + key3Ind < keymap_all.size() ) {
+                        key3 = keymap_all.get(key.getId() + key3Ind);
+                    } else {
+                        key3 = keymap_all.get(key.getId() + key3Ind - 12);
+                    }
+                }
+
                 if (!fingers.containsKey(pointer_index)) {
                     Finger finger = new Finger();
                     finger.press(key);
+                    if ( key2 != null ) finger.press(key2);
+                    if ( key3 != null ) finger.press(key3);
                     fingers.put(pointer_index, finger);
                 }
             } catch ( Exception e ) {
@@ -223,6 +263,25 @@ public class Piano extends View {
             //has it moved off a key?
             Key key = isPressingKey(event.getX(index), event.getY(index));
             Finger finger = fingers.get(pointer_id);
+            Key key2 = null, key3 = null;
+
+            if ( key != null ) {
+                int id = key.getId();
+                int key2Ind = minor ? 3 : 4;
+                int key3Ind = 7;
+                if (chordMode) {
+                    if (id + key2Ind < keymap_all.size()) {
+                        key2 = keymap_all.get(key.getId() + key2Ind);
+                    } else {
+                        key2 = keymap_all.get(key.getId() + key2Ind - 12);
+                    }
+                    if (id + key3Ind < keymap_all.size()) {
+                        key3 = keymap_all.get(key.getId() + key3Ind);
+                    } else {
+                        key3 = keymap_all.get(key.getId() + key3Ind - 12);
+                    }
+                }
+            }
 
             if ( finger != null ) {
                 if (key == null) {
@@ -230,6 +289,8 @@ public class Piano extends View {
                 } else if (!finger.isPressing(key)) {
                     finger.lift();
                     finger.press(key);
+                    if ( key2 != null ) finger.press(key2);
+                    if ( key3 != null ) finger.press(key3);
                 }
             }
 

@@ -50,7 +50,7 @@ public class InstrumentPreRecordedActivity extends AppCompatActivity {
         }
     }
 
-    protected void playSound(int file) throws IOException {
+    protected void playSound(int file, boolean changePitch) throws IOException {
         AudioTrack audioTrack = null;
 
         try {
@@ -60,6 +60,7 @@ public class InstrumentPreRecordedActivity extends AppCompatActivity {
             int buffsize = AudioTrack.getMinBufferSize(audioProcessor.getSampleRate(), AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
 
             Log.e("byte - buffer size", String.valueOf(buffsize));
+
 
             audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, audioProcessor.getSampleRate(),
                     AudioFormat.CHANNEL_OUT_MONO,
@@ -73,20 +74,33 @@ public class InstrumentPreRecordedActivity extends AppCompatActivity {
 
             while (canPlay && (count = inputStream.read(sound, 0, buffsize)) > -1) {
                 float[] audio = AudioProcessor.byteToFloat(sound);
+//                Log.e("byte - audio before", Arrays.toString(audio));
 
-                float limitFreq = AudioProcessor.getLimitFreq(bandPassCoeff);
-                if (bandPassCoeff > POSITIVE_FLOOR) {
-                    audioProcessor.processBPAudio(audio, AudioProcessor.HIGH_PASS_FILTER, limitFreq);
-                    Log.d("audioprocess", "Bandpasscoeff: " + Float.toString(bandPassCoeff));
-                    Log.d("audioprocess", "Limitfreq: " + Float.toString(limitFreq));
-                } else if (bandPassCoeff < NEGATIVE_CEIL) {
-                    audioProcessor.processBPAudio(audio, AudioProcessor.LOW_PASS_FILTER, limitFreq);
-                    Log.d("audioprocess", "Bandpasscoeff: " + Float.toString(bandPassCoeff));
-                    Log.d("audioprocess", "Limitfreq: " + Float.toString(limitFreq));
+                if (changePitch) {
+                    // if we're doing the whole pitch thing
+
+//                    FFT fft = new FFT((int)timesize, audioProcessor.getSampleRate());
+//                    fft.forward(audio);
+//                    for (int j=0; j<audio.length; j++) {
+//                    }
+//                    fft.inverse(audio);
+//                    Log.e("byte - audio after", Arrays.toString(audio));
                 } else {
-                    // bandPassCoeff is within POSITIVE_FLOOR and NEGATIVE_CEIL -> do nothing
-                    Log.d("bandpasscoeff", "within range");
+                    float limitFreq = AudioProcessor.getLimitFreq(bandPassCoeff);
+                    if (bandPassCoeff > POSITIVE_FLOOR) {
+                        audioProcessor.processBPAudio(audio, AudioProcessor.HIGH_PASS_FILTER, limitFreq);
+                        Log.d("audioprocess", "Bandpasscoeff: " + Float.toString(bandPassCoeff));
+                        Log.d("audioprocess", "Limitfreq: " + Float.toString(limitFreq));
+                    } else if (bandPassCoeff < NEGATIVE_CEIL) {
+                        audioProcessor.processBPAudio(audio, AudioProcessor.LOW_PASS_FILTER, limitFreq);
+                        Log.d("audioprocess", "Bandpasscoeff: " + Float.toString(bandPassCoeff));
+                        Log.d("audioprocess", "Limitfreq: " + Float.toString(limitFreq));
+                    } else {
+                        // bandPassCoeff is within POSITIVE_FLOOR and NEGATIVE_CEIL -> do nothing
+                        Log.d("bandpasscoeff", "within range");
+                    }
                 }
+
                 audioProcessor.processVolAudio(audio, volumeCoeff);
 
                 short[] shordio = AudioProcessor.floatToShort(audio);

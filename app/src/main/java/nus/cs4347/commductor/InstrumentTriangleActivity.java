@@ -65,9 +65,9 @@ public class InstrumentTriangleActivity extends InstrumentPreRecordedActivity {
                             if (canPlay) {
                                 // Init Audio processor
                                 if (BTClientManager.getInstance().getInstrumentalist().getType() == InstrumentType.TRIANGLE) {
-                                    playSound(R.raw.triangle16);
+                                    playSound(R.raw.triangle16, false);
                                 } else {
-                                    playSound(R.raw.coconut);
+                                    playSound(R.raw.coconut, false);
                                 }
 
                             }

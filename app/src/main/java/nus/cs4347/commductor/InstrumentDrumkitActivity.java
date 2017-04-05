@@ -78,7 +78,7 @@ public class InstrumentDrumkitActivity extends InstrumentPreRecordedActivity {
                                 t = new Thread() {
                                     public void run() {
                                         try {
-                                            playSound(drumMap[index]);
+                                            playSound(drumMap[index], false);
                                         } catch (IOException e) {
                                             e.printStackTrace();
                                         }

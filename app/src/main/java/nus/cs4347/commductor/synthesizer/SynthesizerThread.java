@@ -38,12 +38,11 @@ public class SynthesizerThread extends Thread {
 
     private double currentADSRMultiplier = 0.f;
     public double ADSRSustainValue = 0.7f;
-    public double ADSRAttackVelocity = 1.f / (50.f * samplesPerMs);
-    public double ADSRDecayVelocity = -(1.f - ADSRSustainValue) / (25.f * samplesPerMs);
-    public double ADSRReleaseVelocity = -(ADSRSustainValue) / (200.f * samplesPerMs);
+    public double ADSRAttackVelocity = 1.f / (10.f * samplesPerMs);
+    public double ADSRDecayVelocity = -(1.f - ADSRSustainValue) / (10.f * samplesPerMs);
+    public double ADSRReleaseVelocity = -(ADSRSustainValue) / (10.f * samplesPerMs);
 
     public double fundamentalFrequency = 440.f;
-    //private int wave = 0;
     private double wave[];
 
     private boolean isRunning = true;
@@ -159,15 +158,10 @@ public class SynthesizerThread extends Thread {
             samples[i] = 0;
             for (int j = 1; j < numHarmonics + 1; j++) {
                 double weight = weights[j-1] / weightSum;
-                //samples[i] += (short) (currentADSRMultiplier * amplitude * weights[j-1] * AppData.getInstance().getLUT().getValAt(wave, j * fundamentalFrequency));
                 samples[i] += currentADSRMultiplier * amplitude * weight * Math.sin (wave[j -1]);
                 wave[j - 1] += (TWOPI * j * fundamentalFrequency / samplingRate);
                 wave[j - 1] = wave[j - 1] % TWOPI;
             }
-            /*
-            wave += 1;
-            wave = wave % (samplingRate-1);
-            */
         }
     }
 }

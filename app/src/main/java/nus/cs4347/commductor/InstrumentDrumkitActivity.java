@@ -51,14 +51,14 @@ public class InstrumentDrumkitActivity extends InstrumentPreRecordedActivity {
                 "Kick", "Conga", "High hat", "Cowbell", "Snare", "Tom Tom 1", "Tom Tom 2", "Tom Tom 3"
         };
         final int[] drumMap = {
-                R.raw.drum_bdrum,
-                R.raw.drum_conga_mid,
-                R.raw.drum_hihat_close,
-                R.raw.drum_cowbell,
-                R.raw.drum_snare116,
-                R.raw.drum_tom1,
-                R.raw.drum_tom2,
-                R.raw.drum_tom3,
+                R.raw.drum_bdrum_new,
+                R.raw.drum_conga_mid_new,
+                R.raw.drum_hihat_close_new,
+                R.raw.drum_cowbell_new,
+                R.raw.drum_snare116_new,
+                R.raw.drum_tom1_new,
+                R.raw.drum_tom2_new,
+                R.raw.drum_tom3_new,
         };
 
         drumButtons[0] = (Button) findViewById(R.id.button_drum_1);

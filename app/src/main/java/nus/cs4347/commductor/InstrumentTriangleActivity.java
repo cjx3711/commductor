@@ -27,11 +27,8 @@ import java.util.Arrays;
 
 public class InstrumentTriangleActivity extends InstrumentPreRecordedActivity {
 
-    Button playButton;
-    Button playButtonModified;
     Button holdButton;
 
-    TextView titleText;
     TextView volumeText;
     TextView bandpassText;
     TextView filterText;
@@ -45,54 +42,10 @@ public class InstrumentTriangleActivity extends InstrumentPreRecordedActivity {
 
         setContentView(R.layout.activity_instrument_triangle);
 
-        playButton = (Button) findViewById(R.id.button_play_triangle);
         holdButton = (Button) findViewById(R.id.button_hold);
-        playButtonModified = (Button) findViewById(R.id.button_play_triangle_modified);
-
-
-        playButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                t = new Thread() {
-                    public void run() {
-                        // set process priority
-                        setPriority(Thread.MAX_PRIORITY);
-                        try {
-                            if (!isHold) {
-                                playSound(false);
-                            }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                };
-                t.start();
-            }
-        });
-        playButtonModified.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                t = new Thread() {
-                    public void run() {
-                        // set process priority
-                        setPriority(Thread.MAX_PRIORITY);
-                        try {
-                            if (!isHold) {
-                                playSound(true);
-                            }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                };
-
-                t.start();
-            }
-        });
 
         volumeText = (TextView) findViewById(R.id.text_volume);
         bandpassText = (TextView) findViewById(R.id.text_bandpass);
-        titleText = (TextView) findViewById(R.id.text_title);
         filterText = (TextView) findViewById(R.id.text_filter);
 
         View.OnTouchListener holdDown = new View.OnTouchListener() {
@@ -117,7 +70,7 @@ public class InstrumentTriangleActivity extends InstrumentPreRecordedActivity {
                         setPriority(Thread.MAX_PRIORITY);
                         try {
                             if (!isHold) {
-                                playSound(false);
+                                playSound();
                             }
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -134,7 +87,7 @@ public class InstrumentTriangleActivity extends InstrumentPreRecordedActivity {
 
         // Check if coconut or triangle
         if (BTClientManager.getInstance().getInstrumentalist().getType() == InstrumentType.COCONUT) {
-            titleText.setText("Coconut Tok Tok");
+//            titleText.setText("Coconut Tok Tok");
 
             holdButton.setVisibility(View.GONE);
             isHold = false;
@@ -159,7 +112,7 @@ public class InstrumentTriangleActivity extends InstrumentPreRecordedActivity {
     }
 
 
-    public void playSound(Boolean isFilter) throws IOException {
+    public void playSound() throws IOException {
 
         AudioTrack audioTrack = null;
 
@@ -190,26 +143,26 @@ public class InstrumentTriangleActivity extends InstrumentPreRecordedActivity {
 
                 float[] audio = AudioProcessor.byteToFloat(sound);
 
-                if (isFilter) {
-                    float limitFreq = AudioProcessor.getLimitFreq(bandPassCoeff);
-                    if(bandPassCoeff > POSITIVE_FLOOR){
-                        audioProcessor.processBPAudio(audio, AudioProcessor.HIGH_PASS_FILTER, limitFreq);
-                        Log.d("audioprocess", "Bandpasscoeff: " + Float.toString(bandPassCoeff));
-                        Log.d("audioprocess", "Limitfreq: " + Float.toString(limitFreq));
-                    }
-                    else if (bandPassCoeff < NEGATIVE_CEIL) {
-                        audioProcessor.processBPAudio(audio, AudioProcessor.LOW_PASS_FILTER, limitFreq);
-                        Log.d("audioprocess", "Bandpasscoeff: " + Float.toString(bandPassCoeff));
-                        Log.d("audioprocess", "Limitfreq: " + Float.toString(limitFreq));
-                    }
-                    else {
-                        // bandPassCoeff is within POSITIVE_FLOOR and NEGATIVE_CEIL -> do nothing
-                        Log.d("bandpasscoeff", "within range");
-                    }
 
-                    audioProcessor.processVolAudio(audio, volumeCoeff);
-
+                float limitFreq = AudioProcessor.getLimitFreq(bandPassCoeff);
+                if(bandPassCoeff > POSITIVE_FLOOR){
+                    audioProcessor.processBPAudio(audio, AudioProcessor.HIGH_PASS_FILTER, limitFreq);
+                    Log.d("audioprocess", "Bandpasscoeff: " + Float.toString(bandPassCoeff));
+                    Log.d("audioprocess", "Limitfreq: " + Float.toString(limitFreq));
                 }
+                else if (bandPassCoeff < NEGATIVE_CEIL) {
+                    audioProcessor.processBPAudio(audio, AudioProcessor.LOW_PASS_FILTER, limitFreq);
+                    Log.d("audioprocess", "Bandpasscoeff: " + Float.toString(bandPassCoeff));
+                    Log.d("audioprocess", "Limitfreq: " + Float.toString(limitFreq));
+                }
+                else {
+                    // bandPassCoeff is within POSITIVE_FLOOR and NEGATIVE_CEIL -> do nothing
+                    Log.d("bandpasscoeff", "within range");
+                }
+
+                audioProcessor.processVolAudio(audio, volumeCoeff);
+
+
                 short[] shordio = AudioProcessor.floatToShort(audio);
 
                 // recombine signals for playback

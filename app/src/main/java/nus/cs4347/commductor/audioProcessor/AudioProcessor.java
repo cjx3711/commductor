@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import nus.cs4347.commductor.bluetooth.BTClientManager;
 import nus.cs4347.commductor_minim.ddf.minim.effects.LowPassSP;
 import nus.cs4347.commductor_minim.ddf.minim.effects.HighPassSP;
 
@@ -31,19 +32,14 @@ public class AudioProcessor {
     private int sampleRate;
     private int bitsPerSample;
     private int dataSize;
-    private InputStream inputStream;
     private LowPassSP lowPassFilter;
     private HighPassSP highPassFilter;
 
     public AudioProcessor(){}
 
-    public void setInputStream(InputStream is){
-        this.inputStream = is;
-    }
-
     public int getSampleRate(){ return this.sampleRate; }
 
-    public void processAudio(float[] audio, int filterType, float limitFreq){
+    public void processBPAudio(float[] audio, int filterType, float limitFreq){
         if(filterType == LOW_PASS_FILTER){
             lowPassFilter = new LowPassSP(limitFreq, this.sampleRate);
             lowPassFilter.process(audio);
@@ -53,7 +49,14 @@ public class AudioProcessor {
             highPassFilter.process(audio);
         } else { return; }
     }
-    public void updateHeaderData() throws IOException {
+
+    public void processVolAudio(float[] audio, float volumeCoeff){
+        for (int j=0; j<audio.length; j++) {
+            audio[j] = audio[j] * volumeCoeff/100;
+        }
+    }
+
+    public void updateHeaderData(InputStream inputStream) throws IOException {
         ByteBuffer buffer = ByteBuffer.allocate(HEADER_SIZE);
         buffer.order(ByteOrder.LITTLE_ENDIAN);
 
@@ -71,16 +74,6 @@ public class AudioProcessor {
         this.bitsPerSample = buffer.getShort();
 
         this.dataSize = 0;
-
-        // not really important I think, but I"m leaving it here
-//        while (buffer.getInt() != 0x61746164) { // "data" marker
-//            int size = buffer.getInt();
-//            inputStream.skip(size);
-//
-//            buffer.rewind();
-//            inputStream.read(buffer.array(), buffer.arrayOffset(), 8);
-//            buffer.rewind();
-//        }
 
         this.dataSize = buffer.getInt();
         Log.e("byte - format", String.valueOf(format));
@@ -147,38 +140,3 @@ public class AudioProcessor {
         return floatOut;
     }
 }
-
-
-// I've found some methods that were slightly cleaner.
-
-//    private int[] byteToShort(byte[] rawdata) {
-//        int[] converted = new int[rawdata.length / 2];
-//
-//        for (int i = 0; i < converted.length; i++) {
-//            // Wave file data are stored in little-endian order
-//            int lo = rawdata[2*i];
-//            int hi = rawdata[2*i+1];
-//            converted[i] = ((hi&0xFF)<<8) | (lo&0xFF);
-//        }
-//        return converted;
-//    }
-
-
-//    /**
-//     * Convert int[] audio to 32 bit float format.
-//     * From [-32768,32768] to [-1,1]
-//     * @param audio
-//     */
-//    private float[] shortToFloat(short[] audio) {
-//        Log.e("short byte", Arrays.toString(audio));
-//        float[] converted = new float[audio.length];
-//
-//        for (int i = 0; i < converted.length; i++) {
-//            // [-32768,32768] -> [-1,1]
-//            converted[i] = audio[i] / 32768f; /* default range for Android PCM audio buffers) */
-//            converted[i] = (float)audio[i]; /* default range for Android PCM audio buffers) */
-//
-//        }
-//
-//        return converted;
-//    }

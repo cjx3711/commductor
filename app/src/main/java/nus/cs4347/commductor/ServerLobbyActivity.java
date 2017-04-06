@@ -16,6 +16,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 
 import nus.cs4347.commductor.bluetooth.BTDataPacket;
@@ -24,6 +26,7 @@ import nus.cs4347.commductor.bluetooth.BTPacketHeader;
 import nus.cs4347.commductor.bluetooth.BTServerConnector;
 import nus.cs4347.commductor.bluetooth.BTServerManager;
 import nus.cs4347.commductor.bluetooth.BTConnectCallback;
+import nus.cs4347.commductor.display.PlayerAdapter;
 import nus.cs4347.commductor.enums.InstrumentType;
 import nus.cs4347.commductor.server.ServerInstrumentalist;
 
@@ -35,7 +38,7 @@ public class ServerLobbyActivity extends AppCompatActivity {
     BTServerConnector btServerConnector;
     TextView deviceInfoTextview;
     ListView connectedListview;
-    ArrayAdapter<String> connectedAdapter;
+    PlayerAdapter connectedAdapter;
     ImageView sunburst;
 
 
@@ -51,6 +54,9 @@ public class ServerLobbyActivity extends AppCompatActivity {
 
         sunburst = (ImageView)findViewById(R.id.sunburst);
         sunburst.startAnimation(AppData.getInstance().getRotateAnimation());
+
+        TextView waiting = (TextView)findViewById(R.id.textview_waiting_for_connection);
+        AppData.getInstance().setFont(waiting);
 
         connectedListview = (ListView)findViewById(R.id.listview_connected);
         deviceInfoTextview = (TextView) findViewById(R.id.textview_device_info);
@@ -118,6 +124,11 @@ public class ServerLobbyActivity extends AppCompatActivity {
 
         btServerConnector = new BTServerConnector(BTConnectCallback);
         btServerConnector.start();
+
+
+        connectedAdapter = new PlayerAdapter(this, R.layout.listitem_player, btServerManager.getInstrumentalistList());
+        connectedListview.setAdapter(connectedAdapter);
+
     }
 
     private boolean allSelectedInstrument() {
@@ -128,20 +139,20 @@ public class ServerLobbyActivity extends AppCompatActivity {
     }
 
     protected void refreshListView() {
-        ArrayList<ServerInstrumentalist> connectedInstrumentalists = btServerManager.getInstrumentalistList();
-        Log.d(TAG, "Refreshing list view with " + connectedInstrumentalists.size() + " players");
-        String [] connected = new String[connectedInstrumentalists.size()];
-        for ( int i = 0 ; i < connectedInstrumentalists.size(); i++ ) {
-            InstrumentType type = connectedInstrumentalists.get(i).getType();
-            String instrumentTypeString = "None";
-            if ( type != null ) {
-                instrumentTypeString = type.toString();
-            }
-            connected[i] = connectedInstrumentalists.get(i).getSocket().getRemoteDevice().getName() + " - " + instrumentTypeString;
-        }
-        connectedAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, android.R.id.text1, connected);
 
-        connectedListview.setAdapter(connectedAdapter);
+//        ArrayList<ServerInstrumentalist> connectedInstrumentalists = btServerManager.getInstrumentalistList();
+//        Log.d(TAG, "Refreshing list view with " + connectedInstrumentalists.size() + " players");
+//        String [] connected = new String[connectedInstrumentalists.size()];
+//        for ( int i = 0 ; i < connectedInstrumentalists.size(); i++ ) {
+//            InstrumentType type = connectedInstrumentalists.get(i).getType();
+//            String instrumentTypeString = "None";
+//            if ( type != null ) {
+//                instrumentTypeString = type.toString();
+//            }
+//            connected[i] = connectedInstrumentalists.get(i).getSocket().getRemoteDevice().getName() + " - " + instrumentTypeString;
+//        }
+//        connectedAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, android.R.id.text1, connected);
+        connectedAdapter.notifyDataSetChanged();
     }
 
     @Override

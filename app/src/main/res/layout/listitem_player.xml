@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal" android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <ImageView
+        android:id="@+id/image_instrument"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:src="@drawable/coconut_right"/>
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_weight="1"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="10dp">
+        <TextView
+            android:id="@+id/text_player"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:textColor="#FFFFFF"
+            android:gravity="center_vertical"
+            android:layout_weight="1.2"
+            android:textSize="18sp"
+            android:text="Player 1"/>
+        <TextView
+            android:id="@+id/text_name"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:textColor="#DEDEDE"
+            android:gravity="center_vertical"
+            android:textSize="15sp"
+            android:text="Galaxy J1"/>
+    </LinearLayout>
+</LinearLayout>

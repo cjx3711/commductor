@@ -38,15 +38,9 @@ public class ClientLobbyActivity extends AppCompatActivity {
     private BTConnectCallback BTConnectCallback;
 
     // Containers
-    LinearLayout connectedInfoLayout;
     ListView pairedListview;
 
     // Buttons
-    Button disconnectButton;
-    Button triangleButton;
-    Button coconutButton;
-    Button pianoButton;
-    Button drumsButton;
     Button devStartButton;
 
     // Feedback text views
@@ -65,16 +59,12 @@ public class ClientLobbyActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_client_lobby);
 
-        triangleButton = (Button) findViewById(R.id.button_triangle);
-        coconutButton = (Button) findViewById(R.id.button_coconut);
-        pianoButton = (Button) findViewById(R.id.button_piano);
-        drumsButton = (Button) findViewById(R.id.button_drums);
+        final Instrumentalist instrumentalist = BTClientManager.getInstance().getInstrumentalist();
+
         devStartButton = (Button) findViewById(R.id.button_dev_start);
 
         pairedListview = (ListView)findViewById(R.id.listview_paired);
-        connectedInfoLayout = (LinearLayout)findViewById(R.id.layout_connected_info);
         connectedTextView = (TextView)findViewById(R.id.textview_connected_device);
-        disconnectButton = (Button)findViewById(R.id.button_disconnect);
 
         selectedTextView = (TextView)findViewById(R.id.textview_selected_instrument);
 
@@ -83,9 +73,35 @@ public class ClientLobbyActivity extends AppCompatActivity {
         instrumentPager.setAdapter(instrumentPagerAdapter);
         instrumentPager.setPageTransformer(false, instrumentPagerAdapter);
 
+        instrumentalist.setType(InstrumentType.valueOf(instrumentPagerAdapter.getFirstPage() % 4));
         instrumentPager.setCurrentItem(instrumentPagerAdapter.getFirstPage());
         instrumentPager.setOffscreenPageLimit(3);
         instrumentPager.setPageMargin(-100);
+        if ( instrumentalist.getType() != null ) {
+            selectedTextView.setText(instrumentalist.getType().toString());
+        }
+
+
+        instrumentPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                instrumentalist.setType(InstrumentType.valueOf(position % 4));
+                if ( instrumentalist.getType() != null ) {
+                    selectedTextView.setText(instrumentalist.getType().toString());
+                }
+                sendInstrumentPacket();
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
 
         // Get paired devices
         String[] pairedStrings;
@@ -123,43 +139,6 @@ public class ClientLobbyActivity extends AppCompatActivity {
                 connectTo(pairedDevices[position]);
             }
         });
-
-        disconnectButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                hideConnected();
-            }
-        });
-
-        View.OnClickListener instrumentSelect = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Instrumentalist instrumentalist = BTClientManager.getInstance().getInstrumentalist();
-                if ( v == triangleButton ) {
-                    instrumentalist.setType(InstrumentType.TRIANGLE);
-                }
-                if ( v == coconutButton ) {
-                    instrumentalist.setType(InstrumentType.COCONUT);
-                }
-                if ( v == pianoButton ) {
-                    instrumentalist.setType(InstrumentType.PIANO);
-                }
-                if ( v == drumsButton ) {
-                    instrumentalist.setType(InstrumentType.DRUMS);
-                }
-
-                if ( instrumentalist.getType() != null ) {
-                    selectedTextView.setText("Selected: " + instrumentalist.getType().toString());
-                }
-
-                sendInstrumentPacket();
-
-            }
-        };
-        triangleButton.setOnClickListener(instrumentSelect);
-        coconutButton.setOnClickListener(instrumentSelect);
-        pianoButton.setOnClickListener(instrumentSelect);
-        drumsButton.setOnClickListener(instrumentSelect);
 
         devStartButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -222,13 +201,9 @@ public class ClientLobbyActivity extends AppCompatActivity {
     }
 
     protected void showConnected(BluetoothSocket socket) {
-        pairedListview.setVisibility(View.GONE);
-        connectedInfoLayout.setVisibility(View.VISIBLE);
         connectedTextView.setText(socket.getRemoteDevice().getName());
     }
     protected void hideConnected() {
-        pairedListview.setVisibility(View.VISIBLE);
-        connectedInfoLayout.setVisibility(View.GONE);
     }
 
     protected void connectTo(BluetoothDevice bluetoothDevice) {

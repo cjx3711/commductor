@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="nus.cs4347.commductor.MenuActivity"
-    android:background="#c67872">
+    android:background="@color/background">
 
     <ImageView
         android:id="@+id/sunburst"

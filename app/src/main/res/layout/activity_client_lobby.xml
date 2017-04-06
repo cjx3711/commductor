@@ -1,88 +1,114 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:orientation="vertical"
-        android:layout_margin="15dp">
-        <TextView
-            android:id="@+id/textview_connected_to"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="25sp"
-            android:layout_marginBottom="10dp"
-            android:text="Connected to:"/>
-        <TextView
-            android:id="@+id/textview_connected_device"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="30sp"
-            android:text="NOTHING"/>
-    </LinearLayout>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background">
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:paddingBottom="10dp">
-
-        <android.support.v4.view.ViewPager
-            android:id="@+id/pager_instrument_select"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginBottom="10dp"
-            android:overScrollMode="never" />
-
+        android:layout_height="match_parent"
+        android:layout_marginTop="-400dp">
         <ImageView
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:scaleType="fitCenter"
-            android:src="@drawable/arrow_left"
-            android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="20dp" />
-
-        <ImageView
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:scaleType="fitCenter"
-            android:src="@drawable/arrow_right"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:layout_marginRight="20dp" />
-
-        <TextView
-            android:id="@+id/textview_selected_instrument"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="none"
-            android:textAlignment="center"
-            android:textSize="23dp"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentStart="true" />
+            android:id="@+id/sunburst"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_marginLeft="-800dp"
+            android:layout_marginRight="-800dp"
+            android:layout_marginBottom="-800dp"
+            android:layout_marginTop="-800dp"
+            android:src="@drawable/sunburst"
+            android:scaleType="fitCenter" />
     </RelativeLayout>
-
-
-
-    <ListView
-        android:id="@+id/listview_paired"
-        android:layout_weight="1"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"/>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-        <Button
-            android:id="@+id/button_dev_start"
+        android:layout_height="match_parent"
+        android:orientation="vertical" >
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Dev Start"/>
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:layout_margin="15dp">
+            <TextView
+                android:id="@+id/textview_connected_to"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="25sp"
+                android:layout_marginBottom="10dp"
+                android:textColor="#ffffff"
+                android:text="Connected to:"/>
+            <TextView
+                android:id="@+id/textview_connected_device"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="30sp"
+                android:textColor="#ffffff"
+                android:text="NOTHING"/>
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:paddingBottom="10dp">
+
+            <android.support.v4.view.ViewPager
+                android:id="@+id/pager_instrument_select"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="10dp"
+                android:overScrollMode="never" />
+
+            <ImageView
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/arrow_left"
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="20dp" />
+
+            <ImageView
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/arrow_right"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="20dp" />
+
+            <TextView
+                android:id="@+id/textview_selected_instrument"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="none"
+                android:textAlignment="center"
+                android:textColor="#ffffff"
+                android:textSize="23dp"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentStart="true" />
+        </RelativeLayout>
+
+
+
+        <ListView
+            android:id="@+id/listview_paired"
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <Button
+                android:id="@+id/button_dev_start"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Dev Start"/>
+        </LinearLayout>
+
     </LinearLayout>
 
-</LinearLayout>
+</RelativeLayout>

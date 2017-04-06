@@ -10,6 +10,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,11 +31,13 @@ import nus.cs4347.commductor.server.ServerInstrumentalist;
 public class ServerLobbyActivity extends AppCompatActivity {
 
     private static final String TAG = "ServerLobbyActivity";
-    Button startButton, refreshButton;
+    ImageButton startButton;
     BTServerConnector btServerConnector;
     TextView deviceInfoTextview;
     ListView connectedListview;
     ArrayAdapter<String> connectedAdapter;
+    ImageView sunburst;
+
 
     final BTServerManager btServerManager = BTServerManager.getInstance();
 
@@ -45,16 +49,13 @@ public class ServerLobbyActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_server_lobby);
 
+        sunburst = (ImageView)findViewById(R.id.sunburst);
+        sunburst.startAnimation(AppData.getInstance().getRotateAnimation());
+
         connectedListview = (ListView)findViewById(R.id.listview_connected);
         deviceInfoTextview = (TextView) findViewById(R.id.textview_device_info);
-        startButton = (Button) findViewById(R.id.button_start_game);
-        refreshButton = (Button) findViewById(R.id.button_refresh);
-        refreshButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                refreshListView();
-            }
-        });
+        AppData.getInstance().setFont(deviceInfoTextview);
+        startButton = (ImageButton) findViewById(R.id.button_start_game);
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

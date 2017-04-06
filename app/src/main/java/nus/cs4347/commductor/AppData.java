@@ -3,6 +3,9 @@ package nus.cs4347.commductor;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.graphics.Typeface;
+import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
+import android.view.animation.RotateAnimation;
 import android.widget.TextView;
 
 import java.util.UUID;
@@ -29,6 +32,7 @@ public class AppData {
     private UUID uuid;
     private LookUpTable lut;
     private Typeface russian_font;
+
 
 
     public void init(Context appContext) {
@@ -61,5 +65,13 @@ public class AppData {
 
     public void setFont(TextView text) {
         text.setTypeface(russian_font);
+    }
+
+    public RotateAnimation getRotateAnimation() {
+        RotateAnimation r = new RotateAnimation(0, 360f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        r.setInterpolator(new LinearInterpolator());
+        r.setDuration(20000);
+        r.setRepeatCount(Animation.INFINITE);
+        return r;
     }
 }

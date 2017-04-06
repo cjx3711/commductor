@@ -3,6 +3,7 @@ package nus.cs4347.commductor;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
+import android.media.Image;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -11,6 +12,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -56,12 +58,17 @@ public class ClientLobbyActivity extends AppCompatActivity {
 
     BTPacketCallback startActivityCallback;
 
+    ImageView sunburst;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_client_lobby);
 
         final Instrumentalist instrumentalist = BTClientManager.getInstance().getInstrumentalist();
+
+        sunburst = (ImageView) findViewById(R.id.sunburst);
+        sunburst.startAnimation(AppData.getInstance().getRotateAnimation());
 
         devStartButton = (Button) findViewById(R.id.button_dev_start);
 

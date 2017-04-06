@@ -62,12 +62,8 @@ public class MenuActivity extends AppCompatActivity implements SensorEventListen
         sunburst = (ImageView)findViewById(R.id.sunburst);
         mp = MediaPlayer.create(activity.getApplicationContext(), R.raw.kick_mp3);
 
-        RotateAnimation r;
-        r = new RotateAnimation(0, 360f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-        r.setInterpolator(new LinearInterpolator());
-        r.setDuration(20000);
-        r.setRepeatCount(Animation.INFINITE);
-        sunburst.startAnimation(r);
+
+        sunburst.startAnimation(AppData.getInstance().getRotateAnimation());
 
         startServer.setOnClickListener(new View.OnClickListener() {
             @Override

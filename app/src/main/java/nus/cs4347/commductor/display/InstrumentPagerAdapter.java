@@ -35,8 +35,8 @@ public class InstrumentPagerAdapter extends FragmentPagerAdapter implements View
 
         this.instrumentTypes = new ArrayList<>();
         instrumentTypes.add(InstrumentType.TRIANGLE);
-        instrumentTypes.add(InstrumentType.PIANO);
         instrumentTypes.add(InstrumentType.COCONUT);
+        instrumentTypes.add(InstrumentType.PIANO);
         instrumentTypes.add(InstrumentType.DRUMS);
 
         this.pages = instrumentTypes.size();

@@ -44,7 +44,9 @@ public class ClientLobbyActivity extends AppCompatActivity {
     Button devStartButton;
 
     // Feedback text views
+    TextView connectedToTextView;
     TextView connectedTextView;
+
     TextView selectedTextView;
 
     // Instrument pager
@@ -65,8 +67,12 @@ public class ClientLobbyActivity extends AppCompatActivity {
 
         pairedListview = (ListView)findViewById(R.id.listview_paired);
         connectedTextView = (TextView)findViewById(R.id.textview_connected_device);
-
+        connectedToTextView = (TextView)findViewById(R.id.textview_connected_to);
         selectedTextView = (TextView)findViewById(R.id.textview_selected_instrument);
+        AppData.getInstance().setFont(connectedTextView);
+        AppData.getInstance().setFont(connectedToTextView);
+        AppData.getInstance().setFont(selectedTextView);
+
 
         instrumentPager = (ViewPager) findViewById(R.id.pager_instrument_select);
         instrumentPagerAdapter = new InstrumentPagerAdapter(this, this.getSupportFragmentManager());

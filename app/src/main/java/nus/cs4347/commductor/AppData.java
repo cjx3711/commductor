@@ -2,6 +2,8 @@ package nus.cs4347.commductor;
 
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
+import android.graphics.Typeface;
+import android.widget.TextView;
 
 import java.util.UUID;
 
@@ -26,6 +28,7 @@ public class AppData {
     private String uuidString;
     private UUID uuid;
     private LookUpTable lut;
+    private Typeface russian_font;
 
 
     public void init(Context appContext) {
@@ -34,6 +37,7 @@ public class AppData {
         uuidString = "493a221d-a5c4-44d3-82bc-bf961702a738";
         uuid = UUID.fromString(uuidString);
         lut = new LookUpTable(8000);
+        russian_font = Typeface.createFromAsset(getApplicationContext().getAssets(), "fonts/Russian.ttf");
     }
 
     public Context getApplicationContext() {
@@ -53,5 +57,9 @@ public class AppData {
 
     public LookUpTable getLUT () {
         return lut;
+    }
+
+    public void setFont(TextView text) {
+        text.setTypeface(russian_font);
     }
 }

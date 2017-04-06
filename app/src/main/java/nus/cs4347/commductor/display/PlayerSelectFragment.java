@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -42,6 +43,24 @@ public class PlayerSelectFragment extends Fragment {
         TextView instrumentTV = (TextView) l.findViewById(R.id.text_player_instrument);
         instrumentTV.setText(instrumentType.toString() );
 
+        ImageView instrumentImage = (ImageView) l.findViewById(R.id.image_instrument);
+
+        int imageResource = 0;
+        switch ( instrumentType ) {
+            case PIANO:
+                imageResource = R.drawable.piano;
+                break;
+            case DRUMS:
+                imageResource = R.drawable.drum;
+                break;
+            case TRIANGLE:
+                imageResource = R.drawable.triangle;
+                break;
+            case COCONUT:
+                imageResource = R.drawable.coconut_right;
+                break;
+        }
+        instrumentImage.setImageResource(imageResource);
 
         ScalingLinearLayout root = (ScalingLinearLayout) l.findViewById(R.id.root);
         float scale = this.getArguments().getFloat("scale");

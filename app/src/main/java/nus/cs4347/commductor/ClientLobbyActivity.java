@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -24,7 +25,10 @@ import nus.cs4347.commductor.bluetooth.BTDataPacket;
 import nus.cs4347.commductor.bluetooth.BTPacketCallback;
 import nus.cs4347.commductor.bluetooth.BTPacketHeader;
 import nus.cs4347.commductor.bluetooth.BTConnectCallback;
+import nus.cs4347.commductor.bluetooth.BTServerManager;
 import nus.cs4347.commductor.client.Instrumentalist;
+import nus.cs4347.commductor.display.InstrumentPagerAdapter;
+import nus.cs4347.commductor.display.PlayerPagerAdapter;
 import nus.cs4347.commductor.enums.InstrumentType;
 
 public class ClientLobbyActivity extends AppCompatActivity {
@@ -49,6 +53,11 @@ public class ClientLobbyActivity extends AppCompatActivity {
     TextView connectedTextView;
     TextView selectedTextView;
 
+    // Instrument pager
+    InstrumentPagerAdapter instrumentPagerAdapter;
+    ViewPager instrumentPager;
+
+
     BTPacketCallback startActivityCallback;
 
     @Override
@@ -68,6 +77,15 @@ public class ClientLobbyActivity extends AppCompatActivity {
         disconnectButton = (Button)findViewById(R.id.button_disconnect);
 
         selectedTextView = (TextView)findViewById(R.id.textview_selected_instrument);
+
+        instrumentPager = (ViewPager) findViewById(R.id.pager_instrument_select);
+        instrumentPagerAdapter = new InstrumentPagerAdapter(this, this.getSupportFragmentManager());
+        instrumentPager.setAdapter(instrumentPagerAdapter);
+        instrumentPager.setPageTransformer(false, instrumentPagerAdapter);
+
+        instrumentPager.setCurrentItem(instrumentPagerAdapter.getFirstPage());
+        instrumentPager.setOffscreenPageLimit(3);
+        instrumentPager.setPageMargin(-100);
 
         // Get paired devices
         String[] pairedStrings;

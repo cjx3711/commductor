@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -24,6 +25,8 @@ public class InstrumentDrumkitActivity extends InstrumentPreRecordedActivity {
     TextView volumeText;
     TextView bandpassText;
     TextView filterText;
+    ProgressBar volumeProgress;
+    ProgressBar bandpassProgress;
 
 
     @Override
@@ -38,6 +41,17 @@ public class InstrumentDrumkitActivity extends InstrumentPreRecordedActivity {
         volumeText = (TextView) findViewById(R.id.text_volume);
         bandpassText = (TextView) findViewById(R.id.text_bandpass);
         filterText = (TextView) findViewById(R.id.text_filter);
+
+        volumeProgress = (ProgressBar) findViewById(R.id.progress_volume);
+        bandpassProgress = (ProgressBar) findViewById(R.id.progress_bandpass);
+
+        AppData.getInstance().setFont(volumeText);
+        AppData.getInstance().setFont(bandpassText);
+        AppData.getInstance().setFont(filterText);
+        AppData.getInstance().setFont((TextView)findViewById(R.id.text_label1));
+        AppData.getInstance().setFont((TextView)findViewById(R.id.text_label2));
+        AppData.getInstance().setFont((TextView)findViewById(R.id.text_label3));
+
 
         drumButtons = new Button[8];
 
@@ -98,7 +112,7 @@ public class InstrumentDrumkitActivity extends InstrumentPreRecordedActivity {
         final Runnable updateTextRunnable = new Runnable() {
             @Override
             public void run() {
-                updateText(volumeText, bandpassText, filterText, null, null);
+                updateText(volumeText, bandpassText, filterText, volumeProgress, bandpassProgress);
             }
         };
         BTPacketCallback packetCallback = new BTPacketCallback() {
@@ -109,7 +123,7 @@ public class InstrumentDrumkitActivity extends InstrumentPreRecordedActivity {
         };
 
         BTClientManager.getInstance().setCallback(packetCallback);
-        updateText(volumeText, bandpassText, filterText, null, null);
+        updateText(volumeText, bandpassText, filterText, volumeProgress, bandpassProgress);
 
     }
 

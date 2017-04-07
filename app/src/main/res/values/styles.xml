@@ -12,6 +12,11 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="AppTheme.DrumButton" parent="Widget.AppCompat.Button.Colored">
+        <item name="colorButtonNormal">@color/colorAccent</item>
+        <item name="android:textColor">@color/colorPrimaryDark</item>
+    </style>
+
     <style name="ToggleButton" parent="@android:style/Widget.CompoundButton.RadioButton">
         <item name="android:foreground">?attr/selectableItemBackground</item>
         <item name="android:layout_width">match_parent</item>

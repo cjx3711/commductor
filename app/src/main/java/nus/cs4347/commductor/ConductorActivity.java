@@ -1,5 +1,6 @@
 package nus.cs4347.commductor;
 
+import android.media.Image;
 import android.os.Handler;
 import android.support.v4.view.ViewPager;
 
@@ -9,6 +10,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -106,7 +108,7 @@ public class ConductorActivity extends AppCompatActivity {
         };
     };
 
-    Button detectGestureButton;
+    ImageButton detectGestureButton;
 
     PlayerPagerAdapter playersPagerAdapter;
     ViewPager playersPager;
@@ -132,7 +134,7 @@ public class ConductorActivity extends AppCompatActivity {
         modifier2Progress = (ProgressBar) findViewById(R.id.progress_modifier2);
 
         serverInstrumentalists = BTServerManager.getInstance().getInstrumentalistList();
-        detectGestureButton = (Button)findViewById(R.id.detect_gesture_button);
+        detectGestureButton = (ImageButton) findViewById(R.id.detect_gesture_button);
 
         // Upon interacting with UI controls, delay any scheduled hide()
         // operations to prevent the jarring behavior of controls going away

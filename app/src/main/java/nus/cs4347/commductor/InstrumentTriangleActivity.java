@@ -13,22 +13,24 @@ import nus.cs4347.commductor.gestures.GesturesTapCallback;
 import nus.cs4347.commductor.gestures.GesturesProcessor;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.io.IOException;
 
 
 public class InstrumentTriangleActivity extends InstrumentPreRecordedActivity {
-
     Button holdButton;
-
     TextView volumeText;
     TextView bandpassText;
     TextView filterText;
+    ProgressBar volumeProgress;
+    ProgressBar bandpassProgress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
 
         setContentView(R.layout.activity_instrument_triangle);
 
@@ -37,6 +39,16 @@ public class InstrumentTriangleActivity extends InstrumentPreRecordedActivity {
         volumeText = (TextView) findViewById(R.id.text_volume);
         bandpassText = (TextView) findViewById(R.id.text_bandpass);
         filterText = (TextView) findViewById(R.id.text_filter);
+        volumeProgress = (ProgressBar) findViewById(R.id.progress_volume);
+        bandpassProgress = (ProgressBar) findViewById(R.id.progress_bandpass);
+
+        AppData.getInstance().setFont(volumeText);
+        AppData.getInstance().setFont(bandpassText);
+        AppData.getInstance().setFont(filterText);
+        AppData.getInstance().setFont((TextView)findViewById(R.id.text_label1));
+        AppData.getInstance().setFont((TextView)findViewById(R.id.text_label2));
+        AppData.getInstance().setFont((TextView)findViewById(R.id.text_label3));
+
 
         final View.OnTouchListener holdDown = new View.OnTouchListener() {
             @Override
@@ -84,16 +96,17 @@ public class InstrumentTriangleActivity extends InstrumentPreRecordedActivity {
 
         // Check if coconut or triangle
         if (BTClientManager.getInstance().getInstrumentalist().getType() == InstrumentType.COCONUT) {
-//            titleText.setText("Coconut Tok Tok");
             holdButton.setVisibility(View.GONE);
+            findViewById(R.id.image_triangle).setVisibility(View.GONE);
         } else {
+            findViewById(R.id.layout_coconut).setVisibility(View.GONE);
             canPlay = false;
         }
 
         final Runnable updateTextRunnable = new Runnable() {
             @Override
             public void run() {
-                updateText(volumeText, bandpassText, filterText);
+                updateText(volumeText, bandpassText, filterText, volumeProgress, bandpassProgress);
             }
         };
         BTPacketCallback packetCallback = new BTPacketCallback() {
@@ -104,7 +117,7 @@ public class InstrumentTriangleActivity extends InstrumentPreRecordedActivity {
         };
 
         BTClientManager.getInstance().setCallback(packetCallback);
-        updateText(volumeText, bandpassText, filterText);
+        updateText(volumeText, bandpassText, filterText, volumeProgress, bandpassProgress);
 
     }
 

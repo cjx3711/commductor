@@ -81,7 +81,6 @@ public class ClientLobbyActivity extends AppCompatActivity {
         AppData.getInstance().setFont(connectedToTextView);
         AppData.getInstance().setFont(selectedTextView);
 
-
         instrumentPager = (ViewPager) findViewById(R.id.pager_instrument_select);
         instrumentPagerAdapter = new InstrumentPagerAdapter(this, this.getSupportFragmentManager());
         instrumentPager.setAdapter(instrumentPagerAdapter);
@@ -94,7 +93,6 @@ public class ClientLobbyActivity extends AppCompatActivity {
         if ( instrumentalist.getType() != null ) {
             selectedTextView.setText(instrumentalist.getType().toString());
         }
-
 
         instrumentPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override

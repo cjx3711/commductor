@@ -98,7 +98,7 @@ public class InstrumentDrumkitActivity extends InstrumentPreRecordedActivity {
         final Runnable updateTextRunnable = new Runnable() {
             @Override
             public void run() {
-                updateText(volumeText, bandpassText, filterText);
+                updateText(volumeText, bandpassText, filterText, null, null);
             }
         };
         BTPacketCallback packetCallback = new BTPacketCallback() {
@@ -109,7 +109,7 @@ public class InstrumentDrumkitActivity extends InstrumentPreRecordedActivity {
         };
 
         BTClientManager.getInstance().setCallback(packetCallback);
-        updateText(volumeText, bandpassText, filterText);
+        updateText(volumeText, bandpassText, filterText, null, null);
 
     }
 

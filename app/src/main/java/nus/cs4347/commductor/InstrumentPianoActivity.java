@@ -1,19 +1,17 @@
 package nus.cs4347.commductor;
 
 import android.bluetooth.BluetoothSocket;
-import android.media.AudioManager;
-import android.media.SoundPool;
 import android.support.annotation.IdRes;
 import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.ToggleGroup;
 import android.view.MotionEvent;
-import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import nus.cs4347.commductor.bluetooth.BTClientManager;
@@ -28,8 +26,8 @@ public class InstrumentPianoActivity extends AppCompatActivity {
 
     private SynthThreadManager synthThreadManager;
 
-    TextView volumeText;
-    TextView bandpassText;
+    ProgressBar volumeProgress;
+    ProgressBar timbreProgress;
 
     Button addButton, removeButton;
     SwitchCompat chordModeSwitch;
@@ -43,6 +41,11 @@ public class InstrumentPianoActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_instrument_piano);
+
+        AppData.getInstance().setFont((TextView)findViewById(R.id.text_label1));
+        AppData.getInstance().setFont((TextView)findViewById(R.id.text_label2));
+        AppData.getInstance().setFont((TextView)findViewById(R.id.text_label3));
+        AppData.getInstance().setFont((TextView)findViewById(R.id.text_label4));
 
         synthThreadManager = SynthThreadManager.getInstance();
         synthThreadManager.init();
@@ -112,28 +115,28 @@ public class InstrumentPianoActivity extends AppCompatActivity {
         addButton.setOnClickListener(keyAddingListener);
         removeButton.setOnClickListener(keyAddingListener);
 
-        volumeText = (TextView)findViewById(R.id.text_volume);
-        bandpassText = (TextView)findViewById(R.id.text_bandpass);
+        volumeProgress = (ProgressBar) findViewById(R.id.progress_volume);
+        timbreProgress = (ProgressBar) findViewById(R.id.progress_timbre);
 
-        final Runnable updateTextRunnable = new Runnable() {
+        final Runnable updateProgressRunnable = new Runnable() {
             @Override
             public void run() {
-                updateText();
+                updateProgress();
             }
         };
         BTPacketCallback packetCallback = new BTPacketCallback() {
             @Override
             public void packetReceived(BluetoothSocket socket, BTDataPacket packet) {
-                runOnUiThread(updateTextRunnable);
+                runOnUiThread(updateProgressRunnable);
             }
         };
         BTClientManager.getInstance().setCallback(packetCallback);
-        updateText();
+        updateProgress();
     }
 
-    public void updateText() {
-        volumeText.setText((BTClientManager.getInstance().getInstrumentalist().getModifier1() * 100 )+ "");
-        bandpassText.setText((BTClientManager.getInstance().getInstrumentalist().getModifier2() * 100 )+ "");
+    public void updateProgress() {
+        volumeProgress.setProgress((int)(BTClientManager.getInstance().getInstrumentalist().getModifier1() * 100 ));
+        timbreProgress.setProgress((int)(BTClientManager.getInstance().getInstrumentalist().getModifier2() * 100 ));
     }
 
 //    @Override

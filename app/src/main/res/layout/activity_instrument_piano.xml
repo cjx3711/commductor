@@ -2,7 +2,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+
+    android:background="@color/background">
 
     <nus.cs4347.commductor.display.Piano
         android:id="@+id/view_piano"
@@ -12,50 +14,59 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="60dp"
+        android:padding="5dp">
 
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
             android:id="@+id/linearLayout3">
 
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
 
                 <TextView
+                    android:id="@+id/text_label1"
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
                     android:text="Volume: "
+                    android:textColor="#fff"
                     android:textSize="20sp" />
 
                 <TextView
-                    android:id="@+id/text_volume"
+                    android:id="@+id/text_label2"
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:text="0.626"
-                    android:textSize="25sp" />
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:text="Timbre: "
+                    android:textColor="#fff"
+                    android:textSize="20sp" />
             </LinearLayout>
 
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:text="Bandpass: "
-                    android:textSize="20sp" />
-
-                <TextView
-                    android:id="@+id/text_bandpass"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:text="0.744"
-                    android:textSize="25sp" />
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+                <ProgressBar
+                    android:id="@+id/progress_volume"
+                    android:theme="@style/LinearProgress"
+                    android:progress="50"
+                    style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                    android:layout_width="100dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"/>
+                <ProgressBar
+                    android:id="@+id/progress_timbre"
+                    android:theme="@style/LinearProgress"
+                    android:progress="50"
+                    style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                    android:layout_width="100dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"/>
             </LinearLayout>
         </LinearLayout>
         <LinearLayout
@@ -70,9 +81,13 @@
             android:layout_marginStart="16dp"
             android:id="@+id/linearLayout5">
             <TextView
+                android:id="@+id/text_label3"
+                android:textColor="#fff"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Chord mode:"/>
+                android:text="Chord mode:"
+                android:layout_marginRight="7dp"
+                android:layout_marginLeft="5dp"/>
             <android.support.v7.widget.SwitchCompat
                 android:id="@+id/switch_chord_mode"
                 android:layout_width="wrap_content"
@@ -129,6 +144,8 @@
             android:orientation="vertical">
 
             <TextView
+                android:id="@+id/text_label4"
+                android:textColor="#fff"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Keys:"

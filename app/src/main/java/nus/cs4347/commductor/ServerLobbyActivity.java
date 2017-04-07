@@ -1,24 +1,16 @@
 package nus.cs4347.commductor;
 
-import android.bluetooth.BluetoothAdapter;
-
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import org.w3c.dom.Text;
-
-import java.util.ArrayList;
 
 import nus.cs4347.commductor.bluetooth.BTDataPacket;
 import nus.cs4347.commductor.bluetooth.BTPacketCallback;
@@ -26,7 +18,7 @@ import nus.cs4347.commductor.bluetooth.BTPacketHeader;
 import nus.cs4347.commductor.bluetooth.BTServerConnector;
 import nus.cs4347.commductor.bluetooth.BTServerManager;
 import nus.cs4347.commductor.bluetooth.BTConnectCallback;
-import nus.cs4347.commductor.display.PlayerAdapter;
+import nus.cs4347.commductor.display.PlayerListAdapter;
 import nus.cs4347.commductor.enums.InstrumentType;
 import nus.cs4347.commductor.server.ServerInstrumentalist;
 
@@ -38,7 +30,7 @@ public class ServerLobbyActivity extends AppCompatActivity {
     BTServerConnector btServerConnector;
     TextView deviceInfoTextview;
     ListView connectedListview;
-    PlayerAdapter connectedAdapter;
+    PlayerListAdapter connectedAdapter;
     ImageView sunburst;
 
 
@@ -126,7 +118,7 @@ public class ServerLobbyActivity extends AppCompatActivity {
         btServerConnector.start();
 
 
-        connectedAdapter = new PlayerAdapter(this, R.layout.listitem_player, btServerManager.getInstrumentalistList());
+        connectedAdapter = new PlayerListAdapter(this, R.layout.listitem_player, btServerManager.getInstrumentalistList());
         connectedListview.setAdapter(connectedAdapter);
 
     }

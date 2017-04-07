@@ -16,12 +16,12 @@ import nus.cs4347.commductor.enums.InstrumentType;
 import nus.cs4347.commductor.server.ServerInstrumentalist;
 
 
-public class PlayerAdapter extends ArrayAdapter<ServerInstrumentalist> {
-    public PlayerAdapter(Context context, int textViewResourceId) {
+public class PlayerListAdapter extends ArrayAdapter<ServerInstrumentalist> {
+    public PlayerListAdapter(Context context, int textViewResourceId) {
         super(context, textViewResourceId);
     }
 
-    public PlayerAdapter(Context context, int resource, List<ServerInstrumentalist> items) {
+    public PlayerListAdapter(Context context, int resource, List<ServerInstrumentalist> items) {
         super(context, resource, items);
     }
 

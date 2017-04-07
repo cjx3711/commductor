@@ -30,6 +30,7 @@ import nus.cs4347.commductor.bluetooth.BTConnectCallback;
 import nus.cs4347.commductor.bluetooth.BTServerManager;
 import nus.cs4347.commductor.client.Instrumentalist;
 import nus.cs4347.commductor.display.InstrumentPagerAdapter;
+import nus.cs4347.commductor.display.PairedDeviceListAdapter;
 import nus.cs4347.commductor.display.PlayerPagerAdapter;
 import nus.cs4347.commductor.enums.InstrumentType;
 
@@ -117,39 +118,42 @@ public class ClientLobbyActivity extends AppCompatActivity {
         });
 
         // Get paired devices
-        String[] pairedStrings;
-        BluetoothDevice [] pairedDevicesTemp = new BluetoothDevice[0];
+//        String[] pairedStrings;
+//        BluetoothDevice [] pairedDevicesTemp = new BluetoothDevice[0];
         Set<BluetoothDevice> pairedDevicesSet = AppData.getInstance().getBluetoothAdapter().getBondedDevices();
-        if ( pairedDevicesSet != null ) {
-            pairedDevicesTemp = pairedDevicesSet.toArray(pairedDevicesTemp);
-        }
+//        if ( pairedDevicesSet != null ) {
+//            pairedDevicesTemp = pairedDevicesSet.toArray(pairedDevicesTemp);
+//        }
+//
+//        final BluetoothDevice [] pairedDevices = pairedDevicesTemp;
 
-        final BluetoothDevice [] pairedDevices = pairedDevicesTemp;
+//        int index = 0;
+//
+//        Log.d(TAG, "There are " + pairedDevices.length + " devices paired");
 
-        int index = 0;
+//        pairedStrings = new String[pairedDevices.length];
+//        if (pairedDevices.length > 0) {
+//
+//            // There are paired devices. Get the name and address of each paired device.
+//            index = 0;
+//            for (BluetoothDevice device : pairedDevices) {
+//                String deviceName = device.getName();
+//                String deviceHardwareAddress = device.getAddress(); // MAC address
+//                pairedStrings[index] = deviceName + " - " + deviceHardwareAddress;
+//                index++;
+//            }
+//        }
 
-        Log.d(TAG, "There are " + pairedDevices.length + " devices paired");
-
-        pairedStrings = new String[pairedDevices.length];
-        if (pairedDevices.length > 0) {
-
-            // There are paired devices. Get the name and address of each paired device.
-            index = 0;
-            for (BluetoothDevice device : pairedDevices) {
-                String deviceName = device.getName();
-                String deviceHardwareAddress = device.getAddress(); // MAC address
-                pairedStrings[index] = deviceName + " - " + deviceHardwareAddress;
-                index++;
-            }
-        }
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, android.R.id.text1, pairedStrings);
+//        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, android.R.id.text1, pairedStrings);
+        final ArrayList<BluetoothDevice> list = new ArrayList<>();
+        list.addAll(pairedDevicesSet);
+        PairedDeviceListAdapter adapter = new PairedDeviceListAdapter(this, R.layout.listitem_paireddevice, list);
         pairedListview.setAdapter(adapter);
         pairedListview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Log.d(TAG, ""+position);
-                connectTo(pairedDevices[position]);
+                connectTo(list.get(position));
             }
         });
 

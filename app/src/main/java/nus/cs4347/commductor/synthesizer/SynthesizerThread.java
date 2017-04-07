@@ -67,10 +67,8 @@ public class SynthesizerThread extends Thread {
         samples = new short[bufferSize];
 
         weights = new double [] {
-            /*5.0/15.0, 4.0/15.0, 3.0/15.0, 2.0/15.0, 1.0/15.0*/
             5.0, 4.0, 3.0, 2.0, 1.0
         };
-        //weights = new double [] { 1.0 };
         wave = new double [] {
           0.0, 0.0, 0.0, 0.0, 0.0
         };
@@ -80,7 +78,6 @@ public class SynthesizerThread extends Thread {
 
     public void setFundamentalFrequency (int pitch) {
         fundamentalFrequency = (pitch == 0) ? 0.f : (440.f * (Math.pow (2.f, (pitch - 69) / 12.f)));
-        Log.d ("FundamentalFrequency", "Fundamental Freq : " + fundamentalFrequency);
     }
 
     public void startSynthesizing() {

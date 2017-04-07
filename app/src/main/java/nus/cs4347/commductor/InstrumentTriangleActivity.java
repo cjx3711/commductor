@@ -42,12 +42,10 @@ public class InstrumentTriangleActivity extends InstrumentPreRecordedActivity {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    canPlay = true;
-                    holdButton.setText("Release to Stop");
+                    canPlay = false;
 
                 } else if (event.getAction() == MotionEvent.ACTION_UP) {
-                    canPlay = false;
-                    holdButton.setText("Hold to Play");
+                    canPlay = true;
                 }
                 return false;
             }

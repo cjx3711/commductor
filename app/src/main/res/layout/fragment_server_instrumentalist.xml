@@ -15,11 +15,13 @@
             android:id="@+id/text_player_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="18dp" />
+            android:textColor="#fff"
+            android:textSize="20dp" />
         <TextView
             android:id="@+id/text_player_instrument"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="#fff"
             android:textSize="14dp" />
         <ImageView
             android:id="@+id/image_instrument"

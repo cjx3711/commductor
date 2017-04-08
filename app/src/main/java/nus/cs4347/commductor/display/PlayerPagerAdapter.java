@@ -51,7 +51,7 @@ public class PlayerPagerAdapter extends FragmentPagerAdapter implements ViewPage
 
         position = position % pages;
         ServerInstrumentalist si = serverInstrumentalists.get(position);
-        return PlayerSelectFragment.newInstance(context, position, scale, si.getType());
+        return PlayerSelectFragment.newInstance(context, position, scale, si);
     }
 
     @Override

@@ -1,122 +1,196 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background">
+    <ImageView
+        android:id="@+id/sunburst"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_marginLeft="-300dp"
+        android:layout_marginRight="-300dp"
+        android:layout_marginBottom="-300dp"
+        android:layout_marginTop="-300dp"
+        android:src="@drawable/sunburst"
+        android:scaleType="fitCenter" />
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:textSize="20sp"
-            android:text="Volume: "/>
-        <TextView
-            android:id="@+id/text_volume"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:textSize="25sp"
-            android:text="0.744"/>
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:textSize="20sp"
-            android:text="Bandpass: "/>
-        <TextView
-            android:id="@+id/text_bandpass"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:textSize="25sp"
-            android:text="0.744"/>
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:textSize="20sp"
-            android:text="Filter: "/>
-        <TextView
-            android:id="@+id/text_filter"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:textSize="20sp"
-            android:text="Low-pass. 0Hz."/>
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_height="match_parent"
         android:orientation="vertical">
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:orientation="horizontal">
-            <Button
-                android:id="@+id/button_drum_1"
-                android:layout_width="0dp"
+            android:layout_height="70dp"
+            android:orientation="horizontal"
+            android:padding="7dp">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:text="Sound 1"/>
-            <Button
-                android:id="@+id/button_drum_2"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/text_label1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:text="Volume: "
+                    android:textColor="#fff"
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:id="@+id/text_label2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:text="Bandpass: "
+                    android:textColor="#fff"
+                    android:textSize="20sp" />
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="0dp"
-                android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:text="Sound 2"/>
-            <Button
-                android:id="@+id/button_drum_3"
-                android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:text="Sound 3"/>
-            <Button
-                android:id="@+id/button_drum_4"
-                android:layout_width="0dp"
+                android:orientation="vertical">
+
+                <ProgressBar
+                    android:id="@+id/progress_volume"
+                    style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:progress="50"
+                    android:theme="@style/LinearProgress" />
+
+                <ProgressBar
+                    android:id="@+id/progress_bandpass"
+                    style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:progress="50"
+                    android:theme="@style/LinearProgress" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:text="Sound 4"/>
+                android:orientation="vertical">
+                <TextView
+                    android:id="@+id/text_volume"
+                    android:layout_width="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_height="0dp"
+                    android:textColor="#fff"
+                    android:text="0.626"
+                    android:textSize="25sp" />
+                <TextView
+                    android:id="@+id/text_bandpass"
+                    android:layout_width="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_height="0dp"
+                    android:textColor="#fff"
+                    android:text="0.744"
+                    android:textSize="25sp" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:padding="5dp"
+                android:layout_marginLeft="20dp">
+                <TextView
+                    android:id="@+id/text_label3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:textSize="20sp"
+                    android:textColor="#fff"
+                    android:text="Filter: "/>
+                <TextView
+                    android:id="@+id/text_filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:textSize="20sp"
+                    android:textColor="#fff"
+                    android:text="Low-pass. 0Hz."/>
+            </LinearLayout>
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:orientation="horizontal">
-            <Button
-                android:id="@+id/button_drum_5"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
+            android:orientation="vertical">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
                 android:layout_weight="1"
-                android:text="Sound 5"/>
-            <Button
-                android:id="@+id/button_drum_6"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
+                android:orientation="horizontal">
+                <Button
+                    style="@style/AppTheme.DrumButton"
+                    android:id="@+id/button_drum_1"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="Sound 1"/>
+                <Button
+                    style="@style/AppTheme.DrumButton"
+                    android:id="@+id/button_drum_2"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="Sound 2"/>
+                <Button
+                    style="@style/AppTheme.DrumButton"
+                    android:id="@+id/button_drum_3"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="Sound 3"/>
+                <Button
+                    style="@style/AppTheme.DrumButton"
+                    android:id="@+id/button_drum_4"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="Sound 4"/>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
                 android:layout_weight="1"
-                android:text="Sound 6"/>
-            <Button
-                android:id="@+id/button_drum_7"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:text="Sound 7"/>
-            <Button
-                android:id="@+id/button_drum_8"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:text="Sound 8"/>
+                android:orientation="horizontal">
+                <Button
+                    style="@style/AppTheme.DrumButton"
+                    android:id="@+id/button_drum_5"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="Sound 5"/>
+                <Button
+                    style="@style/AppTheme.DrumButton"
+                    android:id="@+id/button_drum_6"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="Sound 6"/>
+                <Button
+                    style="@style/AppTheme.DrumButton"
+                    android:id="@+id/button_drum_7"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="Sound 7"/>
+                <Button
+                    style="@style/AppTheme.DrumButton"
+                    android:id="@+id/button_drum_8"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="Sound 8"/>
+            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
-</LinearLayout>
+
+</RelativeLayout>

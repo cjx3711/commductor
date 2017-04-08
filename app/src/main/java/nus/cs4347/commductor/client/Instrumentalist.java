@@ -15,7 +15,7 @@ public class Instrumentalist {
 
     public Instrumentalist() {
         modifier1 = 1;
-        modifier2 = 1;
+        modifier2 = 0.5f;
         type = null;
     }
 

@@ -3,13 +3,16 @@ package nus.cs4347.commductor;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
+import android.media.Image;
 import android.os.Bundle;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -24,7 +27,11 @@ import nus.cs4347.commductor.bluetooth.BTDataPacket;
 import nus.cs4347.commductor.bluetooth.BTPacketCallback;
 import nus.cs4347.commductor.bluetooth.BTPacketHeader;
 import nus.cs4347.commductor.bluetooth.BTConnectCallback;
+import nus.cs4347.commductor.bluetooth.BTServerManager;
 import nus.cs4347.commductor.client.Instrumentalist;
+import nus.cs4347.commductor.display.InstrumentPagerAdapter;
+import nus.cs4347.commductor.display.PairedDeviceListAdapter;
+import nus.cs4347.commductor.display.PlayerPagerAdapter;
 import nus.cs4347.commductor.enums.InstrumentType;
 
 public class ClientLobbyActivity extends AppCompatActivity {
@@ -34,114 +41,119 @@ public class ClientLobbyActivity extends AppCompatActivity {
     private BTConnectCallback BTConnectCallback;
 
     // Containers
-    LinearLayout connectedInfoLayout;
     ListView pairedListview;
 
     // Buttons
-    Button disconnectButton;
-    Button triangleButton;
-    Button coconutButton;
-    Button pianoButton;
-    Button drumsButton;
     Button devStartButton;
 
     // Feedback text views
+    TextView connectedToTextView;
     TextView connectedTextView;
+
     TextView selectedTextView;
 
+    // Instrument pager
+    InstrumentPagerAdapter instrumentPagerAdapter;
+    ViewPager instrumentPager;
+
+
     BTPacketCallback startActivityCallback;
+
+    ImageView sunburst;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_client_lobby);
 
-        triangleButton = (Button) findViewById(R.id.button_triangle);
-        coconutButton = (Button) findViewById(R.id.button_coconut);
-        pianoButton = (Button) findViewById(R.id.button_piano);
-        drumsButton = (Button) findViewById(R.id.button_drums);
+        final Instrumentalist instrumentalist = BTClientManager.getInstance().getInstrumentalist();
+
+        sunburst = (ImageView) findViewById(R.id.sunburst);
+        sunburst.startAnimation(AppData.getInstance().getRotateAnimation());
+
         devStartButton = (Button) findViewById(R.id.button_dev_start);
 
         pairedListview = (ListView)findViewById(R.id.listview_paired);
-        connectedInfoLayout = (LinearLayout)findViewById(R.id.layout_connected_info);
         connectedTextView = (TextView)findViewById(R.id.textview_connected_device);
-        disconnectButton = (Button)findViewById(R.id.button_disconnect);
-
+        connectedToTextView = (TextView)findViewById(R.id.textview_connected_to);
         selectedTextView = (TextView)findViewById(R.id.textview_selected_instrument);
+        AppData.getInstance().setFont(connectedTextView);
+        AppData.getInstance().setFont(connectedToTextView);
+        AppData.getInstance().setFont(selectedTextView);
+
+        instrumentPager = (ViewPager) findViewById(R.id.pager_instrument_select);
+        instrumentPagerAdapter = new InstrumentPagerAdapter(this, this.getSupportFragmentManager());
+        instrumentPager.setAdapter(instrumentPagerAdapter);
+        instrumentPager.setPageTransformer(false, instrumentPagerAdapter);
+
+        instrumentalist.setType(InstrumentType.valueOf(instrumentPagerAdapter.getFirstPage() % 4));
+        instrumentPager.setCurrentItem(instrumentPagerAdapter.getFirstPage());
+        instrumentPager.setOffscreenPageLimit(3);
+        instrumentPager.setPageMargin(-100);
+        if ( instrumentalist.getType() != null ) {
+            selectedTextView.setText(instrumentalist.getType().toString());
+        }
+
+        instrumentPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                instrumentalist.setType(InstrumentType.valueOf(position % 4));
+                if ( instrumentalist.getType() != null ) {
+                    selectedTextView.setText(instrumentalist.getType().toString());
+                }
+                sendInstrumentPacket();
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
 
         // Get paired devices
-        String[] pairedStrings;
-        BluetoothDevice [] pairedDevicesTemp = new BluetoothDevice[0];
+//        String[] pairedStrings;
+//        BluetoothDevice [] pairedDevicesTemp = new BluetoothDevice[0];
         Set<BluetoothDevice> pairedDevicesSet = AppData.getInstance().getBluetoothAdapter().getBondedDevices();
-        if ( pairedDevicesSet != null ) {
-            pairedDevicesTemp = pairedDevicesSet.toArray(pairedDevicesTemp);
-        }
+//        if ( pairedDevicesSet != null ) {
+//            pairedDevicesTemp = pairedDevicesSet.toArray(pairedDevicesTemp);
+//        }
+//
+//        final BluetoothDevice [] pairedDevices = pairedDevicesTemp;
 
-        final BluetoothDevice [] pairedDevices = pairedDevicesTemp;
+//        int index = 0;
+//
+//        Log.d(TAG, "There are " + pairedDevices.length + " devices paired");
 
-        int index = 0;
+//        pairedStrings = new String[pairedDevices.length];
+//        if (pairedDevices.length > 0) {
+//
+//            // There are paired devices. Get the name and address of each paired device.
+//            index = 0;
+//            for (BluetoothDevice device : pairedDevices) {
+//                String deviceName = device.getName();
+//                String deviceHardwareAddress = device.getAddress(); // MAC address
+//                pairedStrings[index] = deviceName + " - " + deviceHardwareAddress;
+//                index++;
+//            }
+//        }
 
-        Log.d(TAG, "There are " + pairedDevices.length + " devices paired");
-
-        pairedStrings = new String[pairedDevices.length];
-        if (pairedDevices.length > 0) {
-
-            // There are paired devices. Get the name and address of each paired device.
-            index = 0;
-            for (BluetoothDevice device : pairedDevices) {
-                String deviceName = device.getName();
-                String deviceHardwareAddress = device.getAddress(); // MAC address
-                pairedStrings[index] = deviceName + " - " + deviceHardwareAddress;
-                index++;
-            }
-        }
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, android.R.id.text1, pairedStrings);
+//        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, android.R.id.text1, pairedStrings);
+        final ArrayList<BluetoothDevice> list = new ArrayList<>();
+        list.addAll(pairedDevicesSet);
+        PairedDeviceListAdapter adapter = new PairedDeviceListAdapter(this, R.layout.listitem_paireddevice, list);
         pairedListview.setAdapter(adapter);
         pairedListview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Log.d(TAG, ""+position);
-                connectTo(pairedDevices[position]);
+                connectTo(list.get(position));
             }
         });
-
-        disconnectButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                hideConnected();
-            }
-        });
-
-        View.OnClickListener instrumentSelect = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Instrumentalist instrumentalist = BTClientManager.getInstance().getInstrumentalist();
-                if ( v == triangleButton ) {
-                    instrumentalist.setType(InstrumentType.TRIANGLE);
-                }
-                if ( v == coconutButton ) {
-                    instrumentalist.setType(InstrumentType.COCONUT);
-                }
-                if ( v == pianoButton ) {
-                    instrumentalist.setType(InstrumentType.PIANO);
-                }
-                if ( v == drumsButton ) {
-                    instrumentalist.setType(InstrumentType.DRUMS);
-                }
-
-                if ( instrumentalist.getType() != null ) {
-                    selectedTextView.setText("Selected: " + instrumentalist.getType().toString());
-                }
-
-                sendInstrumentPacket();
-
-            }
-        };
-        triangleButton.setOnClickListener(instrumentSelect);
-        coconutButton.setOnClickListener(instrumentSelect);
-        pianoButton.setOnClickListener(instrumentSelect);
-        drumsButton.setOnClickListener(instrumentSelect);
 
         devStartButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -204,13 +216,9 @@ public class ClientLobbyActivity extends AppCompatActivity {
     }
 
     protected void showConnected(BluetoothSocket socket) {
-        pairedListview.setVisibility(View.GONE);
-        connectedInfoLayout.setVisibility(View.VISIBLE);
         connectedTextView.setText(socket.getRemoteDevice().getName());
     }
     protected void hideConnected() {
-        pairedListview.setVisibility(View.VISIBLE);
-        connectedInfoLayout.setVisibility(View.GONE);
     }
 
     protected void connectTo(BluetoothDevice bluetoothDevice) {

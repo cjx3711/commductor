@@ -10,20 +10,17 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import nus.cs4347.commductor.AppData;
 import nus.cs4347.commductor.R;
 import nus.cs4347.commductor.enums.InstrumentType;
-import nus.cs4347.commductor.server.ServerInstrumentalist;
 
-public class PlayerSelectFragment extends Fragment {
 
-    public static Fragment newInstance(Context context, int pos, float scale, ServerInstrumentalist instrument) {
+public class InstrumentSelectFragment extends Fragment {
+    public static Fragment newInstance(Context context, int pos, float scale, InstrumentType instrument) {
         Bundle b = new Bundle();
         b.putInt("pos", pos);
         b.putFloat("scale", scale);
-        b.putInt("instrument", instrument.getType().getInt());
-        b.putString("name", instrument.getSocket().getRemoteDevice().getName());
-        return Fragment.instantiate(context, PlayerSelectFragment.class.getName(), b);
+        b.putInt("instrument", instrument.getInt());
+        return Fragment.instantiate(context, InstrumentSelectFragment.class.getName(), b);
     }
 
     @Override
@@ -34,23 +31,13 @@ public class PlayerSelectFragment extends Fragment {
         }
 
         LinearLayout l = (LinearLayout)
-                inflater.inflate(R.layout.fragment_server_instrumentalist, container, false);
+                inflater.inflate(R.layout.fragment_client_instrument, container, false);
 
         int pos = this.getArguments().getInt("pos");
         int instrument = this.getArguments().getInt("instrument");
-        String playerName = this.getArguments().getString("name");
         InstrumentType instrumentType = InstrumentType.valueOf(instrument);
 
-        TextView playerTV = (TextView) l.findViewById(R.id.text_player_name);
-        playerTV.setText("P" + (pos +1) + ": " + playerName);
-
-        TextView instrumentTV = (TextView) l.findViewById(R.id.text_player_instrument);
-        instrumentTV.setText(instrumentType.toString() );
-
         ImageView instrumentImage = (ImageView) l.findViewById(R.id.image_instrument);
-
-        AppData.getInstance().setFont(instrumentTV);
-        AppData.getInstance().setFont(playerTV);
 
         int imageResource = 0;
         switch ( instrumentType ) {

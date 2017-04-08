@@ -6,6 +6,7 @@ import android.media.AudioTrack;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -33,11 +34,17 @@ public class InstrumentPreRecordedActivity extends AppCompatActivity {
 
     Thread t;
 
-    public void updateText(TextView volumeText, TextView bandpassText, TextView filterText ) {
+    public void updateText(TextView volumeText, TextView bandpassText, TextView filterText, ProgressBar volumeProgress, ProgressBar bandpassProgress ) {
         volumeCoeff = BTClientManager.getInstance().getInstrumentalist().getModifier1() * 100;
         bandPassCoeff = BTClientManager.getInstance().getInstrumentalist().getModifier2() * 100 - 50;
-        volumeText.setText((volumeCoeff)+ "");
-        bandpassText.setText((bandPassCoeff)+ "");
+        int vInt = (int)volumeCoeff;
+        int bInt = (int)bandPassCoeff;
+        volumeText.setText(vInt+ "");
+        bandpassText.setText(bInt+ "");
+        if ( volumeProgress != null )
+            volumeProgress.setProgress(vInt);
+        if ( bandpassProgress != null )
+            bandpassProgress.setProgress(bInt + 50);
 
         float limitFreq = AudioProcessor.getLimitFreq(bandPassCoeff);
         if(bandPassCoeff > POSITIVE_FLOOR){

@@ -10,15 +10,12 @@ import android.view.View;
 import java.util.ArrayList;
 
 import nus.cs4347.commductor.R;
-import nus.cs4347.commductor.server.ServerInstrumentalist;
+import nus.cs4347.commductor.enums.InstrumentType;
 
-/**
- * Adapter for the view pager for the players
- */
 
-public class PlayerPagerAdapter extends FragmentPagerAdapter implements ViewPager.PageTransformer {
+public class InstrumentPagerAdapter extends FragmentPagerAdapter implements ViewPager.PageTransformer {
     public final static float BIG_SCALE = 1.0f;
-    public final static float SMALL_SCALE = 0.7f;
+    public final static float SMALL_SCALE = 0.2f;
     public final static float DIFF_SCALE = BIG_SCALE - SMALL_SCALE;
 
     private ScalingLinearLayout cur = null;
@@ -30,14 +27,19 @@ public class PlayerPagerAdapter extends FragmentPagerAdapter implements ViewPage
     private int pages;
     private int loops = 1000;
     private int firstPage;
-    private ArrayList<ServerInstrumentalist> serverInstrumentalists;
-    public PlayerPagerAdapter(Context context, FragmentManager fm, ArrayList<ServerInstrumentalist> serverInstrumentalists) {
+    private ArrayList<InstrumentType> instrumentTypes;
+    public InstrumentPagerAdapter(Context context, FragmentManager fm) {
         super(fm);
         this.fm = fm;
         this.context = context;
 
-        this.serverInstrumentalists = serverInstrumentalists;
-        this.pages = serverInstrumentalists.size();
+        this.instrumentTypes = new ArrayList<>();
+        instrumentTypes.add(InstrumentType.TRIANGLE);
+        instrumentTypes.add(InstrumentType.COCONUT);
+        instrumentTypes.add(InstrumentType.PIANO);
+        instrumentTypes.add(InstrumentType.DRUMS);
+
+        this.pages = instrumentTypes.size();
         this.firstPage = pages * loops / 2;
     }
 
@@ -50,8 +52,8 @@ public class PlayerPagerAdapter extends FragmentPagerAdapter implements ViewPage
             scale = SMALL_SCALE;
 
         position = position % pages;
-        ServerInstrumentalist si = serverInstrumentalists.get(position);
-        return PlayerSelectFragment.newInstance(context, position, scale, si);
+        InstrumentType instType = instrumentTypes.get(position);
+        return InstrumentSelectFragment.newInstance(context, position, scale, instType);
     }
 
     @Override

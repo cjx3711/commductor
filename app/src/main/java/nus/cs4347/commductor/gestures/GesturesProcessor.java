@@ -34,9 +34,9 @@ public class GesturesProcessor implements SensorEventListener{
     private static final double PITCH_ANGLE_THRESHOLD = 15.0;
     private static final double ROLL_ANGLE_THRESHOLD = 15.0;
     private static final double FLIP_THRESHOLD = 19.6;
-    private static final double TAP_THRESHOLD = 29.0;
+    private static final double TAP_THRESHOLD = 25.0;
     private static final int CONDUCTOR_WINDOW_SIZE = 20;
-    private static final int PLAYER_WINDOW_SIZE = 12;
+    private static final int PLAYER_WINDOW_SIZE = 20;
 
     private int processorMode;
     private GesturesTapCallback tapCallback;

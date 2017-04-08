@@ -1,96 +1,114 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background">
 
-    <TextView
-        android:id="@+id/textView"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="TextView" />
+        android:layout_height="match_parent"
+        android:layout_marginTop="-400dp">
+        <ImageView
+            android:id="@+id/sunburst"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_marginLeft="-800dp"
+            android:layout_marginRight="-800dp"
+            android:layout_marginBottom="-800dp"
+            android:layout_marginTop="-800dp"
+            android:src="@drawable/sunburst"
+            android:scaleType="fitCenter" />
+    </RelativeLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="vertical">
+        android:layout_height="match_parent"
+        android:orientation="vertical" >
         <LinearLayout
-            android:id="@+id/layout_connected_info"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
             android:orientation="vertical"
-            android:visibility="gone">
-            <LinearLayout
-                android:layout_width="match_parent"
+            android:layout_margin="15dp">
+            <TextView
+                android:id="@+id/textview_connected_to"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Connected: "/>
-                <TextView
-                    android:id="@+id/textview_connected_device"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
-            <Button
-                android:id="@+id/button_disconnect"
-                android:layout_width="match_parent"
+                android:textSize="25sp"
+                android:layout_marginBottom="10dp"
+                android:textColor="#ffffff"
+                android:text="Connected to:"/>
+            <TextView
+                android:id="@+id/textview_connected_device"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Disconnect"/>
+                android:textSize="30sp"
+                android:textColor="#ffffff"
+                android:text="NOTHING"/>
         </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:paddingBottom="10dp">
+
+            <android.support.v4.view.ViewPager
+                android:id="@+id/pager_instrument_select"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="10dp"
+                android:overScrollMode="never" />
+
+            <ImageView
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/arrow_left"
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="20dp" />
+
+            <ImageView
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/arrow_right"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="20dp" />
+
+            <TextView
+                android:id="@+id/textview_selected_instrument"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="none"
+                android:textAlignment="center"
+                android:textColor="#ffffff"
+                android:textSize="23dp"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentStart="true" />
+        </RelativeLayout>
+
+
+
         <ListView
             android:id="@+id/listview_paired"
+            android:layout_weight="1"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-    </LinearLayout>
+            android:layout_height="0dp"/>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-        <TextView
-            android:id="@+id/textview_selected_instrument"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Selected: none"/>
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <Button
-                android:id="@+id/button_triangle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Triangle"
-                />
-            <Button
-                android:id="@+id/button_coconut"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Coconut"
-                />
-            <Button
-                android:id="@+id/button_piano"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Piano"
-                />
-            <Button
-                android:id="@+id/button_drums"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Drums"
-                />
-        </LinearLayout>
-        <Button
-            android:id="@+id/button_dev_start"
-            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Dev Start"/>
+            android:orientation="vertical">
+            <Button
+                android:id="@+id/button_dev_start"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Dev Start"/>
+        </LinearLayout>
+
     </LinearLayout>
 
-</LinearLayout>
+</RelativeLayout>

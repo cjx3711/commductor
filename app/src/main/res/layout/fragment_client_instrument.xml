@@ -11,22 +11,11 @@
         android:orientation="vertical"
         android:gravity="center"
         android:background="@android:color/transparent">
-        <TextView
-            android:id="@+id/text_player_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="#fff"
-            android:textSize="20dp" />
-        <TextView
-            android:id="@+id/text_player_instrument"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="#fff"
-            android:textSize="14dp" />
+        
         <ImageView
             android:id="@+id/image_instrument"
-            android:layout_width="190dp"
-            android:layout_height="120dp">
-        </ImageView>
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitCenter"/>
     </nus.cs4347.commductor.display.ScalingLinearLayout>
 </LinearLayout>

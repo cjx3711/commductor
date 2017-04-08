@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="nus.cs4347.commductor">
+    package="nus.cs4347.commductor"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
 
+    <uses-sdk tools:overrideLibrary="com.anthonymandra.widget" />
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -23,11 +25,14 @@
             android:name=".MenuActivity"
             android:screenOrientation="portrait">
         </activity>
-        <activity android:name=".ClientLobbyActivity">
+        <activity android:name=".ClientLobbyActivity"
+            android:screenOrientation="portrait">
         </activity>
-        <activity android:name=".ServerLobbyActivity">
+        <activity android:name=".ServerLobbyActivity"
+            android:screenOrientation="portrait">
         </activity>
-        <activity android:name=".InstrumentTriangleActivity">
+        <activity android:name=".InstrumentTriangleActivity"
+            android:screenOrientation="portrait">
         </activity>
         <activity android:name=".InstrumentPianoActivity"
             android:screenOrientation="landscape">
@@ -40,6 +45,7 @@
             android:name=".ConductorActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_conductor"
+            android:screenOrientation="portrait"
             android:theme="@style/FullscreenTheme">
         </activity>
     </application>

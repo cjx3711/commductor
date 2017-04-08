@@ -100,7 +100,7 @@ public class InstrumentTriangleActivity extends InstrumentPreRecordedActivity {
             findViewById(R.id.image_triangle).setVisibility(View.GONE);
         } else {
             findViewById(R.id.layout_coconut).setVisibility(View.GONE);
-            canPlay = false;
+            canPlay = true;
         }
 
         final Runnable updateTextRunnable = new Runnable() {
